@@ -1,8 +1,12 @@
 #include <spot/robot_id.h>
 
+RobotIdClient::RobotIdClient(const std::string &server) {
+	stub_ = RobotIdService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(grpc::SslCredentialsOptions())));
+}
+
 RobotIdClient::RobotIdClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
-  grpc::SslCredentialsOptions opts = {root, key, cert};
-  stub_ = RobotIdService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
+  //grpc::SslCredentialsOptions opts = {root, key, cert};
+  stub_ = RobotIdService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(grpc::SslCredentialsOptions())));
 }
 
 RobotIdResponse RobotIdClient::getId(){
