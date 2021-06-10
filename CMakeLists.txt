@@ -129,3 +129,67 @@ include_files_service(data_buffer)
 # docking
 include_files_docking_service(docking)
 
+add_executable(spot
+  src/*
+
+  # deps
+  ${HEADER}
+  ${FULL_BODY_COMMAND}
+  ${MOBILITY_COMMAND}
+  ${BASIC_COMMAND}
+  ${ARM_COMMAND}
+  ${GRIPPER_COMMAND}
+  ${SYNCHRONIZED_COMMAND}
+  ${TIME_RANGE}
+  ${PAYLOAD_ESTIMATION}
+  ${TRAJECTORY}
+  ${PARAMETER}
+  ${GEOMETRY}
+  ${TIME_SYNC}
+  ${LICENSE}
+  ${SERVICE_FAULT}
+
+  # temp
+  ${DOCKING}
+
+  # base
+  ${AUTH}
+  ${DIRECTORY}
+  ${LOG_ANNOTATION}
+  ${ROBOT_ID}
+  ${TIME_SYNC}
+
+  # payloads
+  ${DIRECTORY_REGISTRATION}
+  ${PAYLOAD}
+
+  # state
+  ${IMAGE}
+  ${LOCAL_GRID}
+  ${ROBOT_STATE}
+  ${WORLD_OBJECT}
+
+  # control
+  ${ESTOP}
+  ${LEASE}
+  ${POWER}
+  ${ROBOT_COMMAND}
+  ${SPOT_CHECK}
+
+  # data
+  ${DATA}
+  ${DATA_INDEX}
+  ${DATA_CHUNK}
+  ${DATA_ACQUISITION_PLUGIN_SERVICE}
+  ${DATA_ACQUISITION}
+  ${DATA_ACQUISITION_STORE}
+  ${DATA_BUFFER})
+
+set(LINK_LIBRARIES 
+  ${catkin_LIBRARIES}
+  ${Protobuf_LIBRARIES}
+  ${_GRPC_GRPCPP}
+  ${_PROTOBUF_LIBPROTOBUF}
+)
+
+target_link_libraries(spot ${LINK_LIBRARIES})
