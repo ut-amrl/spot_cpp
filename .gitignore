@@ -1,0 +1,14 @@
+# standard
+.vscode/
+
+# no protoc generated files
+*.pb.h                                                                                                                                                  
+*.grpc.pb.h                                                                                                                                                   
+*.grpc.pb.cc                                                                                                                                                  
+*.pb.cc                                                                                                                                                       
+
+# emacs and vim 
+.#*
+*.swp
+
+

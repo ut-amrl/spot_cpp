@@ -1,0 +1,131 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(spot_comm)
+add_compile_options(-std=c++11)
+
+find_package(Eigen3 REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
+message(STATUS "Using protobuf ${protobuf_VERSION}")
+
+set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+find_package(gRPC CONFIG REQUIRED)
+set(_REFLECTION gRPC::grpc++_reflection)
+set(_GRPC_GRPCPP gRPC::grpc++)
+message(STATUS "Using gRPC ${gRPC_VERSION}")
+
+find_package(Threads REQUIRED)
+
+###########
+## Build ##
+###########
+
+
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${Eigen_INCLUDE_DIRS}
+  ${Protobuf_INCLUDE_DIRS}
+)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+function(include_files name)
+    string(TOUPPER ${name} upperName)
+    set (${upperName} include/bosdyn/api/${name}.pb.cc 
+    		      include/bosdyn/api/${name}.grpc.pb.cc 
+		      PARENT_SCOPE)
+endfunction()
+
+function(include_files_service name)
+    string(TOUPPER ${name} upperName)
+    set (${upperName} include/bosdyn/api/${name}.pb.cc 
+    		      include/bosdyn/api/${name}.grpc.pb.cc 
+		      include/bosdyn/api/${name}_service.pb.cc 
+		      include/bosdyn/api/${name}_service.grpc.pb.cc 
+		      PARENT_SCOPE)
+endfunction()
+
+function(include_service name)
+    string(TOUPPER ${name} upperName)
+    set (${upperName} include/bosdyn/api/${name}_service.pb.cc 
+		      include/bosdyn/api/${name}_service.grpc.pb.cc 
+		      PARENT_SCOPE)
+endfunction()
+
+
+function(include_files_spot name)
+    string(TOUPPER ${name} upperName)
+    set (${upperName} include/bosdyn/api/spot/${name}.pb.cc 
+    		      include/bosdyn/api/spot/${name}.grpc.pb.cc 
+		      PARENT_SCOPE)
+endfunction()
+
+function(include_files_spot_service name)
+    string(TOUPPER ${name} upperName)
+    set (${upperName} include/bosdyn/api/spot/${name}.pb.cc 
+    		      include/bosdyn/api/spot/${name}.grpc.pb.cc 
+		      include/bosdyn/api/spot/${name}_service.pb.cc 
+		      include/bosdyn/api/spot/${name}_service.grpc.pb.cc 
+		      PARENT_SCOPE)
+endfunction()
+
+function(include_files_docking_service name)
+    string(TOUPPER ${name} upperName)
+    set (${upperName} include/bosdyn/api/docking/${name}.pb.cc 
+    		      include/bosdyn/api/docking/${name}.grpc.pb.cc 
+		      include/bosdyn/api/docking/${name}_service.pb.cc 
+		      include/bosdyn/api/docking/${name}_service.grpc.pb.cc 
+		      PARENT_SCOPE)
+endfunction()
+
+# deps
+include_files(header)
+include_files(geometry)
+include_files(trajectory)
+include_files(arm_command)
+include_files(full_body_command)
+include_files(mobility_command)
+include_files(basic_command)
+include_files(gripper_command)
+include_files(synchronized_command)
+include_files(parameter)
+include_files(service_fault)
+include_files(payload_estimation)
+include_files(time_range)
+
+# base
+include_files_service(auth)
+include_files_service(directory)
+include_files_service(log_annotation)
+include_files_service(time_sync)
+include_files_service(robot_id)
+
+# payloads
+include_files_service(directory_registration)
+include_files_service(payload)
+
+# state
+include_files_service(image)
+include_files_service(local_grid)
+include_files_service(robot_state)
+include_files_service(world_object)
+
+# control
+include_files_service(estop)
+include_files_service(lease)
+include_files_service(power)
+include_files_service(robot_command)
+include_files_spot_service(spot_check)
+include_files_service(license)
+
+# data
+include_service(data)
+include_files(data_index)
+include_files(data_chunk)
+include_files(data_acquisition_plugin_service)
+include_files_service(data_acquisition)
+include_files_service(data_store)
+include_files_service(data_buffer)
+
+# docking
+include_files_docking_service(docking)
+
