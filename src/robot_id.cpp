@@ -7,11 +7,11 @@ RobotIdClient::RobotIdClient(const std::string& cert, const std::string& key, co
 
 RobotIdResponse RobotIdClient::getId(){
   // Data we are sending to the server.
-  RobotIdClientRequest request;
+  RobotIdRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   
   // Container for the data we expect from the server.
-  RobotIdClientResponse reply;
+  RobotIdResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -33,11 +33,11 @@ RobotIdResponse RobotIdClient::getId(){
 
 RobotIdResponse RobotIdClient::getIdAsync(){
   // Data we are sending to the server.
-  RobotIdClientRequest request;
+  RobotIdRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   
   // Container for the data we expect from the server.
-  RobotIdClientResponse reply;
+  RobotIdResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.

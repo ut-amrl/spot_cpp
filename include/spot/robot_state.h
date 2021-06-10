@@ -16,8 +16,6 @@
 #include "bosdyn/api/geometry.grpc.pb.h"
 #include <google/protobuf/util/time_util.h>
 #include "bosdyn/api/header.grpc.pb.h"
-#include <ros/ros.h>
-#include <ros/package.h>
 
 using bosdyn::api::RobotStateService;
 using bosdyn::api::RobotStateRequest;

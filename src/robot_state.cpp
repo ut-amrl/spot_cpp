@@ -2,19 +2,19 @@
 
 RobotStateClient::RobotStateClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
   grpc::SslCredentialsOptions opts = {root, key, cert};
-  stub_ = RobotStateClientService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
+  stub_ = RobotStateService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
 } 
 
 // Assembles the client's payload, sends it and presents the response back
 // from the server.
 RobotStateResponse RobotStateClient::GetRobotState() {
   // Data we are sending to the server.
-  RobotStateClientRequest request;
+  RobotStateRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   
   
   // Container for the data we expect from the server.
-  RobotStateClientResponse reply;
+  RobotStateResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -42,12 +42,12 @@ RobotStateResponse RobotStateClient::GetRobotState() {
 
 RobotStateResponse RobotStateClient::getRobotState(){
   // Data we are sending to the server.
-  RobotStateClientRequest request;
+  RobotStateRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
 
 
   // Container for the data we expect from the server.
-  RobotStateClientResponse reply;
+  RobotStateResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -72,12 +72,12 @@ RobotStateResponse RobotStateClient::getRobotState(){
 }
 RobotStateResponse RobotStateClient::getRobotStateAsync(){
   // Data we are sending to the server.
-  RobotStateClientRequest request;
+  RobotStateRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
 
 
   // Container for the data we expect from the server.
-  RobotStateClientResponse reply;
+  RobotStateResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.

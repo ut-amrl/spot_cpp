@@ -9,14 +9,14 @@ RobotCommandClient::RobotCommandClient(const std::string& cert, const std::strin
 // from the server.
 RobotCommandResponse RobotCommandClient::startRobotCommand(Lease lease, RobotCommand command) {
   // Data we are sending to the server.
-  RobotCommandClientRequest request;
+  RobotCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   request.mutable_lease()->CopyFrom(lease);
   request.mutable_command()->CopyFrom(command);
   request.set_clock_identifier("spot_time_sync");
   
   // Container for the data we expect from the server.
-  RobotCommandClientResponse reply;
+  RobotCommandResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -40,14 +40,14 @@ RobotCommandResponse RobotCommandClient::startRobotCommand(Lease lease, RobotCom
 // from the server. Asynchronous
 RobotCommandResponse RobotCommandClient::robotCommandAsync(Lease lease, RobotCommand command){
   // Data we are sending to the server.
-  RobotCommandClientRequest request;
+  RobotCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   request.mutable_lease()->CopyFrom(lease);
   request.mutable_command()->CopyFrom(command);
   request.set_clock_identifier("spot_time_sync");
   
   // Container for the data we expect from the server.
-  RobotCommandClientResponse reply;
+  RobotCommandResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -85,12 +85,12 @@ RobotCommandResponse RobotCommandClient::robotCommandAsync(Lease lease, RobotCom
 // Get feedback from a previously issued command.
 RobotCommandFeedbackResponse RobotCommandClient::robotCommandFeedback(uint32_t robotCommandId){
   // Data we are sending to the server.
-  RobotCommandClientFeedbackRequest request;
+  RobotCommandFeedbackRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   request.set_robot_command_id(robotCommandId);
   
   // Container for the data we expect from the server.
-  RobotCommandClientFeedbackResponse reply;
+  RobotCommandFeedbackResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -117,12 +117,12 @@ RobotCommandFeedbackResponse RobotCommandClient::robotCommandFeedback(uint32_t r
 // Get feedback from a previously issued command. Asynchronous
 RobotCommandFeedbackResponse RobotCommandClient::robotCommandFeedbackAsync(uint32_t robotCommandId){
   // Data we are sending to the server.
-  RobotCommandClientFeedbackRequest request;
+  RobotCommandFeedbackRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   request.set_robot_command_id(robotCommandId);
   
   // Container for the data we expect from the server.
-  RobotCommandClientFeedbackResponse reply;
+  RobotCommandFeedbackResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.

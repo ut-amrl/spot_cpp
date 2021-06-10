@@ -17,9 +17,6 @@
 #include "bosdyn/api/lease_service.grpc.pb.h"
 #include <google/protobuf/util/time_util.h>
 
-#include <geometry_msgs/Twist.h>
-#include <spot_comm/VelocityCommand.h>
-
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;

@@ -130,7 +130,17 @@ include_files_service(data_buffer)
 include_files_docking_service(docking)
 
 add_executable(spot
-  src/*
+  src/auth.cpp
+  src/image.cpp
+  src/power.cpp
+  src/robot_id.cpp
+  src/spot_check.cpp
+  src/time_sync.cpp
+  src/estop.cpp
+  src/lease.cpp
+  src/robot_command.cpp
+  src/robot_state.cpp
+  src/spot.cpp
 
   # deps
   ${HEADER}

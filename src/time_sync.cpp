@@ -9,7 +9,7 @@ TimeSyncClient::TimeSyncClient(const std::string& cert, const std::string& key, 
 // from the server.
 TimeSyncUpdateResponse TimeSyncClient::TimeSyncUpdate(TimeSyncUpdateRequest request, const std::string& clock_identifier) {
     // Container for the data we expect from the server.
-    TimeSyncClientUpdateResponse reply;
+    TimeSyncUpdateResponse reply;
 
     // Context for the client. It could be used to convey extra information to
     // the server and/or tweak certain RPC behaviors.
@@ -31,18 +31,18 @@ TimeSyncUpdateResponse TimeSyncClient::TimeSyncUpdate(TimeSyncUpdateRequest requ
         
 TimeSyncUpdateResponse TimeSyncClient::EstablishTimeSync(const int& numRounds) {
     const std::string clock_identifier("spot_time_sync");
-    TimeSyncClientUpdateResponse reply;
-    TimeSyncClientUpdateRequest request;
+    TimeSyncUpdateResponse reply;
+    TimeSyncUpdateRequest request;
     Duration averageSkew;
     // Keep track of best estimate overall
-    TimeSyncClientState best;
+    TimeSyncState best;
     best.mutable_best_estimate()->mutable_round_trip_time()->set_seconds(INT64_MAX);
     int numLows = 0;
 
-    for(int i = 0; i <= numRounds && (reply.state().status() != TimeSyncClientState::STATUS_UNKNOWN || i == 0); i++) {
+    for(int i = 0; i <= numRounds && (reply.state().status() != TimeSyncState::STATUS_UNKNOWN || i == 0); i++) {
       request.set_clock_identifier(clock_identifier);
 
-      reply = TimeSyncClientUpdate(request, clock_identifier);
+      reply = TimeSyncUpdate(request, clock_identifier);
 
       // Update timestamps from previous round trip
       request.mutable_previous_round_trip()->mutable_client_rx()->CopyFrom(TimeUtil::GetCurrentTime());
