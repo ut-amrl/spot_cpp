@@ -1,11 +1,11 @@
-#include <spot_comm/image.h>
+#include <spot/image.h>
 
-Image::Image(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
+ImageClient::ImageClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
   grpc::SslCredentialsOptions opts = {root, key, cert};
   stub_ = ImageService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
 }
 
-ListImageSourcesResponse Image::listImageSources(){
+ListImageSourcesResponse ImageClient::listImageSources(){
   // Data we are sending to the server.
   ListImageSourcesRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -31,7 +31,7 @@ ListImageSourcesResponse Image::listImageSources(){
 }
 
 
-GetImageResponse Image::getImage(std::vector<ImageRequest> imageRequests){
+GetImageResponse ImageClient::getImage(std::vector<ImageRequest> imageRequests){
   // Data we are sending to the server.
   GetImageRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -60,7 +60,7 @@ GetImageResponse Image::getImage(std::vector<ImageRequest> imageRequests){
 }
 
 
-GetImageResponse Image::getImageAsync(std::vector<ImageRequest> imageRequests){
+GetImageResponse ImageClient::getImageAsync(std::vector<ImageRequest> imageRequests){
   // Data we are sending to the server.
   GetImageRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());

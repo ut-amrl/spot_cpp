@@ -1,20 +1,20 @@
 #include <spot/robot_state.h>
 
-RobotState::RobotState(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
+RobotStateClient::RobotStateClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
   grpc::SslCredentialsOptions opts = {root, key, cert};
-  stub_ = RobotStateService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
+  stub_ = RobotStateClientService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
 } 
 
 // Assembles the client's payload, sends it and presents the response back
 // from the server.
-RobotStateResponse RobotState::GetRobotState() {
+RobotStateResponse RobotStateClient::GetRobotState() {
   // Data we are sending to the server.
-  RobotStateRequest request;
+  RobotStateClientRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   
   
   // Container for the data we expect from the server.
-  RobotStateResponse reply;
+  RobotStateClientResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -40,14 +40,14 @@ RobotStateResponse RobotState::GetRobotState() {
 
 // new 
 
-RobotStateResponse RobotState::getRobotState(){
+RobotStateResponse RobotStateClient::getRobotState(){
   // Data we are sending to the server.
-  RobotStateRequest request;
+  RobotStateClientRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
 
 
   // Container for the data we expect from the server.
-  RobotStateResponse reply;
+  RobotStateClientResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -70,14 +70,14 @@ RobotStateResponse RobotState::getRobotState(){
 
   return reply;
 }
-RobotStateResponse RobotState::getRobotStateAsync(){
+RobotStateResponse RobotStateClient::getRobotStateAsync(){
   // Data we are sending to the server.
-  RobotStateRequest request;
+  RobotStateClientRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
 
 
   // Container for the data we expect from the server.
-  RobotStateResponse reply;
+  RobotStateClientResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -105,7 +105,7 @@ RobotStateResponse RobotState::getRobotStateAsync(){
 
   return reply;
 }
-RobotMetricsResponse RobotState::getRobotMetrics(){
+RobotMetricsResponse RobotStateClient::getRobotMetrics(){
   // Data we are sending to the server.
   RobotMetricsRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -136,7 +136,7 @@ RobotMetricsResponse RobotState::getRobotMetrics(){
   return reply;
 }
 
-RobotMetricsResponse RobotState::getRobotMetricsAsync(){
+RobotMetricsResponse RobotStateClient::getRobotMetricsAsync(){
   // Data we are sending to the server.
   RobotMetricsRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -173,7 +173,7 @@ RobotMetricsResponse RobotState::getRobotMetricsAsync(){
 
 }
 
-RobotHardwareConfigurationResponse RobotState::getRobotHardwareConfiguration(){
+RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfiguration(){
   // Data we are sending to the server.
   RobotHardwareConfigurationRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -204,7 +204,7 @@ RobotHardwareConfigurationResponse RobotState::getRobotHardwareConfiguration(){
   return reply;
 }
 
-RobotHardwareConfigurationResponse RobotState::getRobotHardwareConfigurationAsync(){
+RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfigurationAsync(){
   // Data we are sending to the server.
   RobotHardwareConfigurationRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -240,7 +240,7 @@ RobotHardwareConfigurationResponse RobotState::getRobotHardwareConfigurationAsyn
   return reply;
 }
 
-RobotLinkModelResponse RobotState::getRobotLinkModel(const std::string &linkName){
+RobotLinkModelResponse RobotStateClient::getRobotLinkModel(const std::string &linkName){
   // Data we are sending to the server.
   RobotLinkModelRequest request;
   request.set_link_name(linkName);
@@ -272,7 +272,7 @@ RobotLinkModelResponse RobotState::getRobotLinkModel(const std::string &linkName
   return reply;
 }
 
-RobotLinkModelResponse RobotState::getRobotLinkModelAsync(const std::string &linkName){
+RobotLinkModelResponse RobotStateClient::getRobotLinkModelAsync(const std::string &linkName){
   // Data we are sending to the server.
   RobotLinkModelRequest request;
   request.set_link_name(linkName);
@@ -309,7 +309,7 @@ RobotLinkModelResponse RobotState::getRobotLinkModelAsync(const std::string &lin
   return reply;
 }
 
-RobotHardwareConfigurationResponse RobotState::getHardwareConfigWithLinkInfo(){
+RobotHardwareConfigurationResponse RobotStateClient::getHardwareConfigWithLinkInfo(){
   // Data we are sending to the server.
   RobotHardwareConfigurationRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());

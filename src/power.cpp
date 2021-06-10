@@ -1,11 +1,11 @@
-#include <spot_comm/power.h>
+#include <spot/power.h>
 
-Power::Power(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
+PowerClient::PowerClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
   grpc::SslCredentialsOptions opts = {root, key, cert};
   stub_ = PowerService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
 }
 
-PowerCommandResponse Power::PowerCommand(Lease lease, PowerCommandRequest_Request powerRequest) {
+PowerCommandResponse PowerClient::PowerCommand(Lease lease, PowerCommandRequest_Request powerRequest) {
   // Data we are sending to the server.
   PowerCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -34,7 +34,7 @@ PowerCommandResponse Power::PowerCommand(Lease lease, PowerCommandRequest_Reques
 }
 
 
-PowerCommandResponse Power::PowerCommandAsync(Lease lease, PowerCommandRequest_Request powerRequest) {
+PowerCommandResponse PowerClient::PowerCommandAsync(Lease lease, PowerCommandRequest_Request powerRequest) {
   // Data we are sending to the server.
   PowerCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -79,7 +79,7 @@ PowerCommandResponse Power::PowerCommandAsync(Lease lease, PowerCommandRequest_R
 
 
 
-PowerCommandFeedbackResponse Power::PowerCommandFeedback(uint32_t powerCommandId) {
+PowerCommandFeedbackResponse PowerClient::PowerCommandFeedback(uint32_t powerCommandId) {
   // Data we are sending to the server.
   PowerCommandFeedbackRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -107,7 +107,7 @@ PowerCommandFeedbackResponse Power::PowerCommandFeedback(uint32_t powerCommandId
 }
 
 
-PowerCommandFeedbackResponse Power::PowerCommandFeedbackAsync(uint32_t powerCommandId) {
+PowerCommandFeedbackResponse PowerClient::PowerCommandFeedbackAsync(uint32_t powerCommandId) {
   // Data we are sending to the server.
   PowerCommandFeedbackRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());

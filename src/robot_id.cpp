@@ -1,17 +1,17 @@
-#include <spot_comm/robot_id.h>
+#include <spot/robot_id.h>
 
-RobotId::RobotId(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
+RobotIdClient::RobotIdClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
   grpc::SslCredentialsOptions opts = {root, key, cert};
   stub_ = RobotIdService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
 }
 
-RobotIdResponse RobotId::getId(){
+RobotIdResponse RobotIdClient::getId(){
   // Data we are sending to the server.
-  RobotIdRequest request;
+  RobotIdClientRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   
   // Container for the data we expect from the server.
-  RobotIdResponse reply;
+  RobotIdClientResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.
@@ -31,13 +31,13 @@ RobotIdResponse RobotId::getId(){
 }
 
 
-RobotIdResponse RobotId::getIdAsync(){
+RobotIdResponse RobotIdClient::getIdAsync(){
   // Data we are sending to the server.
-  RobotIdRequest request;
+  RobotIdClientRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   
   // Container for the data we expect from the server.
-  RobotIdResponse reply;
+  RobotIdClientResponse reply;
 
   // Context for the client. It could be used to convey extra information to
   // the server and/or tweak certain RPC behaviors.

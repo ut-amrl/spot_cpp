@@ -1,15 +1,15 @@
-#include <spot_comm/time_sync.h>
+#include <spot/time_sync.h>
 
-TimeSync::TimeSync(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
+TimeSyncClient::TimeSyncClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
     grpc::SslCredentialsOptions opts = {root, key, cert};
     stub_ = TimeSyncService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
 }
 
 // Assembles the client's payload, sends it and presents the response back
 // from the server.
-TimeSyncUpdateResponse TimeSync::TimeSyncUpdate(TimeSyncUpdateRequest request, const std::string& clock_identifier) {
+TimeSyncUpdateResponse TimeSyncClient::TimeSyncUpdate(TimeSyncUpdateRequest request, const std::string& clock_identifier) {
     // Container for the data we expect from the server.
-    TimeSyncUpdateResponse reply;
+    TimeSyncClientUpdateResponse reply;
 
     // Context for the client. It could be used to convey extra information to
     // the server and/or tweak certain RPC behaviors.
@@ -29,20 +29,20 @@ TimeSyncUpdateResponse TimeSync::TimeSyncUpdate(TimeSyncUpdateRequest request, c
     return reply;
 }
         
-TimeSyncUpdateResponse TimeSync::EstablishTimeSync(const int& numRounds) {
+TimeSyncUpdateResponse TimeSyncClient::EstablishTimeSync(const int& numRounds) {
     const std::string clock_identifier("spot_time_sync");
-    TimeSyncUpdateResponse reply;
-    TimeSyncUpdateRequest request;
+    TimeSyncClientUpdateResponse reply;
+    TimeSyncClientUpdateRequest request;
     Duration averageSkew;
     // Keep track of best estimate overall
-    TimeSyncState best;
+    TimeSyncClientState best;
     best.mutable_best_estimate()->mutable_round_trip_time()->set_seconds(INT64_MAX);
     int numLows = 0;
 
-    for(int i = 0; i <= numRounds && (reply.state().status() != TimeSyncState::STATUS_UNKNOWN || i == 0); i++) {
+    for(int i = 0; i <= numRounds && (reply.state().status() != TimeSyncClientState::STATUS_UNKNOWN || i == 0); i++) {
       request.set_clock_identifier(clock_identifier);
 
-      reply = TimeSyncUpdate(request, clock_identifier);
+      reply = TimeSyncClientUpdate(request, clock_identifier);
 
       // Update timestamps from previous round trip
       request.mutable_previous_round_trip()->mutable_client_rx()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -77,7 +77,7 @@ TimeSyncUpdateResponse TimeSync::EstablishTimeSync(const int& numRounds) {
     return reply;
 }
 
-TimeSyncUpdateResponse TimeSync::getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier) {
+TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier) {
 	TimeSyncUpdateRequest request;
 	request.set_clock_identifier(clockIdentifier);
 	request.mutable_previous_round_trip()->CopyFrom(previousRoundTrip);
@@ -96,7 +96,7 @@ TimeSyncUpdateResponse TimeSync::getTimeSyncUpdate(const TimeSyncRoundTrip &prev
 	return reply;
 }
 
-TimeSyncUpdateResponse TimeSync::getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier) {
+TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier) {
 	TimeSyncUpdateRequest request;
 	request.set_clock_identifier(clockIdentifier);
 	request.mutable_previous_round_trip()->CopyFrom(previousRoundTrip);

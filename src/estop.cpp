@@ -1,13 +1,13 @@
-#include <spot_comm/estop.h>
+#include <spot/estop.h>
 
-Estop::Estop(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
+EstopClient::EstopClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
   grpc::SslCredentialsOptions opts = {root, key, cert};
   stub_ = EstopService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
 }
 
 // Assembles the client's payload, sends it and presents the response back
 // from the server.
-std::string Estop::RegisterEstopEndpoint(EstopEndpoint new_endpoint) {
+std::string EstopClient::RegisterEstopEndpoint(EstopEndpoint new_endpoint) {
   // Data we are sending to the server.
   RegisterEstopEndpointRequest request;
   request.mutable_new_endpoint()->CopyFrom(new_endpoint);
@@ -35,7 +35,7 @@ std::string Estop::RegisterEstopEndpoint(EstopEndpoint new_endpoint) {
   }
 }
  
-RegisterEstopEndpointResponse Estop::registerEndpoint(const std::string &targetConfigId, EstopEndpoint &endpoint) {
+RegisterEstopEndpointResponse EstopClient::registerEndpoint(const std::string &targetConfigId, EstopEndpoint &endpoint) {
 	RegisterEstopEndpointRequest request;
 	request.mutable_new_endpoint()->CopyFrom(endpoint);
 
@@ -54,7 +54,7 @@ RegisterEstopEndpointResponse Estop::registerEndpoint(const std::string &targetC
 	return reply;
 }
 
-RegisterEstopEndpointResponse Estop::registerEndpointAsync(const std::string &targetConfigId, EstopEndpoint &endpoint) {
+RegisterEstopEndpointResponse EstopClient::registerEndpointAsync(const std::string &targetConfigId, EstopEndpoint &endpoint) {
 	RegisterEstopEndpointRequest request;
 	request.mutable_new_endpoint()->CopyFrom(endpoint);
 	
@@ -87,7 +87,7 @@ RegisterEstopEndpointResponse Estop::registerEndpointAsync(const std::string &ta
 	return reply;
 }
 
-DeregisterEstopEndpointResponse Estop::deregister(const std::string &targetConfigId, EstopEndpoint &endpoint) {
+DeregisterEstopEndpointResponse EstopClient::deregister(const std::string &targetConfigId, EstopEndpoint &endpoint) {
 	// populate request
 	DeregisterEstopEndpointRequest request;
 	request.mutable_target_endpoint()->CopyFrom(endpoint);
@@ -108,7 +108,7 @@ DeregisterEstopEndpointResponse Estop::deregister(const std::string &targetConfi
 	return reply;
 }
 
-DeregisterEstopEndpointResponse Estop::deregisterAsync(const std::string &targetConfigId, EstopEndpoint &endpoint) {
+DeregisterEstopEndpointResponse EstopClient::deregisterAsync(const std::string &targetConfigId, EstopEndpoint &endpoint) {
 	DeregisterEstopEndpointRequest request;
 	request.mutable_target_endpoint()->CopyFrom(endpoint);
 	request.set_target_config_id(targetConfigId);
@@ -141,7 +141,7 @@ DeregisterEstopEndpointResponse Estop::deregisterAsync(const std::string &target
 	return reply;
 }
 
-GetEstopConfigResponse Estop::getConfig(const std::string &targetConfigId) {
+GetEstopConfigResponse EstopClient::getConfig(const std::string &targetConfigId) {
 	GetEstopConfigRequest request;
 	request.set_target_config_id(targetConfigId);
 
@@ -160,7 +160,7 @@ GetEstopConfigResponse Estop::getConfig(const std::string &targetConfigId) {
 	return reply;
 }
 
-GetEstopConfigResponse Estop::getConfigAsync(const std::string &targetConfigId) {
+GetEstopConfigResponse EstopClient::getConfigAsync(const std::string &targetConfigId) {
 	GetEstopConfigRequest request;
 	request.set_target_config_id(targetConfigId);
 
@@ -192,7 +192,7 @@ GetEstopConfigResponse Estop::getConfigAsync(const std::string &targetConfigId) 
 	return reply;
 }
 
-SetEstopConfigResponse Estop::setConfig(EstopConfig &config, std::string targetConfigId) {
+SetEstopConfigResponse EstopClient::setConfig(EstopConfig &config, std::string targetConfigId) {
 	SetEstopConfigRequest request;
 	request.mutable_config()->CopyFrom(config);
 	request.set_target_config_id(targetConfigId);
@@ -212,7 +212,7 @@ SetEstopConfigResponse Estop::setConfig(EstopConfig &config, std::string targetC
 	return reply;
 }
 
-SetEstopConfigResponse Estop::setConfigAsync(EstopConfig &config, std::string targetConfigId) {
+SetEstopConfigResponse EstopClient::setConfigAsync(EstopConfig &config, std::string targetConfigId) {
 	SetEstopConfigRequest request;
 	request.mutable_config()->CopyFrom(config);
 	request.set_target_config_id(targetConfigId);
@@ -245,7 +245,7 @@ SetEstopConfigResponse Estop::setConfigAsync(EstopConfig &config, std::string ta
 	return reply;
 }
 
-GetEstopSystemStatusResponse Estop::getStatus() {
+GetEstopSystemStatusResponse EstopClient::getStatus() {
 	GetEstopSystemStatusRequest request;
 
 	GetEstopSystemStatusResponse reply;
@@ -263,7 +263,7 @@ GetEstopSystemStatusResponse Estop::getStatus() {
 	return reply;
 }
 
-GetEstopSystemStatusResponse Estop::getStatusAsync() {
+GetEstopSystemStatusResponse EstopClient::getStatusAsync() {
 	GetEstopSystemStatusRequest request;
 
 	GetEstopSystemStatusResponse reply;
@@ -294,7 +294,7 @@ GetEstopSystemStatusResponse Estop::getStatusAsync() {
 	return reply;
 }
 
-EstopCheckInResponse Estop::checkIn(EstopStopLevel &stopLevel, EstopEndpoint &endpoint, uint64_t challenge, uint64_t response, bool suppress_incorrect) {
+EstopCheckInResponse EstopClient::checkIn(EstopStopLevel &stopLevel, EstopEndpoint &endpoint, uint64_t challenge, uint64_t response, bool suppress_incorrect) {
 	// TODO: implement logic for suppress_incorrect
 	EstopCheckInRequest request;
 
@@ -318,7 +318,7 @@ EstopCheckInResponse Estop::checkIn(EstopStopLevel &stopLevel, EstopEndpoint &en
 	return reply;
 }
 
-EstopCheckInResponse Estop::checkInAsync(EstopStopLevel &stopLevel, EstopEndpoint &endpoint, uint64_t challenge, uint64_t response, bool suppress_incorrect) {
+EstopCheckInResponse EstopClient::checkInAsync(EstopStopLevel &stopLevel, EstopEndpoint &endpoint, uint64_t challenge, uint64_t response, bool suppress_incorrect) {
 	EstopCheckInRequest request;
 	request.set_challenge(challenge);
 	request.set_response(response);

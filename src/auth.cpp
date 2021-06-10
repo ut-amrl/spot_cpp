@@ -1,11 +1,11 @@
-#include <spot_comm/auth.h>
+#include <spot/auth.h>
 
-Auth::Auth(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
+AuthClient::AuthClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
   grpc::SslCredentialsOptions opts = {root, key, cert};
   stub_ = AuthService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
 }
 
-std::string Auth::GetAuthToken(const std::string& user, const std::string& pass) {
+std::string AuthClient::GetAuthToken(const std::string& user, const std::string& pass) {
   // Data we are sending to the server.
   GetAuthTokenRequest request;
   request.set_username(user);
@@ -33,7 +33,7 @@ std::string Auth::GetAuthToken(const std::string& user, const std::string& pass)
   }
 }
 
-GetAuthTokenResponse Auth::auth(const std::string &user, const std::string &pass) {
+GetAuthTokenResponse AuthClient::auth(const std::string &user, const std::string &pass) {
 	// populate request
 	GetAuthTokenRequest request;
 	request.set_username(user);
@@ -54,7 +54,7 @@ GetAuthTokenResponse Auth::auth(const std::string &user, const std::string &pass
 	return response;
 }
 
-GetAuthTokenResponse Auth::authAsync(const std::string &user, const std::string &pass) {
+GetAuthTokenResponse AuthClient::authAsync(const std::string &user, const std::string &pass) {
 	GetAuthTokenRequest request;
 	request.set_username(user);
 	request.set_password(pass);
@@ -100,7 +100,7 @@ GetAuthTokenResponse Auth::authAsync(const std::string &user, const std::string 
 	return response;
 }
 
-GetAuthTokenResponse Auth::authWithToken(const std::string &token) {
+GetAuthTokenResponse AuthClient::authWithToken(const std::string &token) {
 	GetAuthTokenRequest request;
 	request.set_token(token);
 
@@ -119,7 +119,7 @@ GetAuthTokenResponse Auth::authWithToken(const std::string &token) {
 	return response;
 }
 
-GetAuthTokenResponse Auth::authWithTokenAsync(const std::string &token) {
+GetAuthTokenResponse AuthClient::authWithTokenAsync(const std::string &token) {
 	GetAuthTokenRequest request;
 	request.set_token(token);
 

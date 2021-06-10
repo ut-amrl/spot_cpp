@@ -1,13 +1,13 @@
-#include <spot_comm/lease.h>
+#include <spot/lease.h>
 
-Lease::Lease(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
+LeaseClient::LeaseClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
   grpc::SslCredentialsOptions opts = {root, key, cert};
   stub_ = LeaseService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
 }
 
 // Assembles the client's payload, sends it and presents the response back
 // from the server.
-AcquireLeaseResponse Lease::AcquireLease(const std::string& resource) {
+AcquireLeaseResponse LeaseClient::AcquireLease(const std::string& resource) {
   // Data we are sending to the server.
   AcquireLeaseRequest request;
   request.set_resource(resource);
@@ -24,7 +24,7 @@ AcquireLeaseResponse Lease::AcquireLease(const std::string& resource) {
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << reply.status() << ", Lease Acquired: " << reply.lease().resource() <<
+    std::cout << "Status: " << reply.status() << ", LeaseClient Acquired: " << reply.lease().resource() <<
     ", New Owner: " << reply.lease_owner().user_name() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -33,7 +33,7 @@ AcquireLeaseResponse Lease::AcquireLease(const std::string& resource) {
   return reply;
 }
 
-TakeLeaseResponse Lease::TakeLease(const std::string& resource) {
+TakeLeaseResponse LeaseClient::TakeLease(const std::string& resource) {
   // Data we are sending to the server.
   TakeLeaseRequest request;
   request.set_resource(resource);
@@ -50,7 +50,7 @@ TakeLeaseResponse Lease::TakeLease(const std::string& resource) {
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << reply.status() << ", Lease Taken: " << reply.lease().resource() <<
+    std::cout << "Status: " << reply.status() << ", LeaseClient Taken: " << reply.lease().resource() <<
     ", New Owner: " << reply.lease_owner().user_name() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -59,7 +59,7 @@ TakeLeaseResponse Lease::TakeLease(const std::string& resource) {
   return reply;
 }
 
-ReturnLeaseResponse Lease::ReturnLease(Lease* lease) {
+ReturnLeaseResponse LeaseClient::ReturnLease(Lease* lease) {
   // Data we are sending to the server.
   ReturnLeaseRequest request;
   request.set_allocated_lease(lease);
@@ -84,7 +84,7 @@ ReturnLeaseResponse Lease::ReturnLease(Lease* lease) {
   return reply;
 }
 
-ListLeasesResponse Lease::ListLeases() {
+ListLeasesResponse LeaseClient::ListLeases() {
   // Data we are sending to the server.
   ListLeasesRequest request;
 
@@ -100,7 +100,7 @@ ListLeasesResponse Lease::ListLeases() {
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << status.ok() << std::endl << "1st Lease: " << reply.resources(0).resource() << std::endl;
+    std::cout << "Status: " << status.ok() << std::endl << "1st LeaseClient: " << reply.resources(0).resource() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
               << std::endl;
@@ -108,7 +108,7 @@ ListLeasesResponse Lease::ListLeases() {
   return reply;
 }
 
-RetainLeaseResponse Lease::RetainLease() {
+RetainLeaseResponse LeaseClient::RetainLease() {
   // Data we are sending to the server.
   RetainLeaseRequest request;
 
@@ -124,7 +124,7 @@ RetainLeaseResponse Lease::RetainLease() {
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << status.ok() << " Lease Retained: " << reply.lease_use_result().attempted_lease().resource() << std::endl;
+    std::cout << "Status: " << status.ok() << " LeaseClient Retained: " << reply.lease_use_result().attempted_lease().resource() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
               << std::endl;
@@ -134,7 +134,7 @@ RetainLeaseResponse Lease::RetainLease() {
 
 // new 
 
-AcquireLeaseResponse Lease::acquire(const std::string &resource) {
+AcquireLeaseResponse LeaseClient::acquire(const std::string &resource) {
   // Data we are sending to the server.
   AcquireLeaseRequest request;
   request.set_resource(resource);
@@ -151,7 +151,7 @@ AcquireLeaseResponse Lease::acquire(const std::string &resource) {
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << reply.status() << ", Lease Acquired: " << reply.lease().resource() <<
+    std::cout << "Status: " << reply.status() << ", LeaseClient Acquired: " << reply.lease().resource() <<
     ", New Owner: " << reply.lease_owner().user_name() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -160,7 +160,7 @@ AcquireLeaseResponse Lease::acquire(const std::string &resource) {
   return reply;  
 }
 
-AcquireLeaseResponse Lease::acquireAsync(const std::string &resource){
+AcquireLeaseResponse LeaseClient::acquireAsync(const std::string &resource){
     // Data we are sending to the server.
   AcquireLeaseRequest request;
   request.set_resource(resource);
@@ -182,7 +182,7 @@ AcquireLeaseResponse Lease::acquireAsync(const std::string &resource){
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << reply.status() << ", Lease Acquired: " << reply.lease().resource() <<
+    std::cout << "Status: " << reply.status() << ", LeaseClient Acquired: " << reply.lease().resource() <<
     ", New Owner: " << reply.lease_owner().user_name() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -191,7 +191,7 @@ AcquireLeaseResponse Lease::acquireAsync(const std::string &resource){
   return reply;
 }
 
-TakeLeaseResponse Lease::take(const std::string &resource){
+TakeLeaseResponse LeaseClient::take(const std::string &resource){
   // Data we are sending to the server.
   TakeLeaseRequest request;
   request.set_resource(resource);
@@ -208,7 +208,7 @@ TakeLeaseResponse Lease::take(const std::string &resource){
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << reply.status() << ", Lease Acquired: " << reply.lease().resource() <<
+    std::cout << "Status: " << reply.status() << ", LeaseClient Acquired: " << reply.lease().resource() <<
     ", New Owner: " << reply.lease_owner().user_name() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -217,7 +217,7 @@ TakeLeaseResponse Lease::take(const std::string &resource){
   return reply;
 }
 
-TakeLeaseResponse Lease::takeAsync(const std::string &resource){
+TakeLeaseResponse LeaseClient::takeAsync(const std::string &resource){
   // Data we are sending to the server.
   TakeLeaseRequest request;
   request.set_resource(resource);
@@ -239,7 +239,7 @@ TakeLeaseResponse Lease::takeAsync(const std::string &resource){
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << reply.status() << ", Lease Acquired: " << reply.lease().resource() <<
+    std::cout << "Status: " << reply.status() << ", LeaseClient Acquired: " << reply.lease().resource() <<
     ", New Owner: " << reply.lease_owner().user_name() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
@@ -248,7 +248,7 @@ TakeLeaseResponse Lease::takeAsync(const std::string &resource){
   return reply;
 }
 
-ReturnLeaseResponse Lease::returnLease(Lease* lease){
+ReturnLeaseResponse LeaseClient::returnLease(Lease* lease){
   // Data we are sending to the server.
   ReturnLeaseRequest request;
   request.set_allocated_lease(lease);
@@ -273,7 +273,7 @@ ReturnLeaseResponse Lease::returnLease(Lease* lease){
   return reply;
 }
 
-ReturnLeaseResponse Lease::returnLeaseAsync(Lease* lease){
+ReturnLeaseResponse LeaseClient::returnLeaseAsync(Lease* lease){
   // Data we are sending to the server.
   ReturnLeaseRequest request;
   request.set_allocated_lease(lease);
@@ -303,7 +303,7 @@ ReturnLeaseResponse Lease::returnLeaseAsync(Lease* lease){
   return reply;
 }
 
-RetainLeaseResponse Lease::retainLease(Lease &lease){
+RetainLeaseResponse LeaseClient::retainLease(Lease &lease){
   // Data we are sending to the server.
   RetainLeaseRequest request;
 
@@ -319,7 +319,7 @@ RetainLeaseResponse Lease::retainLease(Lease &lease){
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << status.ok() << " Lease Retained: " << reply.lease_use_result().attempted_lease().resource() << std::endl;
+    std::cout << "Status: " << status.ok() << " LeaseClient Retained: " << reply.lease_use_result().attempted_lease().resource() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
               << std::endl;
@@ -327,7 +327,7 @@ RetainLeaseResponse Lease::retainLease(Lease &lease){
   return reply;
 }
 
-RetainLeaseResponse Lease::retainLeaseAsync(Lease &lease){
+RetainLeaseResponse LeaseClient::retainLeaseAsync(Lease &lease){
     // Data we are sending to the server.
   RetainLeaseRequest request;
 
@@ -348,7 +348,7 @@ RetainLeaseResponse Lease::retainLeaseAsync(Lease &lease){
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << status.ok() << " Lease Retained: " << reply.lease_use_result().attempted_lease().resource() << std::endl;
+    std::cout << "Status: " << status.ok() << " LeaseClient Retained: " << reply.lease_use_result().attempted_lease().resource() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
               << std::endl;
@@ -356,7 +356,7 @@ RetainLeaseResponse Lease::retainLeaseAsync(Lease &lease){
   return reply;
 }
 
-ListLeasesResponse Lease::listLeases(bool includeFullLeaseInfo){
+ListLeasesResponse LeaseClient::listLeases(bool includeFullLeaseInfo){
   // Data we are sending to the server.
   ListLeasesRequest request;
 
@@ -372,7 +372,7 @@ ListLeasesResponse Lease::listLeases(bool includeFullLeaseInfo){
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << status.ok() << std::endl << "1st Lease: " << reply.resources(0).resource() << std::endl;
+    std::cout << "Status: " << status.ok() << std::endl << "1st LeaseClient: " << reply.resources(0).resource() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
               << std::endl;
@@ -380,7 +380,7 @@ ListLeasesResponse Lease::listLeases(bool includeFullLeaseInfo){
   return reply;	
 }
 
-ListLeasesResponse Lease::listLeasesAsync(bool includeFullLeasesInfo){
+ListLeasesResponse LeaseClient::listLeasesAsync(bool includeFullLeasesInfo){
   // Data we are sending to the server.
   ListLeasesRequest request;
 
@@ -401,7 +401,7 @@ ListLeasesResponse Lease::listLeasesAsync(bool includeFullLeasesInfo){
 
   // Act upon its status.
   if (status.ok()) {
-    std::cout << "Status: " << status.ok() << std::endl << "1st Lease: " << reply.resources(0).resource() << std::endl;
+    std::cout << "Status: " << status.ok() << std::endl << "1st LeaseClient: " << reply.resources(0).resource() << std::endl;
   } else {
     std::cout << status.error_code() << ": " << status.error_message()
               << std::endl;
