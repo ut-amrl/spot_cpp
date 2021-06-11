@@ -11,6 +11,7 @@ RobotStateResponse RobotStateClient::GetRobotState() {
   // Data we are sending to the server.
   RobotStateRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   
   
   // Container for the data we expect from the server.
@@ -44,7 +45,7 @@ RobotStateResponse RobotStateClient::getRobotState(){
   // Data we are sending to the server.
   RobotStateRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+  request.mutable_header()->set_client_name("anything");
 
   // Container for the data we expect from the server.
   RobotStateResponse reply;
@@ -74,7 +75,7 @@ RobotStateResponse RobotStateClient::getRobotStateAsync(){
   // Data we are sending to the server.
   RobotStateRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+  request.mutable_header()->set_client_name("anything");
 
   // Container for the data we expect from the server.
   RobotStateResponse reply;
@@ -109,7 +110,7 @@ RobotMetricsResponse RobotStateClient::getRobotMetrics(){
   // Data we are sending to the server.
   RobotMetricsRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+  request.mutable_header()->set_client_name("anything");
 
   // Container for the data we expect from the server.
   RobotMetricsResponse reply;
@@ -140,7 +141,7 @@ RobotMetricsResponse RobotStateClient::getRobotMetricsAsync(){
   // Data we are sending to the server.
   RobotMetricsRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+  request.mutable_header()->set_client_name("anything");
 
   // Container for the data we expect from the server.
   RobotMetricsResponse reply;
@@ -177,7 +178,7 @@ RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfigurati
   // Data we are sending to the server.
   RobotHardwareConfigurationRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+  request.mutable_header()->set_client_name("anything");
 
   // Container for the data we expect from the server.
   RobotHardwareConfigurationResponse reply;
@@ -208,7 +209,7 @@ RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfigurati
   // Data we are sending to the server.
   RobotHardwareConfigurationRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+  request.mutable_header()->set_client_name("anything");
 
   // Container for the data we expect from the server.
   RobotHardwareConfigurationResponse reply;
@@ -244,8 +245,8 @@ RobotLinkModelResponse RobotStateClient::getRobotLinkModel(const std::string &li
   // Data we are sending to the server.
   RobotLinkModelRequest request;
   request.set_link_name(linkName);
-//  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
 
   // Container for the data we expect from the server.
   RobotLinkModelResponse reply;
@@ -276,8 +277,8 @@ RobotLinkModelResponse RobotStateClient::getRobotLinkModelAsync(const std::strin
   // Data we are sending to the server.
   RobotLinkModelRequest request;
   request.set_link_name(linkName);
-//  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
 
   // Container for the data we expect from the server.
   RobotLinkModelResponse reply;
@@ -313,7 +314,7 @@ RobotHardwareConfigurationResponse RobotStateClient::getHardwareConfigWithLinkIn
   // Data we are sending to the server.
   RobotHardwareConfigurationRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+  request.mutable_header()->set_client_name("anything");
 
   // Container for the data we expect from the server.
   RobotHardwareConfigurationResponse reply;

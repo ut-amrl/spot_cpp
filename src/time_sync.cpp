@@ -16,7 +16,8 @@ TimeSyncUpdateResponse TimeSyncClient::TimeSyncUpdate(TimeSyncUpdateRequest requ
     ClientContext context;
 
     request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-
+    request.mutable_header()->set_client_name("anything");
+    
     // The actual RPC.
     Status status = stub_->TimeSyncUpdate(&context, request, &reply);
 
@@ -79,6 +80,8 @@ TimeSyncUpdateResponse TimeSyncClient::EstablishTimeSync(const int& numRounds) {
 
 TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier) {
 	TimeSyncUpdateRequest request;
+  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
 	request.set_clock_identifier(clockIdentifier);
 	request.mutable_previous_round_trip()->CopyFrom(previousRoundTrip);
 
@@ -98,7 +101,9 @@ TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate(const TimeSyncRoundTrip
 
 TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier) {
 	TimeSyncUpdateRequest request;
-	request.set_clock_identifier(clockIdentifier);
+  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
+  request.set_clock_identifier(clockIdentifier);
 	request.mutable_previous_round_trip()->CopyFrom(previousRoundTrip);
 
 	TimeSyncUpdateResponse reply;

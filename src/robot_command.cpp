@@ -11,6 +11,7 @@ RobotCommandResponse RobotCommandClient::startRobotCommand(Lease lease, RobotCom
   // Data we are sending to the server.
   RobotCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.mutable_lease()->CopyFrom(lease);
   request.mutable_command()->CopyFrom(command);
   request.set_clock_identifier("spot_time_sync");
@@ -42,6 +43,7 @@ RobotCommandResponse RobotCommandClient::robotCommandAsync(Lease lease, RobotCom
   // Data we are sending to the server.
   RobotCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.mutable_lease()->CopyFrom(lease);
   request.mutable_command()->CopyFrom(command);
   request.set_clock_identifier("spot_time_sync");
@@ -87,6 +89,7 @@ RobotCommandFeedbackResponse RobotCommandClient::robotCommandFeedback(uint32_t r
   // Data we are sending to the server.
   RobotCommandFeedbackRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.set_robot_command_id(robotCommandId);
   
   // Container for the data we expect from the server.
@@ -119,6 +122,7 @@ RobotCommandFeedbackResponse RobotCommandClient::robotCommandFeedbackAsync(uint3
   // Data we are sending to the server.
   RobotCommandFeedbackRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.set_robot_command_id(robotCommandId);
   
   // Container for the data we expect from the server.
@@ -163,6 +167,7 @@ ClearBehaviorFaultResponse RobotCommandClient::clearBehaviorFault(Lease lease, u
   // Data we are sending to the server.
   ClearBehaviorFaultRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.mutable_lease()->CopyFrom(lease);
   request.set_behavior_fault_id(behaviorFaultId);
   
@@ -197,6 +202,7 @@ ClearBehaviorFaultResponse RobotCommandClient::clearBehaviorFaultAsync(Lease lea
   // Data we are sending to the server.
   ClearBehaviorFaultRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.mutable_lease()->CopyFrom(lease);
   request.set_behavior_fault_id(behaviorFaultId);
   

@@ -9,6 +9,7 @@ ListImageSourcesResponse ImageClient::listImageSources(){
   // Data we are sending to the server.
   ListImageSourcesRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   
   // Container for the data we expect from the server.
   ListImageSourcesResponse reply;
@@ -35,6 +36,8 @@ GetImageResponse ImageClient::getImage(std::vector<ImageRequest> imageRequests){
   // Data we are sending to the server.
   GetImageRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
+
   for(ImageRequest ir : imageRequests){
 	  request.add_image_requests()->CopyFrom(ir);
   }
@@ -64,6 +67,8 @@ GetImageResponse ImageClient::getImageAsync(std::vector<ImageRequest> imageReque
   // Data we are sending to the server.
   GetImageRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
+
   for(ImageRequest ir : imageRequests){
 	  request.add_image_requests()->CopyFrom(ir);
   }

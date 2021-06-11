@@ -9,6 +9,7 @@ PowerCommandResponse PowerClient::PowerCommand(Lease lease, PowerCommandRequest_
   // Data we are sending to the server.
   PowerCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.mutable_lease()->CopyFrom(lease);
   request.set_request(powerRequest);
   
@@ -38,6 +39,7 @@ PowerCommandResponse PowerClient::PowerCommandAsync(Lease lease, PowerCommandReq
   // Data we are sending to the server.
   PowerCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.mutable_lease()->CopyFrom(lease);
   request.set_request(powerRequest);
 
@@ -83,6 +85,7 @@ PowerCommandFeedbackResponse PowerClient::PowerCommandFeedback(uint32_t powerCom
   // Data we are sending to the server.
   PowerCommandFeedbackRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.set_power_command_id(powerCommandId);
   
   // Container for the data we expect from the server.
@@ -111,6 +114,7 @@ PowerCommandFeedbackResponse PowerClient::PowerCommandFeedbackAsync(uint32_t pow
   // Data we are sending to the server.
   PowerCommandFeedbackRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
+  request.mutable_header()->set_client_name("anything");
   request.set_power_command_id(powerCommandId);
   
   // Container for the data we expect from the server.
