@@ -38,10 +38,8 @@ using grpc::Status;
 
 class EstopClient {
 public:
-  EstopClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server);
-  std::string RegisterEstopEndpoint(EstopEndpoint new_endpoint);
+  EstopClient(const std::string &root, const std::string &server);
 
-  // new
   RegisterEstopEndpointResponse registerEndpoint(const std::string &targetConfigId, EstopEndpoint &endpoint);
   RegisterEstopEndpointResponse registerEndpointAsync(const std::string &targetConfigId, EstopEndpoint &endpoint);
   DeregisterEstopEndpointResponse deregister(const std::string &targetConfigId, EstopEndpoint &endpoint); 

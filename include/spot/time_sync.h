@@ -29,11 +29,8 @@ using google::protobuf::util::TimeUtil;
 
 class TimeSyncClient {
     public: 
-        TimeSyncClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server);
-        TimeSyncUpdateResponse TimeSyncUpdate(TimeSyncUpdateRequest request, const std::string& clock_identifier);
-        TimeSyncUpdateResponse EstablishTimeSync(const int& numRounds);
+    TimeSyncClient(const std::string &root, const std::string &server);
 
-	// new
 	TimeSyncUpdateResponse getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 	TimeSyncUpdateResponse getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 

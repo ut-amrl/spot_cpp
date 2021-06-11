@@ -27,7 +27,6 @@ using google::protobuf::util::TimeUtil;
 
 class RobotIdClient{
 public:
-	RobotIdClient(const std::string &server);
 	RobotIdClient(const std::string& root, const std::string& server);
 
 	RobotIdResponse getId();

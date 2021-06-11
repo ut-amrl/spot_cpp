@@ -23,10 +23,8 @@ using bosdyn::api::AuthService;
 
 class AuthClient {
 public:
-  AuthClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server);
-  std::string GetAuthToken(const std::string& user, const std::string& pass);
+  AuthClient(const std::string &root, const std::string &server);
 
-  // new
   GetAuthTokenResponse auth(const std::string &user, const std::string &pass);
   GetAuthTokenResponse authAsync(const std::string &user, const std::string &pass);
   GetAuthTokenResponse authWithToken(const std::string &token);

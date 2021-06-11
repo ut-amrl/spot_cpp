@@ -48,11 +48,9 @@ using grpc::ClientAsyncResponseReader;
 
 
 class RobotStateClient {
- public:
-  RobotStateClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server); 
-  RobotStateResponse GetRobotState();
+public:
+  RobotStateClient(const std::string &root, const std::string &server);
   
-  //new 
   RobotStateResponse getRobotState();
   RobotStateResponse getRobotStateAsync();
   RobotMetricsResponse getRobotMetrics();
@@ -63,7 +61,7 @@ class RobotStateClient {
   RobotLinkModelResponse getRobotLinkModelAsync(const std::string &linkName);
   RobotHardwareConfigurationResponse getHardwareConfigWithLinkInfo();
 
- private:
+private:
   std::unique_ptr<RobotStateService::Stub> stub_;
 };
 

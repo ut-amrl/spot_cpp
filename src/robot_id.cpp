@@ -1,9 +1,5 @@
 #include <spot/robot_id.h>
 
-RobotIdClient::RobotIdClient(const std::string &server) {
-	stub_ = RobotIdService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(grpc::SslCredentialsOptions())));
-}
-
 RobotIdClient::RobotIdClient(const std::string& root, const std::string& server) {
   grpc::SslCredentialsOptions opts;
   opts.pem_root_certs = root;

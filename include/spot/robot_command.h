@@ -60,17 +60,14 @@ using google::protobuf::util::TimeUtil;
 
 class RobotCommandClient {
 public:
-  RobotCommandClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server);
-  RobotCommandResponse startRobotCommand(Lease lease, RobotCommand command);
+  RobotCommandClient(const std::string &root, const std::string &server);
 
-  // new
+  RobotCommandResponse robotCommand(Lease lease, RobotCommand command);
   RobotCommandResponse robotCommandAsync(Lease lease, RobotCommand command);
   RobotCommandFeedbackResponse robotCommandFeedback(uint32_t robotCommandId);
   RobotCommandFeedbackResponse robotCommandFeedbackAsync(uint32_t robotCommandId);
   ClearBehaviorFaultResponse clearBehaviorFault(Lease lease, uint32_t behaviorFaultId);
   ClearBehaviorFaultResponse clearBehaviorFaultAsync(Lease lease, uint32_t behaviorFaultId);
-
-
 
  private:
   std::unique_ptr<RobotCommandService::Stub> stub_;

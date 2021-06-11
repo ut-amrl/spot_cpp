@@ -35,14 +35,11 @@ using google::protobuf::util::TimeUtil;
 
 class PowerClient {
 public:
-  PowerClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server);
-  PowerCommandResponse PowerCommand(Lease lease, PowerCommandRequest_Request powerRequest);
-  PowerCommandFeedbackResponse PowerCommandFeedback(uint32_t powerCommandId);
+  PowerClient(const std::string &root, const std::string &server);
 
-  // new
-  //PowerCommandResponse powerCommand(const PowerCommandRequest& request);
+  PowerCommandResponse powerCommand(const PowerCommandRequest& request);
   PowerCommandResponse PowerCommandAsync(Lease lease, PowerCommandRequest_Request powerRequestt);
-  //PowerCommandFeedbackResponse powerCommandFeedback(uint32_t powerCommandId);
+  PowerCommandFeedbackResponse powerCommandFeedback(uint32_t powerCommandId);
   PowerCommandFeedbackResponse PowerCommandFeedbackAsync(uint32_t powerCommandId);
 
  private:

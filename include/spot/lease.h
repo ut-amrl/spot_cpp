@@ -38,14 +38,8 @@ using bosdyn::api::LeaseService;
 
 class LeaseClient {
 public:
-  LeaseClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server);
-  AcquireLeaseResponse AcquireLease(const std::string& resource);
-  TakeLeaseResponse TakeLease(const std::string& resource);
-  ReturnLeaseResponse ReturnLease(Lease* lease);
-  ListLeasesResponse ListLeases();
-  RetainLeaseResponse RetainLease(); 
+  LeaseClient(const std::string &root, const std::string &server);
 
-  // new
   AcquireLeaseResponse acquire(const std::string &resource);
   AcquireLeaseResponse acquireAsync(const std::string &resource);
   TakeLeaseResponse take(const std::string &resource);

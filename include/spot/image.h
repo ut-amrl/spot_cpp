@@ -31,12 +31,12 @@ using google::protobuf::util::TimeUtil;
 
 class ImageClient {
 public:
-	ImageClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server);
+	ImageClient(const std::string &root, const std::string &server);
 
-	ListImageSourcesResponse listImageSources();
 	GetImageResponse getImage(std::vector<ImageRequest> imageRequests);
 	GetImageResponse getImageAsync(std::vector<ImageRequest> imageRequests);
-
+	ListImageSourcesResponse listImageSources();
+	ListImageSourcesReponse listImageSourcesAsync();
 private:
 	std::unique_ptr<ImageService::Stub> stub_;
 };
