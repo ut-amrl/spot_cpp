@@ -1,8 +1,14 @@
 #include <spot/lease.h>
 
-LeaseClient::LeaseClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
-  grpc::SslCredentialsOptions opts = {root, key, cert};
-  stub_ = LeaseService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
+LeaseClient::LeaseClient(const std::string &root, const std::string &server) {
+	// create options
+  	grpc::SslCredentialsOptions opts;
+  	opts.pem_root_certs = root;
+
+	// create channel arguments
+  	grpc::ChannelArguments channelArgs;
+  	channelArgs.SetSslTargetNameOverride("lease.spot.robot"); // put into kv map later
+  	stub_ = LeaseService::NewStub(grpc::CreateCustomChannel(server, grpc::SslCredentials(opts), channelArgs));
 }
 
 AcquireLeaseResponse LeaseClient::acquire(const std::string &resource) {

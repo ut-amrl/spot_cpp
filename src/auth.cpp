@@ -11,34 +11,6 @@ AuthClient::AuthClient(const std::string &root, const std::string &server) {
   	stub_ = AuthService::NewStub(grpc::CreateCustomChannel(server, grpc::SslCredentials(opts), channelArgs));
 }
 
-std::string AuthClient::GetAuthToken(const std::string& user, const std::string& pass) {
-  // Data we are sending to the server.
-  GetAuthTokenRequest request;
-  request.set_username(user);
-  request.set_password(pass);
-  request.mutable_header()->set_client_name("auth_client");
-
-  // Container for the data we expect from the server.
-  GetAuthTokenResponse reply;
-
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
-
-  // The actual RPC.
-  Status status = stub_->GetAuthToken(&context, request, &reply);
-
-  // Act upon its status.
-  if (status.ok()) {
-    std::cout << "Token Status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    return reply.token();
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    return "RPC failed";
-  }
-}
-
 GetAuthTokenResponse AuthClient::auth(const std::string &user, const std::string &pass) {
 	// populate request
 	GetAuthTokenRequest request;

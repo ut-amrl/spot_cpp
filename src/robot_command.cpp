@@ -1,13 +1,19 @@
 #include <spot/robot_command.h>
 
-RobotCommandClient::RobotCommandClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
-  grpc::SslCredentialsOptions opts = {root, key, cert};
-  stub_ = RobotCommandService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
+RobotCommandClient::RobotCommandClient(const std::string &root, const std::string &server) {
+	// create options
+  	grpc::SslCredentialsOptions opts;
+  	opts.pem_root_certs = root;
+
+	// create channel arguments
+  	grpc::ChannelArguments channelArgs;
+  	channelArgs.SetSslTargetNameOverride("robotcommand.spot.robot"); // put into kv map later
+  	stub_ = RobotCommandService::NewStub(grpc::CreateCustomChannel(server, grpc::SslCredentials(opts), channelArgs));
 }
   
 // Assembles the client's payload, sends it and presents the response back
 // from the server.
-RobotCommandResponse RobotCommandClient::startRobotCommand(Lease lease, RobotCommand command) {
+RobotCommandResponse RobotCommandClient::robotCommand(Lease lease, RobotCommand command) {
   // Data we are sending to the server.
   RobotCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());

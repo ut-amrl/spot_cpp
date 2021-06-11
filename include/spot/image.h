@@ -36,7 +36,7 @@ public:
 	GetImageResponse getImage(std::vector<ImageRequest> imageRequests);
 	GetImageResponse getImageAsync(std::vector<ImageRequest> imageRequests);
 	ListImageSourcesResponse listImageSources();
-	ListImageSourcesReponse listImageSourcesAsync();
+	ListImageSourcesResponse listImageSourcesAsync();
 private:
 	std::unique_ptr<ImageService::Stub> stub_;
 };

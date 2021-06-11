@@ -1,11 +1,17 @@
 #include <spot/power.h>
 
-PowerClient::PowerClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
-  grpc::SslCredentialsOptions opts = {root, key, cert};
-  stub_ = PowerService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
+PowerClient::PowerClient(const std::string &root, const std::string &server) {
+	// create options
+  	grpc::SslCredentialsOptions opts;
+  	opts.pem_root_certs = root;
+
+	// create channel arguments
+  	grpc::ChannelArguments channelArgs;
+  	channelArgs.SetSslTargetNameOverride("power.spot.robot"); // put into kv map later
+  	stub_ = PowerService::NewStub(grpc::CreateCustomChannel(server, grpc::SslCredentials(opts), channelArgs));
 }
 
-PowerCommandResponse PowerClient::PowerCommand(Lease lease, PowerCommandRequest_Request powerRequest) {
+PowerCommandResponse PowerClient::PowerCommand(Lease lease, const PowerCommandRequest_Request& powerRequest) {
   // Data we are sending to the server.
   PowerCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -35,7 +41,7 @@ PowerCommandResponse PowerClient::PowerCommand(Lease lease, PowerCommandRequest_
 }
 
 
-PowerCommandResponse PowerClient::PowerCommandAsync(Lease lease, PowerCommandRequest_Request powerRequest) {
+PowerCommandResponse PowerClient::PowerCommandAsync(Lease lease, const PowerCommandRequest_Request& powerRequest) {
   // Data we are sending to the server.
   PowerCommandRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());

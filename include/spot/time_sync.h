@@ -31,6 +31,8 @@ class TimeSyncClient {
     public: 
     TimeSyncClient(const std::string &root, const std::string &server);
 
+    //TimeSyncUpdateResponse EstablishTimeSync(const int& numRounds);
+
 	TimeSyncUpdateResponse getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 	TimeSyncUpdateResponse getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 

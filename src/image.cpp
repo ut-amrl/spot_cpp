@@ -1,8 +1,14 @@
 #include <spot/image.h>
 
-ImageClient::ImageClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
-  grpc::SslCredentialsOptions opts = {root, key, cert};
-  stub_ = ImageService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
+ImageClient::ImageClient(const std::string &root, const std::string &server) {
+	// create options
+  	grpc::SslCredentialsOptions opts;
+  	opts.pem_root_certs = root;
+
+	// create channel arguments
+  	grpc::ChannelArguments channelArgs;
+  	channelArgs.SetSslTargetNameOverride("image.spot.robot"); // put into kv map later
+  	stub_ = ImageService::NewStub(grpc::CreateCustomChannel(server, grpc::SslCredentials(opts), channelArgs));
 }
 
 ListImageSourcesResponse ImageClient::listImageSources(){

@@ -11,6 +11,7 @@
 
 #include "bosdyn/api/lease_service.grpc.pb.h"
 #include "bosdyn/api/header.grpc.pb.h"
+#include <google/protobuf/util/time_util.h>
 
 using bosdyn::api::AcquireLeaseRequest;
 using bosdyn::api::AcquireLeaseResponse;
@@ -33,6 +34,7 @@ using grpc::ClientContext;
 using grpc::Status;
 using grpc::CompletionQueue;
 using grpc::ClientAsyncResponseReader;
+using google::protobuf::util::TimeUtil;
 
 using bosdyn::api::LeaseService;
 

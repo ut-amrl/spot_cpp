@@ -37,9 +37,9 @@ class PowerClient {
 public:
   PowerClient(const std::string &root, const std::string &server);
 
-  PowerCommandResponse powerCommand(const PowerCommandRequest& request);
-  PowerCommandResponse PowerCommandAsync(Lease lease, PowerCommandRequest_Request powerRequestt);
-  PowerCommandFeedbackResponse powerCommandFeedback(uint32_t powerCommandId);
+  PowerCommandResponse PowerCommand(Lease lease, const PowerCommandRequest_Request& request);
+  PowerCommandResponse PowerCommandAsync(Lease lease, const PowerCommandRequest_Request& powerRequest);
+  PowerCommandFeedbackResponse PowerCommandFeedback(uint32_t powerCommandId);
   PowerCommandFeedbackResponse PowerCommandFeedbackAsync(uint32_t powerCommandId);
 
  private:
