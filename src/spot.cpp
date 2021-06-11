@@ -5,38 +5,34 @@
 #include <fstream>
 #include <streambuf>
 
-void read(const std::string& filename, std::string& data) {
-  std::ifstream file(filename.c_str(), std::ios::in);
-  if (file.is_open()) {
-    std::stringstream ss;
-    ss << file.rdbuf();
-    file.close();
-    data = ss.str();
-  }
-  return;
+std::string read(const std::string& filename, std::string& data) {
+  std::ifstream file(filename);
+  std::string str((std::istreambuf_iterator<char>(file)),
+  	std::istreambuf_iterator<char>());
+//   if (file.is_open()) {
+//     std::stringstream ss;
+//     ss << file.rdbuf();
+//     file.close();
+//     data = ss.str();
+//   }
+//   else{
+// 	  std::cout << "Problem opening file" << std::endl;
+//   }
+  return str;
 }
 
-int main() {
+int main(int argc, char** argv) {
 	// get root
 	std::string root;
-	read("../include/robot.pem", root);
-	std::ifstream pem("../include/robot.pem");
-	std::string str(
-		(std::istreambuf_iterator<char>(pem)),
-		std::istreambuf_iterator<char>()
-	);
-
+	root = read("../src/resources/robot.pem", root);
 	std::cout << root << std::endl;
 
-
 	// get server and create client
-	std::string server = "192.168.80.3:443";
-	RobotIdClient robot_id_client(root, server);
+	ClientHandler ch("192.168.80.3:443", root);
+	assert(argc >= 3);
+	ch.robotIdClient().getId();
+	GetAuthTokenResponse authTokenResponse = ch.authClient().auth(argv[1], argv[2]);
 
-	RobotIdResponse reply = robot_id_client.getId();
-	std::cout << "Species: " << reply.robot_id().species() << std::endl;
-	std::cout << "Version: " << reply.robot_id().version() << std::endl;
-	std::cout << "Serial Number: " << reply.robot_id().computer_serial_number() << std::endl;
 	return 0;
 }
 

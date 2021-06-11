@@ -14,7 +14,7 @@
 
 class ClientHandler{
 public:
-	ClientHandler(std::string& hostname, std::string& cert);
+	ClientHandler(const std::string& hostname, const std::string& cert);
 
 	AuthClient& authClient();
 	EstopClient& estopClient();

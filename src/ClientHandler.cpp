@@ -1,6 +1,6 @@
 #include <spot/ClientHandler.h>
 
-ClientHandler::ClientHandler(std::string& hostname, std::string& cert) : 
+ClientHandler::ClientHandler(const std::string& hostname, const std::string& cert) : 
 	_authClient(cert, hostname),
 	_estopClient(cert, hostname),
 	_imageClient(cert, hostname),

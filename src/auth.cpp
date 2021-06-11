@@ -16,6 +16,7 @@ GetAuthTokenResponse AuthClient::auth(const std::string &user, const std::string
 	GetAuthTokenRequest request;
 	request.set_username(user);
 	request.set_password(pass);
+	request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
 	request.mutable_header()->set_client_name("auth_client");
 
 	GetAuthTokenResponse response;

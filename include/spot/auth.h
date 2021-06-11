@@ -10,6 +10,7 @@
 
 #include "bosdyn/api/auth_service.grpc.pb.h"
 #include "bosdyn/api/header.grpc.pb.h"
+#include <google/protobuf/util/time_util.h>
 
 using grpc::Channel;
 using grpc::ClientAsyncResponseReader;
@@ -20,6 +21,7 @@ using grpc::Status;
 using bosdyn::api::GetAuthTokenRequest;
 using bosdyn::api::GetAuthTokenResponse;
 using bosdyn::api::AuthService;
+using google::protobuf::util::TimeUtil;
 
 class AuthClient {
 public:
