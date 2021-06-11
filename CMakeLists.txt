@@ -142,6 +142,7 @@ add_executable(spot
   src/robot_state.cpp
   src/spot.cpp
   src/ClientHandler.cpp
+  src/utils.cpp
 
   # deps
   ${HEADER}

@@ -1,5 +1,5 @@
 #ifndef SPOT_H
-#include SPOT_H
+#define SPOT_H
 
 #include <spot/ClientHandler.h>
 #include <spot/utils.h>
