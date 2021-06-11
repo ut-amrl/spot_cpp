@@ -33,6 +33,7 @@ public:
 	RobotIdResponse getIdAsync();
 private:
 	std::unique_ptr<RobotIdService::Stub> stub_;
+
 };
 
 

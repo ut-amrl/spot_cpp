@@ -4,35 +4,47 @@
 #include <string>
 #include <fstream>
 #include <streambuf>
+#include <assert.h>
 
-std::string read(const std::string& filename, std::string& data) {
-  std::ifstream file(filename);
-  std::string str((std::istreambuf_iterator<char>(file)),
-  	std::istreambuf_iterator<char>());
-//   if (file.is_open()) {
-//     std::stringstream ss;
-//     ss << file.rdbuf();
-//     file.close();
-//     data = ss.str();
-//   }
-//   else{
-// 	  std::cout << "Problem opening file" << std::endl;
-//   }
-  return str;
+// print_robot_id(): print robot id information
+void print_robot_id(RobotIdClient &client) {
+	RobotIdResponse reply = client.getId();
+	std::cout << "Robot Id Information" << std::endl;
+	std::cout << "Species: " << reply.robot_id().species() << std::endl;
+	std::cout << "Version: " << reply.robot_id().version() << std::endl;
+	std::cout << "Serial Number: " << reply.robot_id().computer_serial_number() << "\n" << std::endl;
 }
 
-int main(int argc, char** argv) {
-	// get root
-	std::string root;
-	root = read("../src/resources/robot.pem", root);
-	std::cout << root << std::endl;
+// print_auth_token(): print auth token information
+void print_auth_token(AuthClient &client, std::string username, std::string password) {
+	GetAuthTokenResponse reply = client.authAsync(username, password);
+	std::cout << "Authentication Information" << std::endl;
+	std::cout << "Status: " << reply.status() << std::endl;
+	std::cout << "Token: " << reply.token() << "\n" << std::endl;
+}
 
-	// get server and create client
-	ClientHandler ch("192.168.80.3:443", root);
-	assert(argc >= 3);
-	ch.robotIdClient().getId();
-	GetAuthTokenResponse authTokenResponse = ch.authClient().auth(argv[1], argv[2]);
+// main function for running Spot clients
+int main(int argc, char *argv[]) {
+	// make sure username and password are supplied
+	assert(argc == 3);
+	std::string username = argv[1];
+	std::string password = argv[2];
+	
+	// read in the root certificate
+	std::string cert;
+	read_file("resources/robot.pem", cert);
+	std::cout << "cert: " << cert << std::endl;
 
+	// create client handler
+	std::string host = DEFAULT_SERVER_ADDRESS + ":" + DEFAULT_SECURE_PORT;
+	ClientHandler handler(host, cert);
+
+	// get clients
+	AuthClient auth_client = handler.authClient();
+	RobotIdClient id_client = handler.robotIdClient();
+
+	// do rpcs
+	print_robot_id();
+	print_auth_token();
 	return 0;
 }
-
