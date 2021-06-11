@@ -1,8 +1,14 @@
 #include <spot/auth.h>
 
-AuthClient::AuthClient(const std::string& cert, const std::string& key, const std::string& root, const std::string& server) {
-  grpc::SslCredentialsOptions opts = {root, key, cert};
-  stub_ = AuthService::NewStub(grpc::CreateChannel(server, grpc::SslCredentials(opts)));
+AuthClient::AuthClient(const std::string &root, const std::string &server) {
+	// create options
+  	grpc::SslCredentialsOptions opts;
+  	opts.pem_root_certs = root;
+
+	// create channel arguments
+  	grpc::ChannelArguments channelArgs;
+  	channelArgs.SetSslTargetNameOverride("auth.spot.robot"); // put into kv map later
+  	stub_ = AuthService::NewStub(grpc::CreateCustomChannel(server, grpc::SslCredentials(opts), channelArgs));
 }
 
 std::string AuthClient::GetAuthToken(const std::string& user, const std::string& pass) {
@@ -10,7 +16,7 @@ std::string AuthClient::GetAuthToken(const std::string& user, const std::string&
   GetAuthTokenRequest request;
   request.set_username(user);
   request.set_password(pass);
-  // request.set_application_token(appToken); (deprecated)
+  request.mutable_header()->set_client_name("auth_client");
 
   // Container for the data we expect from the server.
   GetAuthTokenResponse reply;
@@ -38,6 +44,7 @@ GetAuthTokenResponse AuthClient::auth(const std::string &user, const std::string
 	GetAuthTokenRequest request;
 	request.set_username(user);
 	request.set_password(pass);
+	request.mutable_header()->set_client_name("auth_client");
 
 	GetAuthTokenResponse response;
 	ClientContext context;
@@ -58,6 +65,7 @@ GetAuthTokenResponse AuthClient::authAsync(const std::string &user, const std::s
 	GetAuthTokenRequest request;
 	request.set_username(user);
 	request.set_password(pass);
+	request.mutable_header()->set_client_name("auth_client");
 
 	GetAuthTokenResponse response;
 	ClientContext context;
@@ -103,6 +111,7 @@ GetAuthTokenResponse AuthClient::authAsync(const std::string &user, const std::s
 GetAuthTokenResponse AuthClient::authWithToken(const std::string &token) {
 	GetAuthTokenRequest request;
 	request.set_token(token);
+	request.mutable_header()->set_client_name("auth_client");
 
 	GetAuthTokenResponse response;
 	ClientContext context;
@@ -122,6 +131,7 @@ GetAuthTokenResponse AuthClient::authWithToken(const std::string &token) {
 GetAuthTokenResponse AuthClient::authWithTokenAsync(const std::string &token) {
 	GetAuthTokenRequest request;
 	request.set_token(token);
+	request.mutable_header()->set_client_name("auth_client");
 
 	GetAuthTokenResponse response;
 	ClientContext context;

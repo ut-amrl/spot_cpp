@@ -38,5 +38,4 @@ class TimeSyncClient {
         std::unique_ptr<TimeSyncService::Stub> stub_;
 };
 
-
 #endif
