@@ -54,7 +54,7 @@ public:
   RobotStateClient(const std::string &root, const std::string &server);
   RobotStateClient(std::string token, const std::string &root, const std::string &server);
   
-  RobotStateResponse getRobotState(std::string token);
+  RobotStateResponse getRobotState();
   RobotStateResponse getRobotStateAsync();
   RobotMetricsResponse getRobotMetrics();
   RobotMetricsResponse getRobotMetricsAsync();
@@ -62,10 +62,6 @@ public:
   RobotHardwareConfigurationResponse getRobotHardwareConfigurationAsync();
   RobotLinkModelResponse getRobotLinkModel(const std::string &linkName);
   RobotLinkModelResponse getRobotLinkModelAsync(const std::string &linkName);
-  RobotHardwareConfigurationResponse getHardwareConfigWithLinkInfo();
-
-private:
-  std::unique_ptr<RobotStateService::Stub> stub_;
 };
 
 #endif

@@ -140,6 +140,7 @@ add_executable(spot
   src/lease.cpp
   src/robot_command.cpp
   src/robot_state.cpp
+  src/directory.cpp
   src/spot.cpp
   src/ClientHandler.cpp
   src/utils.cpp

@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
 	// Robot State Test
 	RobotStateClient robStateClient2(token, cert, host);
-	RobotStateResponse stateReply = robStateClient2.getRobotState(token);
+	RobotStateResponse stateReply = robStateClient2.getRobotState();
 	std::cout << "Robot State Information" << std::endl;
 	std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
 

@@ -2,15 +2,7 @@
 
 
 RobotStateClient::RobotStateClient(const std::string &root, const std::string &server) {
-  
-	// create options
-  	grpc::SslCredentialsOptions opts;
-  	opts.pem_root_certs = root;
-
-	// create channel arguments
-  	grpc::ChannelArguments channelArgs;
-  	channelArgs.SetSslTargetNameOverride("robotstate.spot.robot"); // put into kv map later
-  	stub_ = RobotStateService::NewStub(grpc::CreateCustomChannel(server, grpc::SslCredentials(opts), channelArgs));
+  _stub = initializeNoAuthToken(server, root, "state.spot.robot");
 } 
 
 RobotStateClient::RobotStateClient(std::string token, const std::string &root, const std::string &server) {
@@ -19,11 +11,10 @@ RobotStateClient::RobotStateClient(std::string token, const std::string &root, c
 
 // new 
 
-RobotStateResponse RobotStateClient::getRobotState(std::string token){
+RobotStateResponse RobotStateClient::getRobotState(){
   // Data we are sending to the server.
   RobotStateRequest request;
-  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  request.mutable_header()->set_client_name("anything");
+  assembleRequestHeader<RobotStateRequest>(&request, "robot_state_client");
 
   return call<RobotStateRequest, RobotStateResponse>(request, &RobotStateService::Stub::GetRobotState);
 }
@@ -31,272 +22,58 @@ RobotStateResponse RobotStateClient::getRobotState(std::string token){
 RobotStateResponse RobotStateClient::getRobotStateAsync(){
   // Data we are sending to the server.
   RobotStateRequest request;
-  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  request.mutable_header()->set_client_name("anything");
+  assembleRequestHeader<RobotStateRequest>(&request, "robot_state_client");
 
   return callAsync<RobotStateRequest, RobotStateResponse>(request, &RobotStateService::Stub::AsyncGetRobotState);
-
-  // // Container for the data we expect from the server.
-  // RobotStateResponse reply;
-
-  // // Context for the client. It could be used to convey extra information to
-  // // the server and/or tweak certain RPC behaviors.
-  // ClientContext context;
-
-  // // The actual RPC.
-  // CompletionQueue cq;
-  // std::unique_ptr<ClientAsyncResponseReader<RobotStateResponse>> rpc(stub_->AsyncGetRobotState(&context, request, &cq));
-
-  // // status
-  // Status status;
-  // rpc->Finish(&reply, &status, (void*)1);
-
-  // // Act upon its status.
-  // if (status.ok()) {
-  //   // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-  //   std::cout << "Success" << std::endl;
-  // //   std::cout << reply.message() << std::endl;
-  //   // return "reply.token()";
-  // } else {
-  //   std::cout << status.error_code() << ": " << status.error_message()
-  //             << std::endl;
-  //   // return "RPC failed";
-  // }
-
-  // return reply;
 }
 
 RobotMetricsResponse RobotStateClient::getRobotMetrics(){
   // Data we are sending to the server.
   RobotMetricsRequest request;
-  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  request.mutable_header()->set_client_name("anything");
+  assembleRequestHeader<RobotMetricsRequest>(&request, "robot_state_client");
 
-  // Container for the data we expect from the server.
-  RobotMetricsResponse reply;
-
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
-
-  // The actual RPC.
-  Status status = stub_->GetRobotMetrics(&context, request, &reply);
-
-  // Act upon its status.
-  if (status.ok()) {
-    // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    std::cout << "Success" << std::endl;
-  //   std::cout << reply.message() << std::endl;
-    // return "reply.token()";
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    // return "RPC failed";
-  }
-
-  return reply;
+  return call<RobotMetricsRequest, RobotMetricsResponse>(request, &RobotStateService::Stub::GetRobotMetrics);
 }
 
 RobotMetricsResponse RobotStateClient::getRobotMetricsAsync(){
   // Data we are sending to the server.
   RobotMetricsRequest request;
-  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  request.mutable_header()->set_client_name("anything");
+  assembleRequestHeader<RobotMetricsRequest>(&request, "robot_state_client");
 
-  // Container for the data we expect from the server.
-  RobotMetricsResponse reply;
-
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
-
-  // The actual RPC.
-  CompletionQueue cq;
-  std::unique_ptr<ClientAsyncResponseReader<RobotMetricsResponse>> rpc(stub_->AsyncGetRobotMetrics(&context, request, &cq));
-
-  // status
-  Status status;
-  rpc->Finish(&reply, &status, (void*)1);
-
-  // Act upon its status.
-  if (status.ok()) {
-    // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    std::cout << "Success" << std::endl;
-  //   std::cout << reply.message() << std::endl;
-    // return "reply.token()";
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    // return "RPC failed";
-  }
-
-  return reply;
-
+  return callAsync<RobotMetricsRequest, RobotMetricsResponse>(request, &RobotStateService::Stub::AsyncGetRobotMetrics);
 }
 
 RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfiguration(){
   // Data we are sending to the server.
   RobotHardwareConfigurationRequest request;
-  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  request.mutable_header()->set_client_name("anything");
+  assembleRequestHeader<RobotHardwareConfigurationRequest>(&request, "robot_state_client");
 
-  // Container for the data we expect from the server.
-  RobotHardwareConfigurationResponse reply;
-
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
-
-  // The actual RPC.
-  Status status = stub_->GetRobotHardwareConfiguration(&context, request, &reply);
-
-  // Act upon its status.
-  if (status.ok()) {
-    // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    std::cout << "Success" << std::endl;
-  //   std::cout << reply.message() << std::endl;
-    // return "reply.token()";
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    // return "RPC failed";
-  }
-
-  return reply;
+  return call<RobotHardwareConfigurationRequest, RobotHardwareConfigurationResponse>(request, &RobotStateService::Stub::GetRobotHardwareConfiguration);
 }
 
 RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfigurationAsync(){
   // Data we are sending to the server.
   RobotHardwareConfigurationRequest request;
-  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  request.mutable_header()->set_client_name("anything");
+  assembleRequestHeader<RobotHardwareConfigurationRequest>(&request, "robot_state_client");
 
-  // Container for the data we expect from the server.
-  RobotHardwareConfigurationResponse reply;
-
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
-
-  // The actual RPC.
-  CompletionQueue cq;
-  std::unique_ptr<ClientAsyncResponseReader<RobotHardwareConfigurationResponse>> rpc(stub_->AsyncGetRobotHardwareConfiguration(&context, request, &cq));
-
-  // status
-  Status status;
-  rpc->Finish(&reply, &status, (void*)1);
-
-  // Act upon its status.
-  if (status.ok()) {
-    // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    std::cout << "Success" << std::endl;
-  //   std::cout << reply.message() << std::endl;
-    // return "reply.token()";
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    // return "RPC failed";
-  }
-
-  return reply;
+  return callAsync<RobotHardwareConfigurationRequest, RobotHardwareConfigurationResponse>(request, &RobotStateService::Stub::AsyncGetRobotHardwareConfiguration);
 }
 
 RobotLinkModelResponse RobotStateClient::getRobotLinkModel(const std::string &linkName){
   // Data we are sending to the server.
   RobotLinkModelRequest request;
+  assembleRequestHeader<RobotLinkModelRequest>(&request, "robot_state_client");
   request.set_link_name(linkName);
-  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  request.mutable_header()->set_client_name("anything");
+  
 
-  // Container for the data we expect from the server.
-  RobotLinkModelResponse reply;
-
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
-
-  // The actual RPC.
-  Status status = stub_->GetRobotLinkModel(&context, request, &reply);
-
-  // Act upon its status.
-  if (status.ok()) {
-    // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    std::cout << "Success" << std::endl;
-  //   std::cout << reply.message() << std::endl;
-    // return "reply.token()";
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    // return "RPC failed";
-  }
-
-  return reply;
+  return call<RobotLinkModelRequest, RobotLinkModelResponse>(request, &RobotStateService::Stub::GetRobotLinkModel);
 }
 
 RobotLinkModelResponse RobotStateClient::getRobotLinkModelAsync(const std::string &linkName){
   // Data we are sending to the server.
   RobotLinkModelRequest request;
+  assembleRequestHeader<RobotLinkModelRequest>(&request, "robot_state_client");
   request.set_link_name(linkName);
-  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  request.mutable_header()->set_client_name("anything");
 
-  // Container for the data we expect from the server.
-  RobotLinkModelResponse reply;
-
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
-
-  // The actual RPC.
-  CompletionQueue cq;
-  std::unique_ptr<ClientAsyncResponseReader<RobotLinkModelResponse>> rpc(stub_->AsyncGetRobotLinkModel(&context, request, &cq));
-
-  // status
-  Status status;
-  rpc->Finish(&reply, &status, (void*)1);
-
-  // Act upon its status.
-  if (status.ok()) {
-    // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    std::cout << "Success" << std::endl;
-  //   std::cout << reply.message() << std::endl;
-    // return "reply.token()";
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    // return "RPC failed";
-  }
-
-  return reply;
-}
-
-RobotHardwareConfigurationResponse RobotStateClient::getHardwareConfigWithLinkInfo(){
-  // Data we are sending to the server.
-  RobotHardwareConfigurationRequest request;
-  request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  request.mutable_header()->set_client_name("anything");
-
-  // Container for the data we expect from the server.
-  RobotHardwareConfigurationResponse reply;
-
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
-
-  // The actual RPC.
-  Status status = stub_->GetRobotHardwareConfiguration(&context, request, &reply);
-
-  // Act upon its status.
-  if (status.ok()) {
-    // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    std::cout << "Success" << std::endl;
-  //   std::cout << reply.message() << std::endl;
-    // return "reply.token()";
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    // return "RPC failed";
-  }
-
-  return reply;
+  return callAsync<RobotLinkModelRequest, RobotLinkModelResponse>(request, &RobotStateService::Stub::AsyncGetRobotLinkModel);
 }
