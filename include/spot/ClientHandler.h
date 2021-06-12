@@ -2,6 +2,7 @@
 #define CLIENT_HANDLER_H
 
 #include <spot/auth.h>
+#include <spot/directory.h>
 #include <spot/estop.h>
 #include <spot/image.h>
 #include <spot/power.h>
@@ -16,7 +17,10 @@ class ClientHandler{
 public:
 	ClientHandler(const std::string& hostname, const std::string& cert);
 
+	void setAuthToken(std::string token);
+
 	AuthClient& authClient();
+	DirectoryClient& directoryClient();
 	EstopClient& estopClient();
 	ImageClient& imageClient();
 	LeaseClient& leaseClient();
@@ -28,7 +32,11 @@ public:
 	TimeSyncClient& timeSyncClient();
 
 private:
+	template <class client_T>
+	void ensureAuthorization(client_T* client);
+
 	AuthClient _authClient;
+	DirectoryClient _directoryClient;
 	EstopClient _estopClient;
 	ImageClient _imageClient;
 	LeaseClient _leaseClient;
@@ -38,6 +46,17 @@ private:
 	RobotStateClient _robotStateClient;
 	// SpotCheckClient _spotCheckClient;
 	TimeSyncClient _timeSyncClient;
+
+	// Keeps track of which clients have been initialized with an auth token
+	// <Client Name, Authority>
+	std::map<std::string, std::string> _authedClients;
+
+	// Hostname
+	std::string _hostname;
+	// SSL Certificate
+	std::string _cert;
+	// Authorization Token
+	std::string _authToken;
 };
 
 #endif

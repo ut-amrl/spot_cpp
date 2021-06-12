@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 
+#include <spot/BaseClient.h>
+
 #include <grpc++/grpc++.h>
 #include <grpc++/health_check_service_interface.h>
 #include <grpc++/ext/proto_server_reflection_plugin.h>
@@ -36,7 +38,7 @@ using grpc::ClientAsyncResponseReader;
 using grpc::ClientContext;
 using grpc::Status;
 
-class EstopClient {
+class EstopClient : public BaseClient <EstopService> {
 public:
   EstopClient(const std::string &root, const std::string &server);
 
@@ -52,9 +54,6 @@ public:
   GetEstopSystemStatusResponse getStatusAsync();
   EstopCheckInResponse checkIn(EstopStopLevel &stopLevel, EstopEndpoint &endpoint, uint64_t challenge, uint64_t response, bool suppress_incorrect);
   EstopCheckInResponse checkInAsync(EstopStopLevel &stopLevel, EstopEndpoint &endpoint, uint64_t challenge, uint64_t response, bool suppress_incorrect);
-
- private:
-  std::unique_ptr<EstopService::Stub> stub_;
 };
 
 #endif

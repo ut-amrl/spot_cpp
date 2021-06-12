@@ -37,7 +37,7 @@ class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
 template <class serv_T>
 class BaseClient{
 public:
-	std::unique_ptr<typename serv_T::Stub> initialize(std::string hostname, std::string cert, std::string token, std::string authority);
+	void authenticateStub(std::string token, std::string authority);
 	
 	std::unique_ptr<typename serv_T::Stub> initializeNoAuthToken(std::string hostname, std::string cert, std::string authority);
 
@@ -48,25 +48,31 @@ public:
 	res_T callAsync(req_T request, std::unique_ptr<ClientAsyncResponseReader<res_T>>(serv_T::Stub::*func)(grpc::ClientContext* context, const req_T& request, grpc::CompletionQueue* cq));
 
 	template<class req_T>
-	void assembleRequestHeader(req_T* req, std::string clientName);
+	void assembleRequestHeader(req_T* req);
+
+	std::string getClientName();
+
 
 protected:
 	std::unique_ptr<typename serv_T::Stub> _stub;
+	std::string _hostname;
+	std::string _cert;
+	std::string _clientName;
 };
 
 
 
 template <class serv_T>
-std::unique_ptr<typename serv_T::Stub> BaseClient<serv_T>::initialize(std::string hostname, std::string cert, std::string token, std::string authority){
+void BaseClient<serv_T>::authenticateStub(std::string token, std::string authority){
 	// create options
   	grpc::SslCredentialsOptions opts;
-  	opts.pem_root_certs = cert;
+  	opts.pem_root_certs = _cert;
 
 	// create channel arguments
   	grpc::ChannelArguments channelArgs;
   	channelArgs.SetSslTargetNameOverride(authority); // put into kv map later
     auto call_creds = grpc::MetadataCredentialsFromPlugin( std::unique_ptr<grpc::MetadataCredentialsPlugin>(new SpotAuthenticator(token)));
-  	return serv_T::NewStub(grpc::CreateCustomChannel(hostname, grpc::CompositeChannelCredentials(grpc::SslCredentials(opts), call_creds), channelArgs));
+  	_stub = serv_T::NewStub(grpc::CreateCustomChannel(_hostname, grpc::CompositeChannelCredentials(grpc::SslCredentials(opts), call_creds), channelArgs));
 }
 
 template <class serv_T>
@@ -74,6 +80,8 @@ std::unique_ptr<typename serv_T::Stub> BaseClient<serv_T>::initializeNoAuthToken
 	// create options
   	grpc::SslCredentialsOptions opts;
   	opts.pem_root_certs = cert;
+	_cert = cert;
+	_hostname = hostname;
 
 	// create channel arguments
   	grpc::ChannelArguments channelArgs;
@@ -136,9 +144,14 @@ res_T BaseClient<serv_T>::callAsync(req_T request, std::unique_ptr<ClientAsyncRe
 
 template<class serv_T>
 template<class req_T>
-void BaseClient<serv_T>::assembleRequestHeader(req_T* req, std::string clientName){
+void BaseClient<serv_T>::assembleRequestHeader(req_T* req){
 	req->mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
-  	req->mutable_header()->set_client_name(clientName);
+  	req->mutable_header()->set_client_name(_clientName);
+}
+
+template<class serv_T>
+std::string BaseClient<serv_T>::getClientName(){
+	return _clientName;
 }
 
 

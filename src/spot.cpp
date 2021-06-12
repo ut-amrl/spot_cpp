@@ -37,16 +37,19 @@ int main(int argc, char *argv[]) {
 	// create client handler
 	std::string host = DEFAULT_SERVER_ADDRESS + ":" + DEFAULT_SECURE_PORT;
 	ClientHandler handler(host, cert);
+	handler.setAuthToken(handler.authClient().auth(username, password).token());
 
 	// do rpcs
 	//print_robot_id(handler);
 	//std::string token = print_auth_token(handler, username, password);
-	std::string token = "DUMMY_TOKEN";
 
 	// Robot State Test
-	RobotStateClient robStateClient2(token, cert, host);
-	RobotStateResponse stateReply = robStateClient2.getRobotState();
-	std::cout << "Robot State Information" << std::endl;
+	handler.robotStateClient().getRobotState();
+	RobotStateResponse stateReply = handler.robotStateClient().getRobotState();
+	// DirectoryClient directClient(token, cert, host);
+	// GetServiceEntryResponse dirReply = directClient.getEntry("robot-state");
+	// std::cout << "Directory: " << dirReply.service_entry().authority();
+	//std::cout << "Robot State Information" << std::endl;
 	std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
 
 	// // Estop Configuration

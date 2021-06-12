@@ -30,16 +30,14 @@ using bosdyn::api::GetServiceEntryResponse;
 
 using google::protobuf::util::TimeUtil;
 
-class DirectoryClient : BaseClient <DirectoryService>{
+class DirectoryClient : public BaseClient <DirectoryService>{
 public:
 	DirectoryClient(const std::string &root, const std::string &server);
-  	DirectoryClient(std::string token, const std::string &root, const std::string &server);
 
 	ListServiceEntriesResponse list();
 	ListServiceEntriesResponse listAsync();
 	GetServiceEntryResponse getEntry(std::string serviceName);
 	GetServiceEntryResponse getEntryAsync(std::string serviceName);
-
 };
 
 

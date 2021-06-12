@@ -49,10 +49,9 @@ using grpc::CompletionQueue;
 using grpc::ClientAsyncResponseReader;
 
 
-class RobotStateClient : BaseClient<RobotStateService>{
+class RobotStateClient : public BaseClient<RobotStateService>{
 public:
   RobotStateClient(const std::string &root, const std::string &server);
-  RobotStateClient(std::string token, const std::string &root, const std::string &server);
   
   RobotStateResponse getRobotState();
   RobotStateResponse getRobotStateAsync();
