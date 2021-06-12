@@ -34,35 +34,38 @@ RobotStateResponse RobotStateClient::getRobotStateAsync(){
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   request.mutable_header()->set_client_name("anything");
 
-  // Container for the data we expect from the server.
-  RobotStateResponse reply;
+  return callAsync<RobotStateRequest, RobotStateResponse>(request, &RobotStateService::Stub::AsyncGetRobotState);
 
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
+  // // Container for the data we expect from the server.
+  // RobotStateResponse reply;
 
-  // The actual RPC.
-  CompletionQueue cq;
-  std::unique_ptr<ClientAsyncResponseReader<RobotStateResponse>> rpc(stub_->AsyncGetRobotState(&context, request, &cq));
+  // // Context for the client. It could be used to convey extra information to
+  // // the server and/or tweak certain RPC behaviors.
+  // ClientContext context;
 
-  // status
-  Status status;
-  rpc->Finish(&reply, &status, (void*)1);
+  // // The actual RPC.
+  // CompletionQueue cq;
+  // std::unique_ptr<ClientAsyncResponseReader<RobotStateResponse>> rpc(stub_->AsyncGetRobotState(&context, request, &cq));
 
-  // Act upon its status.
-  if (status.ok()) {
-    // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    std::cout << "Success" << std::endl;
-  //   std::cout << reply.message() << std::endl;
-    // return "reply.token()";
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    // return "RPC failed";
-  }
+  // // status
+  // Status status;
+  // rpc->Finish(&reply, &status, (void*)1);
 
-  return reply;
+  // // Act upon its status.
+  // if (status.ok()) {
+  //   // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
+  //   std::cout << "Success" << std::endl;
+  // //   std::cout << reply.message() << std::endl;
+  //   // return "reply.token()";
+  // } else {
+  //   std::cout << status.error_code() << ": " << status.error_message()
+  //             << std::endl;
+  //   // return "RPC failed";
+  // }
+
+  // return reply;
 }
+
 RobotMetricsResponse RobotStateClient::getRobotMetrics(){
   // Data we are sending to the server.
   RobotMetricsRequest request;

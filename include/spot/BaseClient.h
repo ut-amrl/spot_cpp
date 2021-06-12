@@ -39,6 +39,9 @@ public:
 	template<class req_T, class res_T>
 	res_T call(req_T request, Status(serv_T::Stub::*func)(grpc::ClientContext* context, const req_T& request, res_T* response));
 
+	template<class req_T, class res_T>
+	res_T callAsync(req_T request, std::unique_ptr<ClientAsyncResponseReader<res_T>>(serv_T::Stub::*func)(grpc::ClientContext* context, const req_T& request, grpc::CompletionQueue* cq));
+
 protected:
 	std::unique_ptr<typename serv_T::Stub> _stub;
 };
@@ -70,6 +73,35 @@ res_T BaseClient<serv_T>::call(req_T request, Status(serv_T::Stub::*func)(grpc::
 
 	// The actual RPC.
 	Status status = (*(_stub).*func)(&context, request, &reply);
+
+	// Act upon its status.
+	if (status.ok()) {
+		std::cout << "Success" << std::endl;
+	} else {
+		std::cout << status.error_code() << ": " << status.error_message()
+				<< std::endl;
+	}
+
+	return reply;
+}
+
+template<class serv_T>
+template<class req_T, class res_T>
+res_T BaseClient<serv_T>::callAsync(req_T request, std::unique_ptr<ClientAsyncResponseReader<res_T>>(serv_T::Stub::*func)(grpc::ClientContext* context, const req_T& request, grpc::CompletionQueue* cq)){
+	// Container for the data we expect from the server.
+	res_T reply;
+
+	// Context for the client. It could be used to convey extra information to
+	// the server and/or tweak certain RPC behaviors.
+	ClientContext context;
+
+	// The actual RPC.
+	CompletionQueue cq;
+	std::unique_ptr<ClientAsyncResponseReader<res_T>> rpc((*(_stub).*func)(&context, request, &cq));
+
+	// status
+	Status status;
+	rpc->Finish(&reply, &status, (void*)1);
 
 	// Act upon its status.
 	if (status.ok()) {
