@@ -143,6 +143,7 @@ add_executable(spot
   src/spot.cpp
   src/ClientHandler.cpp
   src/utils.cpp
+  #src/BaseClient.cpp
 
   # deps
   ${HEADER}

@@ -8,6 +8,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <spot/BaseClient.h>
+
 #include <grpc++/grpc++.h>
 #include <grpc++/health_check_service_interface.h>
 #include <grpc++/ext/proto_server_reflection_plugin.h>
@@ -47,11 +49,12 @@ using grpc::CompletionQueue;
 using grpc::ClientAsyncResponseReader;
 
 
-class RobotStateClient {
+class RobotStateClient : BaseClient<RobotStateService>{
 public:
   RobotStateClient(const std::string &root, const std::string &server);
+  RobotStateClient(std::string token, const std::string &root, const std::string &server);
   
-  RobotStateResponse getRobotState();
+  RobotStateResponse getRobotState(std::string token);
   RobotStateResponse getRobotStateAsync();
   RobotMetricsResponse getRobotMetrics();
   RobotMetricsResponse getRobotMetricsAsync();

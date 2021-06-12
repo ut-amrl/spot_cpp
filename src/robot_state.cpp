@@ -1,6 +1,8 @@
 #include <spot/robot_state.h>
 
+
 RobotStateClient::RobotStateClient(const std::string &root, const std::string &server) {
+  
 	// create options
   	grpc::SslCredentialsOptions opts;
   	opts.pem_root_certs = root;
@@ -11,38 +13,21 @@ RobotStateClient::RobotStateClient(const std::string &root, const std::string &s
   	stub_ = RobotStateService::NewStub(grpc::CreateCustomChannel(server, grpc::SslCredentials(opts), channelArgs));
 } 
 
+RobotStateClient::RobotStateClient(std::string token, const std::string &root, const std::string &server) {
+  _stub = initialize(server, root, token, "state.spot.robot");
+} 
+
 // new 
 
-RobotStateResponse RobotStateClient::getRobotState(){
+RobotStateResponse RobotStateClient::getRobotState(std::string token){
   // Data we are sending to the server.
   RobotStateRequest request;
   request.mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   request.mutable_header()->set_client_name("anything");
 
-  // Container for the data we expect from the server.
-  RobotStateResponse reply;
-
-  // Context for the client. It could be used to convey extra information to
-  // the server and/or tweak certain RPC behaviors.
-  ClientContext context;
-
-  // The actual RPC.
-  Status status = stub_->GetRobotState(&context, request, &reply);
-
-  // Act upon its status.
-  if (status.ok()) {
-    // std::cout << "Command status: " << reply.status() << ", Token: " << reply.token() << std::endl;
-    std::cout << "Success" << std::endl;
-  //   std::cout << reply.message() << std::endl;
-    // return "reply.token()";
-  } else {
-    std::cout << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    // return "RPC failed";
-  }
-
-  return reply;
+  return call<RobotStateRequest, RobotStateResponse>(request, &RobotStateService::Stub::GetRobotState);
 }
+
 RobotStateResponse RobotStateClient::getRobotStateAsync(){
   // Data we are sending to the server.
   RobotStateRequest request;
