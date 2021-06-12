@@ -57,6 +57,7 @@ DirectoryClient& ClientHandler::directoryClient(){
 }
 
 EstopClient& ClientHandler::estopClient(){
+	ensureAuthorization<EstopClient>(&_estopClient);
 	return _estopClient;
 }
 

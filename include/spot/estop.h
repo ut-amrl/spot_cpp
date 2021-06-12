@@ -42,12 +42,13 @@ class EstopClient : public BaseClient <EstopService> {
 public:
   EstopClient(const std::string &root, const std::string &server);
 
-  RegisterEstopEndpointResponse registerEndpoint(const std::string &targetConfigId, EstopEndpoint &endpoint);
+  RegisterEstopEndpointResponse registerEndpoint(const std::string &targetConfigId, EstopEndpoint &targetEndpoint, EstopEndpoint &endpoint);
   RegisterEstopEndpointResponse registerEndpointAsync(const std::string &targetConfigId, EstopEndpoint &endpoint);
   DeregisterEstopEndpointResponse deregister(const std::string &targetConfigId, EstopEndpoint &endpoint); 
   DeregisterEstopEndpointResponse deregisterAsync(const std::string &targetConfigId, EstopEndpoint &endpoint);
   GetEstopConfigResponse getConfig(const std::string &targetConfigId);
   GetEstopConfigResponse getConfigAsync(const std::string &targetConfigId); 
+  SetEstopConfigResponse setConfig(EstopConfig &config);
   SetEstopConfigResponse setConfig(EstopConfig &config, std::string targetConfigId);
   SetEstopConfigResponse setConfigAsync(EstopConfig &config, std::string targetConfigId);
   GetEstopSystemStatusResponse getStatus();

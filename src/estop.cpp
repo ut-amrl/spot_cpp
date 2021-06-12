@@ -6,9 +6,12 @@ EstopClient::EstopClient(const std::string &root, const std::string &server) {
 }
 
  
-RegisterEstopEndpointResponse EstopClient::registerEndpoint(const std::string &targetConfigId, EstopEndpoint &endpoint) {
+RegisterEstopEndpointResponse EstopClient::registerEndpoint(const std::string &targetConfigId, EstopEndpoint &targetEndpoint, EstopEndpoint &endpoint) {
 	RegisterEstopEndpointRequest request;
     assembleRequestHeader<RegisterEstopEndpointRequest>(&request);
+	request.set_target_config_id(targetConfigId);
+	request.mutable_new_endpoint()->CopyFrom(endpoint);
+	request.mutable_target_endpoint()->CopyFrom(targetEndpoint);
 
     return call<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::RegisterEstopEndpoint);
 }
@@ -16,6 +19,8 @@ RegisterEstopEndpointResponse EstopClient::registerEndpoint(const std::string &t
 RegisterEstopEndpointResponse EstopClient::registerEndpointAsync(const std::string &targetConfigId, EstopEndpoint &endpoint) {
 	RegisterEstopEndpointRequest request;
     assembleRequestHeader<RegisterEstopEndpointRequest>(&request);
+	request.set_target_config_id(targetConfigId);
+	request.mutable_new_endpoint()->CopyFrom(endpoint);
 
     return callAsync<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::AsyncRegisterEstopEndpoint);
 }
@@ -52,6 +57,14 @@ GetEstopConfigResponse EstopClient::getConfigAsync(const std::string &targetConf
 	request.set_target_config_id(targetConfigId);
 
     return callAsync<GetEstopConfigRequest, GetEstopConfigResponse>(request, &EstopService::Stub::AsyncGetEstopConfig);
+}
+
+SetEstopConfigResponse EstopClient::setConfig(EstopConfig &config){
+	SetEstopConfigRequest request;
+    assembleRequestHeader<SetEstopConfigRequest>(&request);
+	request.mutable_config()->CopyFrom(config);
+
+    return call<SetEstopConfigRequest, SetEstopConfigResponse>(request, &EstopService::Stub::SetEstopConfig);
 }
 
 SetEstopConfigResponse EstopClient::setConfig(EstopConfig &config, std::string targetConfigId) {
