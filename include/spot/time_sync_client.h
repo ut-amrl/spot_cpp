@@ -1,16 +1,8 @@
-#ifndef TIME_SYNC_H
-#define TIME_SYNC_H
+#ifndef TIME_SYNC_CLIENT_H
+#define TIME_SYNC_CLIENT_H
 
-#include <iostream>
-#include <memory>
-#include <string>
-
-#include <grpc++/grpc++.h>
-#include <grpc++/health_check_service_interface.h>
-#include <grpc++/ext/proto_server_reflection_plugin.h>
-
+#include <spot/base_client.h>
 #include "bosdyn/api/time_sync_service.grpc.pb.h"
-#include <google/protobuf/util/time_util.h>
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -27,7 +19,7 @@ using google::protobuf::Duration;
 using google::protobuf::Timestamp;
 using google::protobuf::util::TimeUtil;
 
-class TimeSyncClient {
+class TimeSyncClient : public BaseClient<TimeSyncService> {
     public: 
     TimeSyncClient(const std::string &root, const std::string &server);
 
@@ -35,9 +27,6 @@ class TimeSyncClient {
 
 	TimeSyncUpdateResponse getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 	TimeSyncUpdateResponse getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
-
-    private:
-        std::unique_ptr<TimeSyncService::Stub> stub_;
 };
 
 #endif

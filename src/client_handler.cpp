@@ -1,4 +1,4 @@
-#include <spot/ClientHandler.h>
+#include <spot/client_handler.h>
 
 
 ClientHandler::ClientHandler(const std::string& hostname, const std::string& cert) : 

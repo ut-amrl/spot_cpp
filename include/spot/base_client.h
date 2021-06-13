@@ -1,10 +1,20 @@
 #ifndef BASE_CLIENT_H
 #define BASE_CLIENT_H
 
+#include <memory>
+#include <string>
+#include <sstream>
+#include <fstream>
+#include <iostream>
+
 #include <grpc++/grpc++.h>
 #include <grpc++/health_check_service_interface.h>
 #include <grpc++/ext/proto_server_reflection_plugin.h>
 #include <google/protobuf/util/time_util.h>
+
+#include "bosdyn/api/header.grpc.pb.h"
+
+#include <spot/utils.h>
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -13,8 +23,9 @@ using grpc::CompletionQueue;
 using grpc::ClientAsyncResponseReader;
 using google::protobuf::util::TimeUtil;
 
-
-
+/* SpotAuthenticator(): class that encapsulates metadata to be sent in calls 
+   TODO: maybe use as static class so doesn't have to be recreated each time stub authenticated*
+*/
 class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
  public:
   SpotAuthenticator(const grpc::string& ticket) : ticket_(ticket) {}
@@ -23,17 +34,17 @@ class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
       grpc::string_ref service_url, grpc::string_ref method_name,
       const grpc::AuthContext& channel_auth_context,
       std::multimap<grpc::string, grpc::string>* metadata) override {
-    metadata->insert(std::make_pair("authorization", "Bearer " + ticket_));
-    return grpc::Status::OK;
+      metadata->insert(std::make_pair(_authorization_key, _authorization_value_prefix + ticket_));
+      return grpc::Status::OK;
   }
 
  private:
   grpc::string ticket_;
+  std::string _authorization_key = "authorization";
+  std::string _authorization_value_prefix = "Bearer ";
 };
 
-
-
-
+/* BaseClient(): parent class for clients */
 template <class serv_T>
 class BaseClient{
 public:
@@ -52,15 +63,12 @@ public:
 
 	std::string getClientName();
 
-
 protected:
 	std::unique_ptr<typename serv_T::Stub> _stub;
 	std::string _hostname;
 	std::string _cert;
 	std::string _clientName;
 };
-
-
 
 template <class serv_T>
 void BaseClient<serv_T>::authenticateStub(std::string token, std::string authority){
@@ -70,7 +78,9 @@ void BaseClient<serv_T>::authenticateStub(std::string token, std::string authori
 
 	// create channel arguments
   	grpc::ChannelArguments channelArgs;
-  	channelArgs.SetSslTargetNameOverride(authority); // put into kv map later
+  	channelArgs.SetSslTargetNameOverride(authority);
+
+	// get call credentials
     auto call_creds = grpc::MetadataCredentialsFromPlugin( std::unique_ptr<grpc::MetadataCredentialsPlugin>(new SpotAuthenticator(token)));
   	_stub = serv_T::NewStub(grpc::CreateCustomChannel(_hostname, grpc::CompositeChannelCredentials(grpc::SslCredentials(opts), call_creds), channelArgs));
 }

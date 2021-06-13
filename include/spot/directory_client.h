@@ -1,20 +1,8 @@
-#ifndef DIRECTORY_H
-#define DIRECTORY_H
+#ifndef DIRECTORY_CLIENT_H
+#define DIRECTORY_CLIENT_H
 
-#include <memory>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <grpc++/grpc++.h>
-#include <grpc++/health_check_service_interface.h>
-#include <grpc++/ext/proto_server_reflection_plugin.h>
-
-#include <spot/BaseClient.h>
-
+#include <spot/base_client.h>
 #include "bosdyn/api/directory_service.grpc.pb.h"
-#include "bosdyn/api/header.grpc.pb.h"
-#include <google/protobuf/util/time_util.h>
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -30,7 +18,7 @@ using bosdyn::api::GetServiceEntryResponse;
 
 using google::protobuf::util::TimeUtil;
 
-class DirectoryClient : public BaseClient <DirectoryService>{
+class DirectoryClient : public BaseClient<DirectoryService> {
 public:
 	DirectoryClient(const std::string &root, const std::string &server);
 

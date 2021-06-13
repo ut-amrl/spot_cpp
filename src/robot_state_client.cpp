@@ -1,4 +1,4 @@
-#include <spot/robot_state.h>
+#include <spot/robot_state_client.h>
 
 
 RobotStateClient::RobotStateClient(const std::string &root, const std::string &server) {

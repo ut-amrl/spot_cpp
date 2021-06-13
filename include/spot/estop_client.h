@@ -1,16 +1,7 @@
-#ifndef ESTOP_H
-#define ESTOP_H
+#ifndef ESTOP_CLIENT_H
+#define ESTOP_CLIENT_H
 
-#include <iostream>
-#include <memory>
-#include <string>
-
-#include <spot/BaseClient.h>
-
-#include <grpc++/grpc++.h>
-#include <grpc++/health_check_service_interface.h>
-#include <grpc++/ext/proto_server_reflection_plugin.h>
-
+#include <spot/base_client.h>
 #include "bosdyn/api/estop_service.grpc.pb.h"
 
 using bosdyn::api::RegisterEstopEndpointRequest;

@@ -1,23 +1,11 @@
-#ifndef ROBOT_STATE_H
-#define ROBOT_STATE_H
-
-#include <iostream>
-#include <memory>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-
-#include <spot/BaseClient.h>
-
-#include <grpc++/grpc++.h>
-#include <grpc++/health_check_service_interface.h>
-#include <grpc++/ext/proto_server_reflection_plugin.h>
+#ifndef ROBOT_STATE_CLIENT_H
+#define ROBOT_STATE_CLIENT_H
 
 #include "bosdyn/api/robot_state_service.grpc.pb.h"
 #include "bosdyn/api/geometry.grpc.pb.h"
-#include <google/protobuf/util/time_util.h>
 #include "bosdyn/api/header.grpc.pb.h"
+
+#include <spot/base_client.h>
 
 using bosdyn::api::RobotStateService;
 using bosdyn::api::RobotStateRequest;
@@ -49,7 +37,7 @@ using grpc::CompletionQueue;
 using grpc::ClientAsyncResponseReader;
 
 
-class RobotStateClient : public BaseClient<RobotStateService>{
+class RobotStateClient : public BaseClient<RobotStateService> { 
 public:
   RobotStateClient(const std::string &root, const std::string &server);
   

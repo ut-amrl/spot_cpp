@@ -21,7 +21,6 @@ find_package(Threads REQUIRED)
 
 include_directories(
   include
-  ${catkin_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIRS}
   ${Protobuf_INCLUDE_DIRS}
 )
@@ -130,21 +129,20 @@ include_files_service(data_buffer)
 include_files_docking_service(docking)
 
 add_executable(spot
-  src/auth.cpp
-  src/image.cpp
-  src/power.cpp
-  src/robot_id.cpp
-  src/spot_check.cpp
-  src/time_sync.cpp
-  src/estop.cpp
-  src/lease.cpp
-  src/robot_command.cpp
-  src/robot_state.cpp
-  src/directory.cpp
+  src/auth_client.cpp
+  src/image_client.cpp
+  src/power_client.cpp
+  src/robot_id_client.cpp
+  src/spot_check_client.cpp
+  src/time_sync_client.cpp
+  src/estop_client.cpp
+  src/lease_client.cpp
+  src/robot_command_client.cpp
+  src/robot_state_client.cpp
+  src/directory_client.cpp
   src/spot.cpp
-  src/ClientHandler.cpp
+  src/client_handler.cpp
   src/utils.cpp
-  #src/BaseClient.cpp
 
   # deps
   ${HEADER}
@@ -200,7 +198,6 @@ add_executable(spot
   ${DATA_BUFFER})
 
 set(LINK_LIBRARIES 
-  ${catkin_LIBRARIES}
   ${Protobuf_LIBRARIES}
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}

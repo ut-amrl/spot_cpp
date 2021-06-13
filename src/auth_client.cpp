@@ -1,4 +1,4 @@
-#include <spot/auth.h>
+#include <spot/auth_client.h>
 
 AuthClient::AuthClient(const std::string &root, const std::string &server) {
 	_stub = initializeNoAuthToken(server, root, "auth.spot.robot");

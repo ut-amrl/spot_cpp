@@ -1,19 +1,8 @@
-#ifndef ROBOT_ID_H
-#define ROBOT_ID_H
-
-#include <memory>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <grpc++/grpc++.h>
-#include <grpc++/health_check_service_interface.h>
-#include <grpc++/ext/proto_server_reflection_plugin.h>
-
+#ifndef ROBOT_ID_CLIENT_H
+#define ROBOT_ID_CLIENT_H
 
 #include "bosdyn/api/robot_id_service.grpc.pb.h"
-#include "bosdyn/api/header.grpc.pb.h"
-#include <google/protobuf/util/time_util.h>
+#include <spot/base_client.h>
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -25,15 +14,12 @@ using bosdyn::api::RobotIdRequest;
 using bosdyn::api::RobotIdResponse;
 using google::protobuf::util::TimeUtil;
 
-class RobotIdClient{
+class RobotIdClient : public BaseClient<RobotIdService> {
 public:
 	RobotIdClient(const std::string& root, const std::string& server);
 
 	RobotIdResponse getId();
 	RobotIdResponse getIdAsync();
-private:
-	std::unique_ptr<RobotIdService::Stub> stub_;
-
 };
 
 

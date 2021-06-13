@@ -1,7 +1,7 @@
 #ifndef SPOT_H
 #define SPOT_H
 
-#include <spot/ClientHandler.h>
+#include <spot/client_handler.h>
 #include <spot/utils.h>
 
 std::string DEFAULT_SECURE_PORT = "443";

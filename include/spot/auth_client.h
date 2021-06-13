@@ -1,18 +1,9 @@
-#ifndef AUTH_H
-#define AUTH_H
+#ifndef AUTH_CLIENT_H
+#define AUTH_CLIENT_H
 
-#include <memory>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <grpc++/grpc++.h>
-
-#include <spot/BaseClient.h>
-
+#include <spot/base_client.h>
 #include "bosdyn/api/auth_service.grpc.pb.h"
-#include "bosdyn/api/header.grpc.pb.h"
-#include <google/protobuf/util/time_util.h>
+
 
 using grpc::Channel;
 using grpc::ClientAsyncResponseReader;
@@ -25,7 +16,7 @@ using bosdyn::api::GetAuthTokenResponse;
 using bosdyn::api::AuthService;
 using google::protobuf::util::TimeUtil;
 
-class AuthClient : public BaseClient <AuthService> {
+class AuthClient : public BaseClient<AuthService> {
 public:
   AuthClient(const std::string &root, const std::string &server);
 

@@ -1,17 +1,8 @@
-#ifndef LEASE_H
-#define LEASE_H
-
-#include <memory>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <list>
-#include <iostream>
-#include <grpc++/grpc++.h>
+#ifndef LEASE_CLIENT_H
+#define LEASE_CLIENT_H
 
 #include "bosdyn/api/lease_service.grpc.pb.h"
-#include "bosdyn/api/header.grpc.pb.h"
-#include <google/protobuf/util/time_util.h>
+#include <spot/base_client.h>
 
 using bosdyn::api::AcquireLeaseRequest;
 using bosdyn::api::AcquireLeaseResponse;
@@ -36,9 +27,7 @@ using grpc::CompletionQueue;
 using grpc::ClientAsyncResponseReader;
 using google::protobuf::util::TimeUtil;
 
-using bosdyn::api::LeaseService;
-
-class LeaseClient {
+class LeaseClient : public BaseClient<LeaseService> {
 public:
   LeaseClient(const std::string &root, const std::string &server);
 
@@ -46,15 +35,12 @@ public:
   AcquireLeaseResponse acquireAsync(const std::string &resource);
   TakeLeaseResponse take(const std::string &resource);
   TakeLeaseResponse takeAsync(const std::string &resource);
-  ReturnLeaseResponse returnLease(Lease* lease);
-  ReturnLeaseResponse returnLeaseAsync(Lease* lease);
-  RetainLeaseResponse retainLease(Lease &lease);
-  RetainLeaseResponse retainLeaseAsync(Lease &lease); 
+  ReturnLeaseResponse returnLease(Lease *lease);
+  ReturnLeaseResponse returnLeaseAsync(Lease *lease);
+  RetainLeaseResponse retainLease(Lease *lease);
+  RetainLeaseResponse retainLeaseAsync(Lease *lease); 
   ListLeasesResponse listLeases(bool includeFullLeaseInfo);
   ListLeasesResponse listLeasesAsync(bool includeFullLeasesInfo);
-
- private:
-  std::unique_ptr<LeaseService::Stub> stub_;
 };
 
 #endif

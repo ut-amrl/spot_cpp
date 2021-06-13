@@ -1,8 +1,8 @@
-#include <spot/estop.h>
+#include <spot/estop_client.h>
 
 EstopClient::EstopClient(const std::string &root, const std::string &server) {
 	_stub = initializeNoAuthToken(server, root, "");
-  	_clientName = "estop";
+  	_clientName = "estop";	
 }
 
  
@@ -12,7 +12,6 @@ RegisterEstopEndpointResponse EstopClient::registerEndpoint(const std::string &t
 	request.set_target_config_id(targetConfigId);
 	request.mutable_new_endpoint()->CopyFrom(endpoint);
 	request.mutable_target_endpoint()->CopyFrom(targetEndpoint);
-
     return call<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::RegisterEstopEndpoint);
 }
 
@@ -21,7 +20,6 @@ RegisterEstopEndpointResponse EstopClient::registerEndpointAsync(const std::stri
     assembleRequestHeader<RegisterEstopEndpointRequest>(&request);
 	request.set_target_config_id(targetConfigId);
 	request.mutable_new_endpoint()->CopyFrom(endpoint);
-
     return callAsync<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::AsyncRegisterEstopEndpoint);
 }
 
@@ -30,7 +28,6 @@ DeregisterEstopEndpointResponse EstopClient::deregister(const std::string &targe
     assembleRequestHeader<DeregisterEstopEndpointRequest>(&request);
 	request.mutable_target_endpoint()->CopyFrom(endpoint);
 	request.set_target_config_id(targetConfigId);
-
     return call<DeregisterEstopEndpointRequest, DeregisterEstopEndpointResponse>(request, &EstopService::Stub::DeregisterEstopEndpoint);
 }
 
@@ -39,7 +36,6 @@ DeregisterEstopEndpointResponse EstopClient::deregisterAsync(const std::string &
     assembleRequestHeader<DeregisterEstopEndpointRequest>(&request);
 	request.mutable_target_endpoint()->CopyFrom(endpoint);
 	request.set_target_config_id(targetConfigId);
-
     return callAsync<DeregisterEstopEndpointRequest, DeregisterEstopEndpointResponse>(request, &EstopService::Stub::AsyncDeregisterEstopEndpoint);
 }
 
@@ -47,7 +43,6 @@ GetEstopConfigResponse EstopClient::getConfig(const std::string &targetConfigId)
 	GetEstopConfigRequest request;
     assembleRequestHeader<GetEstopConfigRequest>(&request);
 	request.set_target_config_id(targetConfigId);
-
     return call<GetEstopConfigRequest, GetEstopConfigResponse>(request, &EstopService::Stub::GetEstopConfig);
 }
 
@@ -55,7 +50,6 @@ GetEstopConfigResponse EstopClient::getConfigAsync(const std::string &targetConf
 	GetEstopConfigRequest request;
     assembleRequestHeader<GetEstopConfigRequest>(&request);
 	request.set_target_config_id(targetConfigId);
-
     return callAsync<GetEstopConfigRequest, GetEstopConfigResponse>(request, &EstopService::Stub::AsyncGetEstopConfig);
 }
 
@@ -63,7 +57,6 @@ SetEstopConfigResponse EstopClient::setConfig(EstopConfig &config){
 	SetEstopConfigRequest request;
     assembleRequestHeader<SetEstopConfigRequest>(&request);
 	request.mutable_config()->CopyFrom(config);
-
     return call<SetEstopConfigRequest, SetEstopConfigResponse>(request, &EstopService::Stub::SetEstopConfig);
 }
 
@@ -72,7 +65,6 @@ SetEstopConfigResponse EstopClient::setConfig(EstopConfig &config, std::string t
     assembleRequestHeader<SetEstopConfigRequest>(&request);
 	request.mutable_config()->CopyFrom(config);
 	request.set_target_config_id(targetConfigId);
-
     return call<SetEstopConfigRequest, SetEstopConfigResponse>(request, &EstopService::Stub::SetEstopConfig);
 }
 
@@ -81,21 +73,18 @@ SetEstopConfigResponse EstopClient::setConfigAsync(EstopConfig &config, std::str
     assembleRequestHeader<SetEstopConfigRequest>(&request);
 	request.mutable_config()->CopyFrom(config);
 	request.set_target_config_id(targetConfigId);
-
     return callAsync<SetEstopConfigRequest, SetEstopConfigResponse>(request, &EstopService::Stub::AsyncSetEstopConfig);
 }
 
 GetEstopSystemStatusResponse EstopClient::getStatus() {
 	GetEstopSystemStatusRequest request;
     assembleRequestHeader<GetEstopSystemStatusRequest>(&request);
-
     return call<GetEstopSystemStatusRequest, GetEstopSystemStatusResponse>(request, &EstopService::Stub::GetEstopSystemStatus);
 }
 
 GetEstopSystemStatusResponse EstopClient::getStatusAsync() {
 	GetEstopSystemStatusRequest request;
     assembleRequestHeader<GetEstopSystemStatusRequest>(&request);
-
     return callAsync<GetEstopSystemStatusRequest, GetEstopSystemStatusResponse>(request, &EstopService::Stub::AsyncGetEstopSystemStatus);
 }
 
@@ -107,7 +96,6 @@ EstopCheckInResponse EstopClient::checkIn(EstopStopLevel &stopLevel, EstopEndpoi
 	request.set_response(response);
 	request.mutable_endpoint()->CopyFrom(endpoint);
 	request.set_stop_level(stopLevel);
-
     return call<EstopCheckInRequest, EstopCheckInResponse>(request, &EstopService::Stub::EstopCheckIn);
 }
 
@@ -119,6 +107,5 @@ EstopCheckInResponse EstopClient::checkInAsync(EstopStopLevel &stopLevel, EstopE
 	request.set_response(response);
 	request.mutable_endpoint()->CopyFrom(endpoint);
 	request.set_stop_level(stopLevel);
-
     return callAsync<EstopCheckInRequest, EstopCheckInResponse>(request, &EstopService::Stub::AsyncEstopCheckIn);
 }

@@ -1,17 +1,9 @@
-#ifndef POWER_H
-#define POWER_H
-
-#include <memory>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <grpc++/grpc++.h>
+#ifndef POWER_CLIENT_H
+#define POWER_CLIENT_H
 
 #include "bosdyn/api/power_service.grpc.pb.h"
 #include "bosdyn/api/robot_state_service.grpc.pb.h"
-#include "bosdyn/api/header.grpc.pb.h"
-#include <google/protobuf/util/time_util.h>
+#include <spot/base_client.h>
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -33,7 +25,7 @@ using bosdyn::api::LeaseUseResult;
 using bosdyn::api::LicenseInfo;
 using google::protobuf::util::TimeUtil;
 
-class PowerClient {
+class PowerClient : public BaseClient<PowerService> {
 public:
   PowerClient(const std::string &root, const std::string &server);
 
@@ -41,9 +33,6 @@ public:
   PowerCommandResponse PowerCommandAsync(Lease lease, const PowerCommandRequest_Request& powerRequest);
   PowerCommandFeedbackResponse PowerCommandFeedback(uint32_t powerCommandId);
   PowerCommandFeedbackResponse PowerCommandFeedbackAsync(uint32_t powerCommandId);
-
- private:
-  std::unique_ptr<PowerService::Stub> stub_;
 };
 
 #endif

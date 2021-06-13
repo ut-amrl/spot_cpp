@@ -1,19 +1,8 @@
-#ifndef IMAGE_H
-#define IMAGE_H
-
-#include <memory>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <grpc++/grpc++.h>
-#include <grpc++/health_check_service_interface.h>
-#include <grpc++/ext/proto_server_reflection_plugin.h>
-
+#ifndef IMAGE_CLIENT_H
+#define IMAGE_CLIENT_H
 
 #include "bosdyn/api/image_service.grpc.pb.h"
-#include "bosdyn/api/header.grpc.pb.h"
-#include <google/protobuf/util/time_util.h>
+#include <spot/base_client.h>
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -29,16 +18,14 @@ using bosdyn::api::GetImageResponse;
 using bosdyn::api::GetImageRequest;
 using google::protobuf::util::TimeUtil;
 
-class ImageClient {
+class ImageClient : public BaseClient<ImageService> {
 public:
 	ImageClient(const std::string &root, const std::string &server);
 
-	GetImageResponse getImage(std::vector<ImageRequest> imageRequests);
-	GetImageResponse getImageAsync(std::vector<ImageRequest> imageRequests);
+	GetImageResponse getImage(const std::vector<ImageRequest> imageRequests);
+	GetImageResponse getImageAsync(const std::vector<ImageRequest> imageRequests);
 	ListImageSourcesResponse listImageSources();
 	ListImageSourcesResponse listImageSourcesAsync();
-private:
-	std::unique_ptr<ImageService::Stub> stub_;
 };
 
 

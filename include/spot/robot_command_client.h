@@ -1,21 +1,10 @@
-#ifndef ROBOT_COMMAND_H
-#define ROBOT_COMMAND_H
-
-#include <memory>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
-#include <grpc++/grpc++.h>
-#include <grpc++/health_check_service_interface.h>
-#include <grpc++/ext/proto_server_reflection_plugin.h>
-
+#ifndef ROBOT_COMMAND_CLIENT_H
+#define ROBOT_COMMAND_CLIENT_H
 
 #include "bosdyn/api/robot_command_service.grpc.pb.h"
-#include "bosdyn/api/header.grpc.pb.h"
 #include "bosdyn/api/geometry.grpc.pb.h"
 #include "bosdyn/api/lease_service.grpc.pb.h"
-#include <google/protobuf/util/time_util.h>
+#include <spot/base_client.h>
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -58,7 +47,7 @@ using google::protobuf::Duration;
 using google::protobuf::Timestamp;
 using google::protobuf::util::TimeUtil;
 
-class RobotCommandClient {
+class RobotCommandClient : public BaseClient<RobotCommandService> {
 public:
   RobotCommandClient(const std::string &root, const std::string &server);
 
@@ -69,14 +58,11 @@ public:
   ClearBehaviorFaultResponse clearBehaviorFault(Lease lease, uint32_t behaviorFaultId);
   ClearBehaviorFaultResponse clearBehaviorFaultAsync(Lease lease, uint32_t behaviorFaultId);
 
- private:
-  std::unique_ptr<RobotCommandService::Stub> stub_;
-
+private:
   //new
   RobotCommandRequest getRobotCommandRequest(Lease lease, RobotCommand command);
   RobotCommandFeedbackRequest getRobotCommandFeedbackRequest(uint32_t robotCommandId);
   ClearBehaviorFaultRequest getClearBehaviorFaultRequest(Lease lease, uint32_t behaviorFaultId);
-
 };
 
 #endif
