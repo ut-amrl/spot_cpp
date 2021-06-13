@@ -91,42 +91,7 @@ int main(int argc, char *argv[]) {
 	// std::cout << "Robot State Information" << std::endl;
 	// std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
 
-	// Estop Configuration
-	// EstopConfig estopConfig;
-	// // estopConfig.set_unique_id("fresh"); // TODO:: Determine what this needs to be
-	// EstopEndpoint* endpoint = estopConfig.add_endpoints();
-	// endpoint->set_role("PDB_rooted");
-	// endpoint->set_name("base-PDB_rooted"); // TODO:: This may be wrong
-	// endpoint->set_unique_id("enpoint-id"); // TODO:: Check if this is necessary
-	// endpoint->mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(30));
-	// SetEstopConfigResponse estopConfResp = handler.estopClient().setConfig(estopConfig, "5");
-	// std::cout << estopConfResp.status() << std::endl;
-	// std::cout << "Active config ID: " << estopConfResp.active_config().unique_id() << std::endl;
-	// std::cout << estopConfResp.active_config().endpoints(0).unique_id() << std::endl;
-
-	// // // Estop Registration
-	// // // TODO:: Determine if necessary to fill out unique_id of endpoint
-	// // // TODO:: Determine if neccessary to fill out target endpoint
-	// EstopEndpoint newEndpoint;
-	// newEndpoint.set_role("PDB_rooted");
-	// newEndpoint.mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(30));
-	// EstopEndpoint targetEndpoint;
-	// targetEndpoint.set_role("PDB_rooted");
-	// targetEndpoint.set_unique_id("3");
-	// RegisterEstopEndpointResponse regEndResp = handler.estopClient().registerEndpoint("6", targetEndpoint, newEndpoint);
-	// std::cout << regEndResp.status() << std::endl;
-	// std::cout << "Active endpoint ID: " << regEndResp.new_endpoint().unique_id() << std::endl;
-	// EstopEndpoint activeEndpoint = regEndResp.new_endpoint();
-
-	// // // Estop Check-in
-	// EstopStopLevel stopLevel = EstopStopLevel::ESTOP_LEVEL_NONE;
-	// // TODO:: Determine if necessary to fill out unique_id of endpoint
-	// // TODO:: Make it so that challenge doesn't need to be set
-	// // TODO:: Make it so that response doesn't need to be set
-	// EstopCheckInResponse checkInResp = handler.estopClient().checkIn(stopLevel, activeEndpoint, 0, 0, false);
-	// std::cout << "Check In Status " << checkInResp.status() << std::endl;
-	// std::cout << "Challenge: " << checkInResp.challenge() << std::endl;
-	// //handler.estopClient().checkIn(stopLevel, *endpoint, 0, 0, false);
+	
 
 	return 0;
 }

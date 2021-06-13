@@ -23,7 +23,7 @@ ClientHandler::ClientHandler(const std::string& hostname, const std::string& cer
 }
 
 template <class client_T>
-void ClientHandler::ensureAuthorization(client_T* client){
+void ClientHandler::ensureAuthentication(client_T* client){
 	if(_authToken.empty()){
 		std::cout << "Failed to authenticate " << client->getClientName() << " client, no auth token" << std::endl;
 		return;
@@ -52,37 +52,42 @@ AuthClient& ClientHandler::authClient(){
 }
 
 DirectoryClient& ClientHandler::directoryClient(){
-	ensureAuthorization<DirectoryClient>(&_directoryClient);
+	ensureAuthentication<DirectoryClient>(&_directoryClient);
 	return _directoryClient;
 }
 
 EstopClient& ClientHandler::estopClient(){
-	ensureAuthorization<EstopClient>(&_estopClient);
+	ensureAuthentication<EstopClient>(&_estopClient);
 	return _estopClient;
 }
 
 ImageClient& ClientHandler::imageClient(){
+	ensureAuthentication<ImageClient>(&_imageClient);
 	return _imageClient;
 }
 
 LeaseClient& ClientHandler::leaseClient(){
+	ensureAuthentication<LeaseClient>(&_leaesClient);
 	return _leaseClient;
 }
 
 PowerClient& ClientHandler::powerClient(){
+	ensureAuthentication<PowerClient>(&_powerClient);
 	return _powerClient;
 }
 
 RobotCommandClient& ClientHandler::robotCommandClient(){
+	ensureAuthentication<RobotCommandClient>(&_robotCommandClient);
 	return _robotCommandClient;
 }
 
 RobotIdClient& ClientHandler::robotIdClient(){
+	ensureAuthentication<RobotIdClient>(&_robotIdClient);
 	return _robotIdClient;
 }
 
 RobotStateClient& ClientHandler::robotStateClient(){
-	ensureAuthorization<RobotStateClient>(&_robotStateClient);
+	ensureAuthentication<RobotStateClient>(&_robotStateClient);
 	return _robotStateClient;
 }
 
@@ -91,6 +96,7 @@ RobotStateClient& ClientHandler::robotStateClient(){
 // }
 
 TimeSyncClient& ClientHandler::timeSyncClient(){
+	ensureAuthentication<TimeSyncClient>(&_timeSyncClient);
 	return _timeSyncClient;
 }
 

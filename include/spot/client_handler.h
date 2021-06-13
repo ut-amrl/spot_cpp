@@ -33,7 +33,7 @@ public:
 
 private:
 	template <class client_T>
-	void ensureAuthorization(client_T* client);
+	void ensureAuthentication(client_T* client);
 
 	AuthClient _authClient;
 	DirectoryClient _directoryClient;
