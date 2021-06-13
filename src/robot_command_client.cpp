@@ -2,17 +2,17 @@
 
 RobotCommandClient::RobotCommandClient(const std::string &root, const std::string &server) {
 	_stub = initializeNoAuthToken(server, root, "");
-  _clientName = "command";
+  _clientName = "robot-command";
 }
   
 // Assembles the client's payload, sends it and presents the response back
 // from the server.
-RobotCommandResponse RobotCommandClient::robotCommand(Lease lease, RobotCommand command) {
+RobotCommandResponse RobotCommandClient::robotCommand(Lease lease, RobotCommand command, std::string clockIdentifier) {
   RobotCommandRequest request;
   assembleRequestHeader<RobotCommandRequest>(&request);
   request.mutable_lease()->CopyFrom(lease);
   request.mutable_command()->CopyFrom(command);
-  request.set_clock_identifier("spot_time_sync");
+  request.set_clock_identifier(clockIdentifier);
   return call<RobotCommandRequest, RobotCommandResponse>(request, &RobotCommandService::Stub::RobotCommand);
 }
 

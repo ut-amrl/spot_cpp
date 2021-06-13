@@ -51,7 +51,7 @@ class RobotCommandClient : public BaseClient<RobotCommandService> {
 public:
   RobotCommandClient(const std::string &root, const std::string &server);
 
-  RobotCommandResponse robotCommand(Lease lease, RobotCommand command);
+  RobotCommandResponse robotCommand(Lease lease, RobotCommand command, std::string clockIdentifier);
   RobotCommandResponse robotCommandAsync(Lease lease, RobotCommand command);
   RobotCommandFeedbackResponse robotCommandFeedback(uint32_t robotCommandId);
   RobotCommandFeedbackResponse robotCommandFeedbackAsync(uint32_t robotCommandId);

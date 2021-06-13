@@ -2,7 +2,20 @@
 
 TimeSyncClient::TimeSyncClient(const std::string &root, const std::string &server) {
 	_stub = initializeNoAuthToken(server, root, "timesync.spot.robot");
-	_clientName = "timesync";
+	_clientName = "time-sync";
+}
+
+TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate() {
+	TimeSyncUpdateRequest request;
+	assembleRequestHeader<TimeSyncUpdateRequest>(&request);
+	return call<TimeSyncUpdateRequest, TimeSyncUpdateResponse>(request, &TimeSyncService::Stub::TimeSyncUpdate);
+}
+
+TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip) {
+	TimeSyncUpdateRequest request;
+	assembleRequestHeader<TimeSyncUpdateRequest>(&request);
+	request.mutable_previous_round_trip()->CopyFrom(previousRoundTrip);
+	return call<TimeSyncUpdateRequest, TimeSyncUpdateResponse>(request, &TimeSyncService::Stub::TimeSyncUpdate);
 }
         
 TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier) {

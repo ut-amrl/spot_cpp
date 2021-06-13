@@ -25,6 +25,8 @@ class TimeSyncClient : public BaseClient<TimeSyncService> {
 
     //TimeSyncUpdateResponse EstablishTimeSync(const int& numRounds);
 
+    TimeSyncUpdateResponse getTimeSyncUpdate();
+    TimeSyncUpdateResponse getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip);
 	TimeSyncUpdateResponse getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 	TimeSyncUpdateResponse getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 };
