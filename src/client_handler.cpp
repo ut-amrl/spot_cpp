@@ -67,7 +67,7 @@ ImageClient& ClientHandler::imageClient(){
 }
 
 LeaseClient& ClientHandler::leaseClient(){
-	ensureAuthentication<LeaseClient>(&_leaesClient);
+	ensureAuthentication<LeaseClient>(&_leaseClient);
 	return _leaseClient;
 }
 
