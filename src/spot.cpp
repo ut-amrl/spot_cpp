@@ -61,9 +61,11 @@ void estop(EstopClient &client){
 //	handler.leaseClient().retainLease(lease);
 //}
 
-void movement(AcquireLeaseResponse leaseResp, LeaseClient leaseClient, int movementType){
-	lease = new Lease(leaseResp.lease());
-	retLeaseResp = leaseClient.retainLease(lease);
+void movement(AcquireLeaseResponse leaseResp, LeaseClient leaseClient, RobotCommandClient robotCommandClient, std::string timeSyncClockId, int movementType){
+	// retLeaseResp = leaseClient.retainLease(lease);
+
+	Lease *lease = new Lease(leaseResp.lease());
+	RetainLeaseResponse retLeaseResp = leaseClient.retainLease(lease);
 	// retLeaseResp = handler.leaseClient().retainLease(lease);
 	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
@@ -76,7 +78,7 @@ void movement(AcquireLeaseResponse leaseResp, LeaseClient leaseClient, int movem
 		command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
 		break;
 	  case 2: // twist
-	  	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_twist_request();
+	  	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request();
 		break;
 	}
 	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
@@ -188,9 +190,9 @@ int main(int argc, char *argv[]) {
 //	std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
 	
 	
-	movement(leaseResp, leaseClient, 0); // sit 
-	movement(leaseResp, leaseClient, 1); // stand 
-	movement(leaseResp, leaseClient, 2); // twist 
+//	movement(leaseResp, leaseClient, robotCommandClient, timeSyncClockId, 0); // sit 
+//	movement(leaseResp, leaseClient, robotCommandClient, timeSyncClockId, 1); // stand 
+//	movement(leaseResp, leaseClient, robotCommandClient, timeSyncClockId, 2); // twist 
 	// Robot Command - Stand
 	// leaseResp = handler.leaseClient().acquire("body");
 	
@@ -198,12 +200,12 @@ int main(int argc, char *argv[]) {
 	
 	// lease = new Lease(leaseResp.lease());
 	// retLeaseRespt = leaseClient.retainLease(lease);
-	// // retLeaseResp = handler.leaseClient().retainLease(lease);
-	// std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+	 retLeaseResp = leaseClient.retainLease(lease);
+	 std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
-	// RobotCommand command;
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-	// RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
+	 RobotCommand command;
+	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+	 RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 	
 	// // Robot Command - Sit 
 	// lease = new Lease(leaseResp.lease());
