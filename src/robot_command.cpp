@@ -1,8 +1,8 @@
 #include <spot/robot_command.h>
 
-const static std::string CLIENT_NAME = "robot-command";
+const std::string ROBOT_COMMAND_CLIENT_NAME = "robot-command";
 
-RobotCommandClient::RobotCommandClient(const std::string &authority, const std::string &token) : BaseClient(CLIENT_NAME, authority, token) {}
+RobotCommandClient::RobotCommandClient(const std::string &authority, const std::string &token) : BaseClient(ROBOT_COMMAND_CLIENT_NAME, authority, token) {}
   
 // Assembles the client's payload, sends it and presents the response back
 // from the server.

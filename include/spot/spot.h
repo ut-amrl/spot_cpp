@@ -4,17 +4,17 @@
 #ifndef SPOT_H
 #define SPOT_H
 
-#include <spot/auth_client.h>
-#include <spot/directory_client.h>
-#include <spot/estop_client.h>
-#include <spot/image_client.h>
-#include <spot/power_client.h>
-#include <spot/robot_command_client.h>
-#include <spot/robot_id_client.h>
-#include <spot/robot_state_client.h>
-#include <spot/spot_check_client.h>
-#include <spot/time_sync_client.h>
-#include <spot/lease_client.h>
+#include <spot/auth.h>
+#include <spot/directory.h>
+#include <spot/estop.h>
+#include <spot/image.h>
+#include <spot/power.h>
+#include <spot/robot_command.h>
+#include <spot/robot_id.h>
+#include <spot/robot_state.h>
+#include <spot/spot_check.h>
+#include <spot/timesync.h>
+#include <spot/lease.h>
 #include <spot/utils.h>
 
 #endif

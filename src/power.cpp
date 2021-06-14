@@ -1,8 +1,8 @@
 #include <spot/power.h>
 
-const static std::string CLIENT_NAME = "power";
+const std::string POWER_CLIENT_NAME = "power";
 
-PowerClient::PowerClient(const std::string &authority, const std::string &token) : BaseClient(CLIENT_NAME, authority, token) {}
+PowerClient::PowerClient(const std::string &authority, const std::string &token) : BaseClient(POWER_CLIENT_NAME, authority, token) {}
 
 PowerCommandResponse PowerClient::PowerCommand(Lease lease, const PowerCommandRequest_Request& powerRequest) {
   PowerCommandRequest request;

@@ -24,6 +24,8 @@ using bosdyn::api::TakeLeaseRequest;
 using bosdyn::api::TakeLeaseResponse;
 using bosdyn::api::LeaseService;
 
+const extern std::string LEASE_CLIENT_NAME;
+
 class LeaseClient : public BaseClient<LeaseService> {
 public:
   LeaseClient(const std::string &authority, const std::string &token);

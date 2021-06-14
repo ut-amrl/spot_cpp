@@ -26,6 +26,8 @@ using bosdyn::api::EstopConfig;
 using bosdyn::api::EstopSystemStatus;
 using bosdyn::api::EstopStopLevel;
 
+const extern std::string ESTOP_CLIENT_NAME;
+
 class EstopClient : public BaseClient <EstopService> {
 public:
   EstopClient(const std::string &authority, const std::string &token);

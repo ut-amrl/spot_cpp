@@ -31,6 +31,8 @@ using bosdyn::api::RobotHardwareConfigurationResponse;
 using bosdyn::api::RobotLinkModelRequest;
 using bosdyn::api::RobotLinkModelResponse;
 
+const extern std::string ROBOT_STATE_CLIENT_NAME;
+
 class RobotStateClient : public BaseClient<RobotStateService> { 
 public:
   RobotStateClient(const std::string &authority, const std::string &token);

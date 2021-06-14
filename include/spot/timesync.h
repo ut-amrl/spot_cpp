@@ -15,6 +15,8 @@ using bosdyn::api::TimeSyncEstimate;
 using bosdyn::api::TimeSyncRoundTrip;
 using bosdyn::api::TimeSyncState;
 
+const extern std::string TIMESYNC_CLIENT_NAME;
+
 class TimeSyncClient : public BaseClient<TimeSyncService> {
     public: 
     TimeSyncClient(const std::string &authority, const std::string &token);

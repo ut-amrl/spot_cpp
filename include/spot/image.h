@@ -16,6 +16,8 @@ using bosdyn::api::ListImageSourcesResponse;
 using bosdyn::api::GetImageResponse;
 using bosdyn::api::GetImageRequest;
 
+const extern std::string IMAGE_CLIENT_NAME;
+
 class ImageClient : public BaseClient<ImageService> {
 public:
 	ImageClient(const std::string &authority, const std::string &token);

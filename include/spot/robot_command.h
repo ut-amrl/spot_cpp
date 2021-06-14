@@ -43,6 +43,8 @@ using bosdyn::api::StandCommand_Feedback;
 using bosdyn::api::Lease;
 using bosdyn::api::LeaseUseResult;
 
+const extern std::string ROBOT_COMMAND_CLIENT_NAME;
+
 class RobotCommandClient : public BaseClient<RobotCommandService> {
 public:
   RobotCommandClient(const std::string &authority, const std::string &token);

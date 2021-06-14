@@ -1,10 +1,10 @@
 #include <spot/robot_id.h>
 
-const static std::string CLIENT_NAME = "robot-id";
+const std::string ROBOT_ID_CLIENT_NAME = "robot-id";
 const static std::string AUTHORITY = "id.spot.robot";
 const static std::string TOKEN = "";
 
-RobotIdClient::RobotIdClient() : BaseClient(CLIENT_NAME, AUTHORITY, TOKEN) {}
+RobotIdClient::RobotIdClient() : BaseClient(ROBOT_ID_CLIENT_NAME, AUTHORITY, TOKEN) {}
 
 RobotIdResponse RobotIdClient::getId(){
   RobotIdRequest request;

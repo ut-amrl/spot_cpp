@@ -1,9 +1,9 @@
 #include <spot/directory.h>
 
-const static std::string CLIENT_NAME = "directory";
+const std::string DIRECTORY_CLIENT_NAME = "directory";
 const static std::string AUTHORITY = "api.spot.robot";
 
-DirectoryClient::DirectoryClient(const std::string &token) : BaseClient(CLIENT_NAME, AUTHORITY, token) {}  
+DirectoryClient::DirectoryClient(const std::string &token) : BaseClient(DIRECTORY_CLIENT_NAME, AUTHORITY, token) {}  
 
 ListServiceEntriesResponse DirectoryClient::list(){
     ListServiceEntriesRequest request;

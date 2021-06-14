@@ -1,5 +1,5 @@
 /*
-  base.h: includes base client and interface of which all other clients and interfaces inherit from 
+  base.h: includes base client of which all other clients and interfaces inherit from 
 */
 
 #ifndef BASE_H
@@ -28,7 +28,7 @@ using grpc::ClientAsyncResponseReader;
 using google::protobuf::util::TimeUtil;
 
 /* SpotAuthenticator(): class that encapsulates metadata to be sent in calls 
-   TODO: maybe use as static class so doesn't have to be recreated each time stub authenticated*
+   TODO: maybe use as static class so doesn't have to be recreated each time stub authenticated
 */
 class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
  public:
@@ -51,7 +51,7 @@ class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
 /* BaseClient(): parent class for clients */
 template <class serv_T>
 class BaseClient{
-public:
+protected: // can't actually instantiate baseclient, must have derivations
 	BaseClient(const std::string &clientName, const std::string &authority, const std::string &token);	
 
 	template<class req_T>
@@ -74,9 +74,9 @@ protected:
 
 // BaseClient(): constructor for BaseClient, takes in clientName, authority, and auth token
 template <class serv_T>
-BaseClient<serv_T>::BaseClient(const std::string &clientName, const std::string &authority, const std::string &token) {
-	_clientName = clientName;
-	_authority = authority;
+BaseClient<serv_T>::BaseClient(const std::string &clientName, const std::string &authority, const std::string &token) : 
+		_clientName(clientName), 
+		_authority(authority) {
 	
 	// get hostname
 	std::string hostName = DEFAULT_SPOT_SERVER + DEFAULT_SECURE_PORT;
@@ -89,7 +89,7 @@ BaseClient<serv_T>::BaseClient(const std::string &clientName, const std::string 
 	grpc::ChannelArguments channelArgs;
 	channelArgs.SetSslTargetNameOverride(authority);
 
-	// get call credentials
+	// get call credentials (should work even if token is empty)
 	auto call_creds = grpc::MetadataCredentialsFromPlugin(std::unique_ptr<grpc::MetadataCredentialsPlugin>(new SpotAuthenticator(token)));
 	_stub = serv_T::NewStub(grpc::CreateCustomChannel(hostName, grpc::CompositeChannelCredentials(grpc::SslCredentials(opts), call_creds), channelArgs));
 }

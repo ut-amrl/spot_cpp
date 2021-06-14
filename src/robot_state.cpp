@@ -1,8 +1,8 @@
 #include <spot/robot_state.h>
 
-const static std::string CLIENT_NAME = "robot-state";
+const std::string ROBOT_STATE_CLIENT_NAME = "robot-state";
 
-RobotStateClient::RobotStateClient(const std::string &authority, const std::string &token) : BaseClient(CLIENT_NAME, authority, token) {}
+RobotStateClient::RobotStateClient(const std::string &authority, const std::string &token) : BaseClient(ROBOT_STATE_CLIENT_NAME, authority, token) {}
 
 RobotStateResponse RobotStateClient::getRobotState(){
   // Data we are sending to the server.

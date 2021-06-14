@@ -1,8 +1,8 @@
 #include <spot/lease.h>
 
-const static std::string CLIENT_NAME = "lease";
+const std::string LEASE_CLIENT_NAME = "lease";
 
-LeaseClient::LeaseClient(const std::string &authority, const std::string &token) : BaseClient(CLIENT_NAME, authority, token) {}
+LeaseClient::LeaseClient(const std::string &authority, const std::string &token) : BaseClient(LEASE_CLIENT_NAME, authority, token) {}
 
 AcquireLeaseResponse LeaseClient::acquire(const std::string &resource) {
   AcquireLeaseRequest request;

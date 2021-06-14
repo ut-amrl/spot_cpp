@@ -1,8 +1,8 @@
 #include <spot/estop.h>
 
-const static std::string CLIENT_NAME = "estop";
+const std::string ESTOP_CLIENT_NAME = "estop";
 
-EstopClient::EstopClient(const std::string &authority, const std::string &token) : BaseClient(CLIENT_NAME, authority, token) {}
+EstopClient::EstopClient(const std::string &authority, const std::string &token) : BaseClient(ESTOP_CLIENT_NAME, authority, token) {}
 
  
 RegisterEstopEndpointResponse EstopClient::registerEndpoint(const std::string &targetConfigId, EstopEndpoint &targetEndpoint, EstopEndpoint &endpoint) {

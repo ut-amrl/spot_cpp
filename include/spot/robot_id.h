@@ -12,6 +12,8 @@ using bosdyn::api::RobotIdService;
 using bosdyn::api::RobotIdRequest;
 using bosdyn::api::RobotIdResponse;
 
+const extern std::string ROBOT_ID_CLIENT_NAME;
+
 class RobotIdClient : public BaseClient<RobotIdService> {
 public:
 	RobotIdClient();
@@ -19,6 +21,5 @@ public:
 	RobotIdResponse getId();
 	RobotIdResponse getIdAsync();
 };
-
 
 #endif

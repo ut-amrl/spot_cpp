@@ -1,8 +1,8 @@
 #include <spot/timesync.h>
 
-const static std::string CLIENT_NAME = "timesync";
+const std::string TIMESYNC_CLIENT_NAME = "timesync";
 
-TimeSyncClient::TimeSyncClient(const std::string &authority, const std::string &token) : BaseClient(CLIENT_NAME, authority, token) {}
+TimeSyncClient::TimeSyncClient(const std::string &authority, const std::string &token) : BaseClient(TIMESYNC_CLIENT_NAME, authority, token) {}
         
 TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier) {
 	TimeSyncUpdateRequest request;
