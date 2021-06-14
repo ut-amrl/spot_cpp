@@ -50,7 +50,7 @@ void estop(EstopClient &client){
 	checkInResp = client.checkIn(stopLevel, activeEndpoint, checkInResp.challenge(), ~checkInResp.challenge(), false);
 	std::cout << "Check In Status " << checkInResp.status() << std::endl;
 	std::cout << "Challenge: " << checkInResp.challenge() << std::endl;
-	checkInResp = ch.estopClient().checkIn(stopLevel, activeEndpoint, checkInResp.challenge(), ~checkInResp.challenge(), false);
+	checkInResp = client.checkIn(stopLevel, activeEndpoint, checkInResp.challenge(), ~checkInResp.challenge(), false);
 	std::cout << "Check In Status " << checkInResp.status() << std::endl;
 	std::cout << "Challenge: " << checkInResp.challenge() << std::endl;
 }
