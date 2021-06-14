@@ -39,12 +39,3 @@ GetAuthTokenResponse AuthClient::authWithTokenAsync(const std::string &token) {
 
 	return callAsync<GetAuthTokenRequest, GetAuthTokenResponse>(request, &AuthService::Stub::AsyncGetAuthToken);
 }
-
-std::string AuthClient::authenticate(const std::string &username, const std::string &password, bool async) {
-	return async ? authAsync(username, password).token() : auth(username, password).token();
-}
-
-
-std::string AuthClient::authenticateWithToken(const std::string &token, bool async) {
-	return async ? authWithTokenAsync(token).token() : authWithTokenAsync(token).token();
-}

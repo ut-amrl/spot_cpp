@@ -11,20 +11,6 @@
 #include <string>
 #include <map>
 
-// CLIENT_TYPES: types for clients (used throughout lib)
-enum class CLIENT_TYPES {
-    AUTH = 1,
-    DIRECTORY,
-    ESTOP,
-    IMAGE,
-    LEASE,
-    POWER,
-    ROBOT_COMMAND,
-    ROBOT_ID,
-    ROBOT_STATE,
-    SPOT_CHECK,
-    TIMESYNC,
-};
 
 // DEFAULT_SPOT_SERVER(): default server hosted on Spot
 extern std::string DEFAULT_SPOT_SERVER;

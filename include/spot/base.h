@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <thread>
 
 #include <grpc++/grpc++.h>
 #include <grpc++/health_check_service_interface.h>
@@ -18,6 +19,7 @@
 
 #include "bosdyn/api/header.grpc.pb.h"
 
+#include <spot/exception.h>
 #include <spot/utils.h>
 
 using grpc::Channel;
@@ -48,9 +50,11 @@ class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
   std::string _authorization_value_prefix = "Bearer ";
 };
 
-/* BaseClient(): parent class for clients */
+/* TypesClient: allows for consistent rpc calling for clients w/ client type specified*/
 template <class serv_T>
-class BaseClient{
+class BaseClient {
+public:
+	std::string getClientName() const {return _clientName;}
 protected: // can't actually instantiate baseclient, must have derivations
 	BaseClient(const std::string &clientName, const std::string &authority, const std::string &token);	
 
@@ -63,19 +67,18 @@ protected: // can't actually instantiate baseclient, must have derivations
 	template<class req_T, class res_T>
 	res_T callAsync(req_T request, std::unique_ptr<ClientAsyncResponseReader<res_T>>(serv_T::Stub::*func)(grpc::ClientContext* context, const req_T& request, grpc::CompletionQueue* cq));
 
-	std::string getClientName() const {return _clientName;}
 	std::string getAuthority() const {return _authority;}
 
 protected:
 	std::unique_ptr<typename serv_T::Stub> _stub;
-	std::string _clientName;
 	std::string _authority;
+	std::string _clientName;
 };
 
-// BaseClient(): constructor for BaseClient, takes in clientName, authority, and auth token
+// TypedClient(): constructor for TypedClient, takes in clientName, authority, and auth token
 template <class serv_T>
 BaseClient<serv_T>::BaseClient(const std::string &clientName, const std::string &authority, const std::string &token) : 
-		_clientName(clientName), 
+		_clientName(clientName),
 		_authority(authority) {
 	
 	// get hostname

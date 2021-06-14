@@ -18,10 +18,6 @@ class AuthClient : public BaseClient<AuthService> {
 public:
   AuthClient();
 
-  std::string authenticate(const std::string &username, const std::string &password, bool async);
-  std::string authenticateWithToken(const std::string &token, bool async);
-
-private:
   // rpcs
   GetAuthTokenResponse auth(const std::string &user, const std::string &pass);
   GetAuthTokenResponse authAsync(const std::string &user, const std::string &pass);

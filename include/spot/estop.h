@@ -27,6 +27,9 @@ using bosdyn::api::EstopSystemStatus;
 using bosdyn::api::EstopStopLevel;
 
 const extern std::string ESTOP_CLIENT_NAME;
+const std::string REQUIRED_ROLE = "PDB_rooted";
+
+typedef bool (*keepAliveCallback)(void);
 
 class EstopClient : public BaseClient <EstopService> {
 public:
@@ -45,6 +48,18 @@ public:
   GetEstopSystemStatusResponse getStatusAsync();
   EstopCheckInResponse checkIn(EstopStopLevel &stopLevel, EstopEndpoint &endpoint, uint64_t challenge, uint64_t response, bool suppress_incorrect);
   EstopCheckInResponse checkInAsync(EstopStopLevel &stopLevel, EstopEndpoint &endpoint, uint64_t challenge, uint64_t response, bool suppress_incorrect);
+};
+
+// does periodic estop check-ins on a thread
+class EstopKeepAlive {
+public:
+  EstopKeepAlive(int rpcTimeoutSeconds, int rpcIntervalSeconds, EstopClient &client /*, keepAliveCallback cbFunc*/);
+  ~EstopKeepAlive(); // destroy thread ?
+private:
+  EstopClient &_client;
+  int _rpcTimeoutSeconds;
+  int _rpcIntervalSeconds;
+  bool _keepRunning;
 };
 
 #endif

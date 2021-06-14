@@ -8,6 +8,7 @@
 #include "bosdyn/api/robot_id_service.grpc.pb.h"
 #include <spot/base.h>
 
+using bosdyn::api::RobotId;
 using bosdyn::api::RobotIdService;
 using bosdyn::api::RobotIdRequest;
 using bosdyn::api::RobotIdResponse;

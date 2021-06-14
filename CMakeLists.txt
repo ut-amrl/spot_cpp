@@ -13,6 +13,7 @@ set(_GRPC_GRPCPP gRPC::grpc++)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
 find_package(Threads REQUIRED)
+find_package(Boost REQUIRED)
 
 ###########
 ## Build ##
@@ -140,7 +141,7 @@ add_executable(spot
   src/robot_state.cpp
   src/directory.cpp
   src/spot.cpp
-  #src/client_handler.cpp
+  src/robot.cpp
   src/utils.cpp
 
   # deps

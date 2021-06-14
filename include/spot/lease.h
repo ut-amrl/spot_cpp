@@ -42,4 +42,15 @@ public:
   ListLeasesResponse listLeasesAsync(bool includeFullLeasesInfo);
 };
 
+// issues lease liveness checks on background thread
+class LeaseKeepAlive {
+public:
+  LeaseKeepAlive(LeaseClient &client, const std::string &resource, int rpcIntervalSeconds);
+  ~LeaseKeepAlive(); // destroy thread ?
+private:
+  LeaseClient &_client;
+  std::string resource;
+  int _rpcIntervalSeconds;
+};
+
 #endif
