@@ -49,13 +49,8 @@ class RobotCommandClient : public BaseClient<RobotCommandService> {
 public:
   RobotCommandClient(const std::string &authority, const std::string &token);
 
-<<<<<<< HEAD:include/spot/robot_command.h
   RobotCommandResponse robotCommand(Lease lease, RobotCommand command, std::string &clockIdentifier);
   RobotCommandResponse robotCommandAsync(Lease lease, RobotCommand command, std::string &clockIdentifier);
-=======
-  RobotCommandResponse robotCommand(Lease lease, RobotCommand command, std::string clockIdentifier);
-  RobotCommandResponse robotCommandAsync(Lease lease, RobotCommand command);
->>>>>>> main:include/spot/robot_command_client.h
   RobotCommandFeedbackResponse robotCommandFeedback(uint32_t robotCommandId);
   RobotCommandFeedbackResponse robotCommandFeedbackAsync(uint32_t robotCommandId);
   ClearBehaviorFaultResponse clearBehaviorFault(Lease lease, uint32_t behaviorFaultId);
