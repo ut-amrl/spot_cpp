@@ -1,10 +1,20 @@
+/*
+    spot.h: header file for main
+*/
 #ifndef SPOT_H
 #define SPOT_H
 
-#include <spot/client_handler.h>
+#include <spot/auth.h>
+#include <spot/directory.h>
+#include <spot/estop.h>
+#include <spot/image.h>
+#include <spot/power.h>
+#include <spot/robot_command.h>
+#include <spot/robot_id.h>
+#include <spot/robot_state.h>
+#include <spot/spot_check.h>
+#include <spot/timesync.h>
+#include <spot/lease.h>
 #include <spot/utils.h>
-
-std::string DEFAULT_SECURE_PORT = "443";
-std::string DEFAULT_SERVER_ADDRESS = "192.168.80.3";
 
 #endif

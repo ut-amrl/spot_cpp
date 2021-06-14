@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(spot_comm)
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++17)
 
 find_package(Eigen3 REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
@@ -17,7 +17,6 @@ find_package(Threads REQUIRED)
 ###########
 ## Build ##
 ###########
-
 
 include_directories(
   include
@@ -129,19 +128,19 @@ include_files_service(data_buffer)
 include_files_docking_service(docking)
 
 add_executable(spot
-  src/auth_client.cpp
-  src/image_client.cpp
-  src/power_client.cpp
-  src/robot_id_client.cpp
-  src/spot_check_client.cpp
-  src/time_sync_client.cpp
-  src/estop_client.cpp
-  src/lease_client.cpp
-  src/robot_command_client.cpp
-  src/robot_state_client.cpp
-  src/directory_client.cpp
+  src/auth.cpp
+  src/image.cpp
+  src/power.cpp
+  src/robot_id.cpp
+  src/spot_check.cpp
+  src/timesync.cpp
+  src/estop.cpp
+  src/lease.cpp
+  src/robot_command.cpp
+  src/robot_state.cpp
+  src/directory.cpp
   src/spot.cpp
-  src/client_handler.cpp
+  #src/client_handler.cpp
   src/utils.cpp
 
   # deps

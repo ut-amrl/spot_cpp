@@ -1,1 +1,0 @@
-#include <spot/spot_check_client.h>

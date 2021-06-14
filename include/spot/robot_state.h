@@ -1,11 +1,15 @@
-#ifndef ROBOT_STATE_CLIENT_H
-#define ROBOT_STATE_CLIENT_H
+/*
+  robot_state.h: includes client and interface for communication with the robot-state service 
+*/
+
+#ifndef ROBOT_STATE_H
+#define ROBOT_STATE_H
 
 #include "bosdyn/api/robot_state_service.grpc.pb.h"
 #include "bosdyn/api/geometry.grpc.pb.h"
 #include "bosdyn/api/header.grpc.pb.h"
 
-#include <spot/base_client.h>
+#include <spot/base.h>
 
 using bosdyn::api::RobotStateService;
 using bosdyn::api::RobotStateRequest;
@@ -26,20 +30,12 @@ using bosdyn::api::RobotHardwareConfigurationRequest;
 using bosdyn::api::RobotHardwareConfigurationResponse;
 using bosdyn::api::RobotLinkModelRequest;
 using bosdyn::api::RobotLinkModelResponse;
-using google::protobuf::Duration;
-using google::protobuf::Timestamp;
-using google::protobuf::util::TimeUtil;
 
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::Status;
-using grpc::CompletionQueue;
-using grpc::ClientAsyncResponseReader;
-
+const extern std::string ROBOT_STATE_CLIENT_NAME;
 
 class RobotStateClient : public BaseClient<RobotStateService> { 
 public:
-  RobotStateClient(const std::string &root, const std::string &server);
+  RobotStateClient(const std::string &authority, const std::string &token);
   
   RobotStateResponse getRobotState();
   RobotStateResponse getRobotStateAsync();

@@ -1,4 +1,6 @@
-#include <spot/image_client.h>
+#include <spot/image.h>
+
+const std::string IMAGE_CLIENT_NAME = "image";
 
 /* get_image_request(): helper function to generate an image request given the list of image requests
 */
@@ -10,10 +12,7 @@ GetImageRequest get_image_request(const std::vector<ImageRequest> &list) {
   return request;
 }
 
-ImageClient::ImageClient(const std::string &root, const std::string &server) {
-  _stub = initializeNoAuthToken(server, root, "");
-  _clientName = "image";
-}
+ImageClient::ImageClient(const std::string &authority, const std::string &token) : BaseClient(IMAGE_CLIENT_NAME, authority, token) {}
 
 ListImageSourcesResponse ImageClient::listImageSources(){
   ListImageSourcesRequest request;

@@ -1,15 +1,13 @@
-#ifndef POWER_CLIENT_H
-#define POWER_CLIENT_H
+/*
+  power.h: includes client and interface for communication with the power service 
+*/
+
+#ifndef POWER_H
+#define POWER_H
 
 #include "bosdyn/api/power_service.grpc.pb.h"
 #include "bosdyn/api/robot_state_service.grpc.pb.h"
-#include <spot/base_client.h>
-
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::Status;
-using grpc::CompletionQueue;
-using grpc::ClientAsyncResponseReader;
+#include <spot/base.h>
 
 using bosdyn::api::PowerCommandRequest;
 using bosdyn::api::PowerCommandRequest_Request;
@@ -23,11 +21,12 @@ using bosdyn::api::PowerState_MotorPowerState;
 using bosdyn::api::Lease;
 using bosdyn::api::LeaseUseResult;
 using bosdyn::api::LicenseInfo;
-using google::protobuf::util::TimeUtil;
+
+const extern std::string POWER_CLIENT_NAME;
 
 class PowerClient : public BaseClient<PowerService> {
 public:
-  PowerClient(const std::string &root, const std::string &server);
+  PowerClient(const std::string &authority, const std::string &token);
 
   PowerCommandResponse PowerCommand(Lease lease, const PowerCommandRequest_Request& request);
   PowerCommandResponse PowerCommandAsync(Lease lease, const PowerCommandRequest_Request& powerRequest);

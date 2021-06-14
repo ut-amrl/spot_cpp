@@ -1,5 +1,9 @@
-#ifndef BASE_CLIENT_H
-#define BASE_CLIENT_H
+/*
+  base.h: includes base client of which all other clients and interfaces inherit from 
+*/
+
+#ifndef BASE_H
+#define BASE_H
 
 #include <memory>
 #include <string>
@@ -24,7 +28,7 @@ using grpc::ClientAsyncResponseReader;
 using google::protobuf::util::TimeUtil;
 
 /* SpotAuthenticator(): class that encapsulates metadata to be sent in calls 
-   TODO: maybe use as static class so doesn't have to be recreated each time stub authenticated*
+   TODO: maybe use as static class so doesn't have to be recreated each time stub authenticated
 */
 class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
  public:
@@ -47,10 +51,11 @@ class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
 /* BaseClient(): parent class for clients */
 template <class serv_T>
 class BaseClient{
-public:
-	void authenticateStub(std::string token, std::string authority);
-	
-	std::unique_ptr<typename serv_T::Stub> initializeNoAuthToken(std::string hostname, std::string cert, std::string authority);
+protected: // can't actually instantiate baseclient, must have derivations
+	BaseClient(const std::string &clientName, const std::string &authority, const std::string &token);	
+
+	template<class req_T>
+	void assembleRequestHeader(req_T* req);
 
 	template<class req_T, class res_T>
 	res_T call(req_T request, Status(serv_T::Stub::*func)(grpc::ClientContext* context, const req_T& request, res_T* response));
@@ -58,47 +63,38 @@ public:
 	template<class req_T, class res_T>
 	res_T callAsync(req_T request, std::unique_ptr<ClientAsyncResponseReader<res_T>>(serv_T::Stub::*func)(grpc::ClientContext* context, const req_T& request, grpc::CompletionQueue* cq));
 
-	template<class req_T>
-	void assembleRequestHeader(req_T* req);
-
-	std::string getClientName();
+	std::string getClientName() const {return _clientName;}
+	std::string getAuthority() const {return _authority;}
 
 protected:
 	std::unique_ptr<typename serv_T::Stub> _stub;
-	std::string _hostname;
-	std::string _cert;
 	std::string _clientName;
+	std::string _authority;
 };
 
+// BaseClient(): constructor for BaseClient, takes in clientName, authority, and auth token
 template <class serv_T>
-void BaseClient<serv_T>::authenticateStub(std::string token, std::string authority){
+BaseClient<serv_T>::BaseClient(const std::string &clientName, const std::string &authority, const std::string &token) : 
+		_clientName(clientName), 
+		_authority(authority) {
+	
+	// get hostname
+	std::string hostName = DEFAULT_SPOT_SERVER + DEFAULT_SECURE_PORT;
+	
 	// create options
-  	grpc::SslCredentialsOptions opts;
-  	opts.pem_root_certs = _cert;
+	grpc::SslCredentialsOptions opts;
+	opts.pem_root_certs = DEFAULT_ROOT_CERT;
 
 	// create channel arguments
-  	grpc::ChannelArguments channelArgs;
-  	channelArgs.SetSslTargetNameOverride(authority);
+	grpc::ChannelArguments channelArgs;
+	channelArgs.SetSslTargetNameOverride(authority);
 
-	// get call credentials
-    auto call_creds = grpc::MetadataCredentialsFromPlugin( std::unique_ptr<grpc::MetadataCredentialsPlugin>(new SpotAuthenticator(token)));
-  	_stub = serv_T::NewStub(grpc::CreateCustomChannel(_hostname, grpc::CompositeChannelCredentials(grpc::SslCredentials(opts), call_creds), channelArgs));
+	// get call credentials (should work even if token is empty)
+	auto call_creds = grpc::MetadataCredentialsFromPlugin(std::unique_ptr<grpc::MetadataCredentialsPlugin>(new SpotAuthenticator(token)));
+	_stub = serv_T::NewStub(grpc::CreateCustomChannel(hostName, grpc::CompositeChannelCredentials(grpc::SslCredentials(opts), call_creds), channelArgs));
 }
 
-template <class serv_T>
-std::unique_ptr<typename serv_T::Stub> BaseClient<serv_T>::initializeNoAuthToken(std::string hostname, std::string cert, std::string authority){
-	// create options
-  	grpc::SslCredentialsOptions opts;
-  	opts.pem_root_certs = cert;
-	_cert = cert;
-	_hostname = hostname;
-
-	// create channel arguments
-  	grpc::ChannelArguments channelArgs;
-  	channelArgs.SetSslTargetNameOverride(authority); // put into kv map later
-  	return serv_T::NewStub(grpc::CreateCustomChannel(hostname, grpc::SslCredentials(opts), channelArgs));
-}
-
+// call(): performs rpc
 template<class serv_T>
 template<class req_T, class res_T>
 res_T BaseClient<serv_T>::call(req_T request, Status(serv_T::Stub::*func)(grpc::ClientContext* context, const req_T& request, res_T* response)){
@@ -123,6 +119,7 @@ res_T BaseClient<serv_T>::call(req_T request, Status(serv_T::Stub::*func)(grpc::
 	return reply;
 }
 
+// callAsync(): performs async rpc
 template<class serv_T>
 template<class req_T, class res_T>
 res_T BaseClient<serv_T>::callAsync(req_T request, std::unique_ptr<ClientAsyncResponseReader<res_T>>(serv_T::Stub::*func)(grpc::ClientContext* context, const req_T& request, grpc::CompletionQueue* cq)){
@@ -152,17 +149,12 @@ res_T BaseClient<serv_T>::callAsync(req_T request, std::unique_ptr<ClientAsyncRe
 	return reply;
 }
 
+// assembleRequestHeader(): fills in header info for requests
 template<class serv_T>
 template<class req_T>
 void BaseClient<serv_T>::assembleRequestHeader(req_T* req){
 	req->mutable_header()->mutable_request_timestamp()->CopyFrom(TimeUtil::GetCurrentTime());
   	req->mutable_header()->set_client_name(_clientName);
 }
-
-template<class serv_T>
-std::string BaseClient<serv_T>::getClientName(){
-	return _clientName;
-}
-
 
 #endif

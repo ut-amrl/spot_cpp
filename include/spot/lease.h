@@ -1,8 +1,12 @@
-#ifndef LEASE_CLIENT_H
-#define LEASE_CLIENT_H
+/*
+  lease.h: includes client and interface for communication with the lease service 
+*/
+
+#ifndef LEASE_H
+#define LEASE_H
 
 #include "bosdyn/api/lease_service.grpc.pb.h"
-#include <spot/base_client.h>
+#include <spot/base.h>
 
 using bosdyn::api::AcquireLeaseRequest;
 using bosdyn::api::AcquireLeaseResponse;
@@ -20,16 +24,11 @@ using bosdyn::api::TakeLeaseRequest;
 using bosdyn::api::TakeLeaseResponse;
 using bosdyn::api::LeaseService;
 
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::Status;
-using grpc::CompletionQueue;
-using grpc::ClientAsyncResponseReader;
-using google::protobuf::util::TimeUtil;
+const extern std::string LEASE_CLIENT_NAME;
 
 class LeaseClient : public BaseClient<LeaseService> {
 public:
-  LeaseClient(const std::string &root, const std::string &server);
+  LeaseClient(const std::string &authority, const std::string &token);
 
   AcquireLeaseResponse acquire(const std::string &resource);
   AcquireLeaseResponse acquireAsync(const std::string &resource);

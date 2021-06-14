@@ -1,13 +1,12 @@
-#include <spot/robot_command_client.h>
+#include <spot/robot_command.h>
 
-RobotCommandClient::RobotCommandClient(const std::string &root, const std::string &server) {
-	_stub = initializeNoAuthToken(server, root, "");
-  _clientName = "robot-command";
-}
+const std::string ROBOT_COMMAND_CLIENT_NAME = "robot-command";
+
+RobotCommandClient::RobotCommandClient(const std::string &authority, const std::string &token) : BaseClient(ROBOT_COMMAND_CLIENT_NAME, authority, token) {}
   
 // Assembles the client's payload, sends it and presents the response back
 // from the server.
-RobotCommandResponse RobotCommandClient::robotCommand(Lease lease, RobotCommand command, std::string clockIdentifier) {
+RobotCommandResponse RobotCommandClient::robotCommand(Lease lease, RobotCommand command, std::string &clockIdentifier) {
   RobotCommandRequest request;
   assembleRequestHeader<RobotCommandRequest>(&request);
   request.mutable_lease()->CopyFrom(lease);
@@ -19,12 +18,12 @@ RobotCommandResponse RobotCommandClient::robotCommand(Lease lease, RobotCommand 
 
 // Assembles the client's payload, sends it and presents the response back
 // from the server. Asynchronous
-RobotCommandResponse RobotCommandClient::robotCommandAsync(Lease lease, RobotCommand command){
+RobotCommandResponse RobotCommandClient::robotCommandAsync(Lease lease, RobotCommand command, std::string &clockIdentifier){
   RobotCommandRequest request;
   assembleRequestHeader<RobotCommandRequest>(&request);
   request.mutable_lease()->CopyFrom(lease);
   request.mutable_command()->CopyFrom(command);
-  request.set_clock_identifier("spot_time_sync");
+  request.set_clock_identifier(clockIdentifier);
   return callAsync<RobotCommandRequest, RobotCommandResponse>(request, &RobotCommandService::Stub::AsyncRobotCommand);
 }
 

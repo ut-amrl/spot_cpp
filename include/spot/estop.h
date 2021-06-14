@@ -1,7 +1,11 @@
-#ifndef ESTOP_CLIENT_H
-#define ESTOP_CLIENT_H
+/*
+  estop.h: includes client and interface for communication with the estop service 
+*/
 
-#include <spot/base_client.h>
+#ifndef ESTOP_H
+#define ESTOP_H
+
+#include <spot/base.h>
 #include "bosdyn/api/estop_service.grpc.pb.h"
 
 using bosdyn::api::RegisterEstopEndpointRequest;
@@ -21,17 +25,12 @@ using bosdyn::api::EstopService;
 using bosdyn::api::EstopConfig;
 using bosdyn::api::EstopSystemStatus;
 using bosdyn::api::EstopStopLevel;
-using google::protobuf::Duration;
 
-using grpc::Channel;
-using grpc::CompletionQueue;
-using grpc::ClientAsyncResponseReader;
-using grpc::ClientContext;
-using grpc::Status;
+const extern std::string ESTOP_CLIENT_NAME;
 
 class EstopClient : public BaseClient <EstopService> {
 public:
-  EstopClient(const std::string &root, const std::string &server);
+  EstopClient(const std::string &authority, const std::string &token);
 
   RegisterEstopEndpointResponse registerEndpoint(const std::string &targetConfigId, EstopEndpoint &targetEndpoint, EstopEndpoint &endpoint);
   RegisterEstopEndpointResponse registerEndpointAsync(const std::string &targetConfigId, EstopEndpoint &endpoint);

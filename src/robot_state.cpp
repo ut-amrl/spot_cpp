@@ -1,12 +1,8 @@
-#include <spot/robot_state_client.h>
+#include <spot/robot_state.h>
 
+const std::string ROBOT_STATE_CLIENT_NAME = "robot-state";
 
-RobotStateClient::RobotStateClient(const std::string &root, const std::string &server) {
-  _stub = initializeNoAuthToken(server, root, "");
-  _clientName = "robot-state";
-} 
-
-// new 
+RobotStateClient::RobotStateClient(const std::string &authority, const std::string &token) : BaseClient(ROBOT_STATE_CLIENT_NAME, authority, token) {}
 
 RobotStateResponse RobotStateClient::getRobotState(){
   // Data we are sending to the server.

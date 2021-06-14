@@ -1,9 +1,8 @@
-#include <spot/power_client.h>
+#include <spot/power.h>
 
-PowerClient::PowerClient(const std::string &root, const std::string &server) {
-  _stub = initializeNoAuthToken(server, root, "");
-  _clientName = "power";
-}
+const std::string POWER_CLIENT_NAME = "power";
+
+PowerClient::PowerClient(const std::string &authority, const std::string &token) : BaseClient(POWER_CLIENT_NAME, authority, token) {}
 
 PowerCommandResponse PowerClient::PowerCommand(Lease lease, const PowerCommandRequest_Request& powerRequest) {
   PowerCommandRequest request;

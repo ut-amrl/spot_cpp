@@ -1,9 +1,8 @@
-#include <spot/time_sync_client.h>
+#include <spot/timesync.h>
 
-TimeSyncClient::TimeSyncClient(const std::string &root, const std::string &server) {
-	_stub = initializeNoAuthToken(server, root, "timesync.spot.robot");
-	_clientName = "time-sync";
-}
+const std::string TIMESYNC_CLIENT_NAME = "timesync";
+
+TimeSyncClient::TimeSyncClient(const std::string &authority, const std::string &token) : BaseClient(TIMESYNC_CLIENT_NAME, authority, token) {}
 
 TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate() {
 	TimeSyncUpdateRequest request;
