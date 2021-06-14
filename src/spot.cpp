@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <thread>
 #include <fstream>
 #include <streambuf>
 #include <assert.h>
@@ -55,6 +56,11 @@ void estop(EstopClient &client){
 	std::cout << "Challenge: " << checkInResp.challenge() << std::endl;
 }
 
+//void leaseCode(AcquireLeaseResponse leaseResp, ClientHandler handler){
+//	Lease *lease = new Lease(leaseResp.lease());
+//	handler.leaseClient().retainLease(lease);
+//}
+
 // main function for running Spot clients
 int main(int argc, char *argv[]) {
 	// make sure username and password are supplied
@@ -91,23 +97,101 @@ int main(int argc, char *argv[]) {
 	RetainLeaseResponse retLeaseResp = leaseClient.retainLease(lease);
 	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
-	// power
+	// TimeSync
+	TimeSyncClient timeSyncClient(directoryClient.getEntry(TIMESYNC_CLIENT_NAME).service_entry().authority(), token);
+	TimeSyncUpdateResponse timeSyncResp = timeSyncClient.getTimeSyncUpdate();
+	std::string timeSyncClockId = timeSyncResp.clock_identifier();
+	//std::cout << "Time Sync Status: " << timeSyncResp.state().status() << std::endl;
+	while(timeSyncResp.state().status() != 1){
+		TimeSyncRoundTrip prevRoundTrip;
+		prevRoundTrip.mutable_client_rx()->CopyFrom(TimeUtil::GetCurrentTime());
+		prevRoundTrip.mutable_client_tx()->CopyFrom(timeSyncResp.header().request_header().request_timestamp());
+		prevRoundTrip.mutable_server_tx()->CopyFrom(timeSyncResp.header().response_timestamp());
+		prevRoundTrip.mutable_server_rx()->CopyFrom(timeSyncResp.header().request_received_timestamp());
+		timeSyncResp = timeSyncClient.getTimeSyncUpdate(prevRoundTrip, timeSyncClockId);
+	}
+	std::cout << "Time Sync Status: " << timeSyncResp.state().status() << std::endl;
+	std::cout << "Time Sync Completed" << std::endl;
+
+	// Power
 	PowerClient powerClient(directoryClient.getEntry(POWER_CLIENT_NAME).service_entry().authority(), token);
 	PowerCommandRequest_Request pcr_r;
 	pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
 	PowerCommandResponse powerCommResp = powerClient.PowerCommand(leaseResp.lease(), pcr_r); 
 	uint32_t pcID = powerCommResp.power_command_id();
 	std::cout << "Power Command Status: " << powerCommResp.status() << std::endl;
+	std::cout << "Power Command Lease Use Result: " << powerCommResp.lease_use_result().status() << std::endl;
+	
 
 	// robot state client
 	RobotStateClient robotStateClient(directoryClient.getEntry(ROBOT_STATE_CLIENT_NAME).service_entry().authority(), token);
 
-	while(true){
+
+	PowerCommandFeedbackResponse pcfr = powerClient.PowerCommandFeedback(pcID);
+	while(pcfr.status() != 2){
+		lease = new Lease(leaseResp.lease());
+		leaseClient.retainLease(lease);
+		pcfr = powerClient.PowerCommandFeedback(pcID);
 		RobotStateResponse stateReply = robotStateClient.getRobotState();
 		std::cout << "Robot State Information" << std::endl;
 		std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
 		sleep(1);
 	}
+	std::cout << "Power on!" << std::endl;
+
+	// RobotStateResponse stateReply = handler.robotStateClient().getRobotState();
+	// while(pcfr.status() != 2){
+	// 	pcfr = handler.powerClient().PowerCommandFeedback(pcID);
+	// 	std::cout << "Powering on..." << std::endl;
+	// 	stateReply = handler.robotStateClient().getRobotState();
+	// 	std::cout << "Robot State Information" << std::endl;
+	// 	std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
+	// 	sleep(1);
+	// }
+	// std::cout << "Power on" << std::endl;
+	// std::cout << "Power Command Status: " << pcfr.status() << std::endl;
+
+	// stateReply = handler.robotStateClient().getRobotState();
+	// std::cout << "Robot State Information" << std::endl;
+	// std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
+
+
+	// lease = new Lease(leaseResp.lease());
+	// handler.leaseClient().returnLease(lease);
+	
+
+//	RobotStateResponse stateReply = handler.robotStateClient().getRobotState();
+//	std::cout << "Robot State Information" << std::endl;
+//	std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
+	
+	
+	
+	// Robot Command - Stand
+	//leaseResp = handler.leaseClient().acquire("body");
+	
+	//std::cout << "Lease Status: " << leaseResp.status() << std::endl;
+	
+//	lease = new Lease(leaseResp.lease());
+//	retLeaseResp = handler.leaseClient().retainLease(lease);
+//	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+//
+//	RobotCommand command;
+//	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+//	RobotCommandResponse robCommResp = handler.robotCommandClient().robotCommand(leaseResp.lease(), command, timeSyncClockId);
+	
+	
+
+//	std::cout << "Command Status: " << robCommResp.status() << std::endl;
+
+
+	// do rpcs
+	//print_robot_id(handler);
+	//std::string token = print_auth_token(handler, username, password);
+
+	// // Robot State Test
+	// RobotStateResponse stateReply = handler.robotStateClient().getRobotState();
+	// std::cout << "Robot State Information" << std::endl;
+	// std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
 
 	return 0;
 }
