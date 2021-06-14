@@ -18,11 +18,13 @@ using bosdyn::api::TimeSyncState;
 const extern std::string TIMESYNC_CLIENT_NAME;
 
 class TimeSyncClient : public BaseClient<TimeSyncService> {
-    public: 
-    TimeSyncClient(const std::string &authority, const std::string &token);
+public: 
+  TimeSyncClient(const std::string &authority, const std::string &token);
 
-	TimeSyncUpdateResponse getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
-	TimeSyncUpdateResponse getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
+  TimeSyncUpdateResponse getTimeSyncUpdate();
+  TimeSyncUpdateResponse getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip);
+  TimeSyncUpdateResponse getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
+  TimeSyncUpdateResponse getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 };
 
 #endif

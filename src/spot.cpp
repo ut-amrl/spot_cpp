@@ -79,5 +79,33 @@ int main(int argc, char *argv[]) {
 	estopStatusResp = estopClient.getStatus();
 	std::cout << "Estop Level: " << estopStatusResp.status().stop_level() << std::endl;
 
+	// lease
+	LeaseClient leaseClient(directoryClient.getEntry(LEASE_CLIENT_NAME).service_entry().authority(), token);
+	AcquireLeaseResponse leaseResp = leaseClient.acquire("body");
+	Lease *lease = new Lease(leaseResp.lease());
+	std::cout << "Lease Status: " << leaseResp.status() << std::endl;
+
+	RetainLeaseResponse retLeaseResp = leaseClient.retainLease(lease);
+	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+
+	// power
+	PowerClient powerClient(directoryClient.getEntry(POWER_CLIENT_NAME).service_entry().authority(), token);
+	PowerCommandRequest_Request pcr_r;
+	pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
+	PowerCommandResponse powerCommResp = powerClient.PowerCommand(leaseResp.lease(), pcr_r); 
+	uint32_t pcID = powerCommResp.power_command_id();
+	std::cout << "Power Command Status: " << powerCommResp.status() << std::endl;
+
+	// robot state client
+	RobotStateClient robotStateClient(directoryClient.getEntry(ROBOT_STATE_CLIENT_NAME).service_entry().authority(), token);
+
+	while(true){
+		RobotStateResponse stateReply = robotStateClient.getRobotState();
+		std::cout << "Robot State Information" << std::endl;
+		std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
+		sleep(1);
+	}
+
+
 	return 0;
 }

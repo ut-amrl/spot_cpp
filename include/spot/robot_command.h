@@ -49,8 +49,8 @@ class RobotCommandClient : public BaseClient<RobotCommandService> {
 public:
   RobotCommandClient(const std::string &authority, const std::string &token);
 
-  RobotCommandResponse robotCommand(Lease lease, RobotCommand command);
-  RobotCommandResponse robotCommandAsync(Lease lease, RobotCommand command);
+  RobotCommandResponse robotCommand(Lease lease, RobotCommand command, std::string &clockIdentifier);
+  RobotCommandResponse robotCommandAsync(Lease lease, RobotCommand command, std::string &clockIdentifier);
   RobotCommandFeedbackResponse robotCommandFeedback(uint32_t robotCommandId);
   RobotCommandFeedbackResponse robotCommandFeedbackAsync(uint32_t robotCommandId);
   ClearBehaviorFaultResponse clearBehaviorFault(Lease lease, uint32_t behaviorFaultId);

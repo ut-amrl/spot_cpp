@@ -3,6 +3,19 @@
 const std::string TIMESYNC_CLIENT_NAME = "timesync";
 
 TimeSyncClient::TimeSyncClient(const std::string &authority, const std::string &token) : BaseClient(TIMESYNC_CLIENT_NAME, authority, token) {}
+
+TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate() {
+	TimeSyncUpdateRequest request;
+	assembleRequestHeader<TimeSyncUpdateRequest>(&request);
+	return call<TimeSyncUpdateRequest, TimeSyncUpdateResponse>(request, &TimeSyncService::Stub::TimeSyncUpdate);
+}
+
+TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip) {
+	TimeSyncUpdateRequest request;
+	assembleRequestHeader<TimeSyncUpdateRequest>(&request);
+	request.mutable_previous_round_trip()->CopyFrom(previousRoundTrip);
+	return call<TimeSyncUpdateRequest, TimeSyncUpdateResponse>(request, &TimeSyncService::Stub::TimeSyncUpdate);
+}
         
 TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier) {
 	TimeSyncUpdateRequest request;
