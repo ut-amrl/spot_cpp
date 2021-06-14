@@ -50,6 +50,9 @@ void estop(EstopClient &client){
 	checkInResp = client.checkIn(stopLevel, activeEndpoint, checkInResp.challenge(), ~checkInResp.challenge(), false);
 	std::cout << "Check In Status " << checkInResp.status() << std::endl;
 	std::cout << "Challenge: " << checkInResp.challenge() << std::endl;
+	checkInResp = ch.estopClient().checkIn(stopLevel, activeEndpoint, checkInResp.challenge(), ~checkInResp.challenge(), false);
+	std::cout << "Check In Status " << checkInResp.status() << std::endl;
+	std::cout << "Challenge: " << checkInResp.challenge() << std::endl;
 }
 
 // main function for running Spot clients
@@ -105,7 +108,6 @@ int main(int argc, char *argv[]) {
 		std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
 		sleep(1);
 	}
-
 
 	return 0;
 }
