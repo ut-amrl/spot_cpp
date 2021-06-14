@@ -1,9 +1,10 @@
-#include <spot/auth_client.h>
+#include <spot/auth.h>
 
-AuthClient::AuthClient(const std::string &root, const std::string &server) {
-	_stub = initializeNoAuthToken(server, root, "auth.spot.robot");
-  _clientName = "auth";
-}
+const static std::string CLIENT_NAME = "auth";
+const static std::string AUTHORITY = "auth.spot.robot";
+const static std::string TOKEN = "";
+
+AuthClient::AuthClient() : BaseClient(CLIENT_NAME, AUTHORITY, TOKEN) {}
 
 GetAuthTokenResponse AuthClient::auth(const std::string &user, const std::string &pass) {
 	GetAuthTokenRequest request;

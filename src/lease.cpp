@@ -1,9 +1,8 @@
-#include <spot/lease_client.h>
+#include <spot/lease.h>
 
-LeaseClient::LeaseClient(const std::string &root, const std::string &server) {
-	_stub = initializeNoAuthToken(server, root, "");
-  _clientName = "lease";
-}
+const static std::string CLIENT_NAME = "lease";
+
+LeaseClient::LeaseClient(const std::string &authority, const std::string &token) : BaseClient(CLIENT_NAME, authority, token) {}
 
 AcquireLeaseResponse LeaseClient::acquire(const std::string &resource) {
   AcquireLeaseRequest request;

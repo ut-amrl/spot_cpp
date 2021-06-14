@@ -1,14 +1,12 @@
-#ifndef DIRECTORY_CLIENT_H
-#define DIRECTORY_CLIENT_H
+/*
+  directory.h: includes client and interface for communication with the directory service 
+*/
 
-#include <spot/base_client.h>
+#ifndef DIRECTORY_H
+#define DIRECTORY_H
+
+#include <spot/base.h>
 #include "bosdyn/api/directory_service.grpc.pb.h"
-
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::Status;
-using grpc::CompletionQueue;
-using grpc::ClientAsyncResponseReader;
 
 using bosdyn::api::DirectoryService;
 using bosdyn::api::ListServiceEntriesResponse;
@@ -16,11 +14,9 @@ using bosdyn::api::ListServiceEntriesRequest;
 using bosdyn::api::GetServiceEntryRequest;
 using bosdyn::api::GetServiceEntryResponse;
 
-using google::protobuf::util::TimeUtil;
-
 class DirectoryClient : public BaseClient<DirectoryService> {
 public:
-	DirectoryClient(const std::string &root, const std::string &server);
+	DirectoryClient(const std::string &token);
 
 	ListServiceEntriesResponse list();
 	ListServiceEntriesResponse listAsync();

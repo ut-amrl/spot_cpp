@@ -1,9 +1,10 @@
-#include <spot/robot_id_client.h>
+#include <spot/robot_id.h>
 
-RobotIdClient::RobotIdClient(const std::string& root, const std::string& server) {
-    _stub = initializeNoAuthToken(server, root, "id.spot.robot");
-    _clientName = "id";
-}
+const static std::string CLIENT_NAME = "robot-id";
+const static std::string AUTHORITY = "id.spot.robot";
+const static std::string TOKEN = "";
+
+RobotIdClient::RobotIdClient() : BaseClient(CLIENT_NAME, AUTHORITY, TOKEN) {}
 
 RobotIdResponse RobotIdClient::getId(){
   RobotIdRequest request;

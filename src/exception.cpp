@@ -1,0 +1,2 @@
+#include <spot/exception.h>
+

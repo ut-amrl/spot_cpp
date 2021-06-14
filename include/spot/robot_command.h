@@ -1,16 +1,15 @@
-#ifndef ROBOT_COMMAND_CLIENT_H
-#define ROBOT_COMMAND_CLIENT_H
+/*
+  robot_command.h: includes client and interface for communication with the robot-command service 
+*/
+
+#ifndef ROBOT_COMMAND_H
+#define ROBOT_COMMAND_H
 
 #include "bosdyn/api/robot_command_service.grpc.pb.h"
 #include "bosdyn/api/geometry.grpc.pb.h"
 #include "bosdyn/api/lease_service.grpc.pb.h"
-#include <spot/base_client.h>
+#include <spot/base.h>
 
-using grpc::Channel;
-using grpc::ClientContext;
-using grpc::Status;
-using grpc::CompletionQueue;
-using grpc::ClientAsyncResponseReader;
 using bosdyn::api::RobotCommandService;
 using bosdyn::api::RobotCommandRequest;
 using bosdyn::api::RobotCommandResponse;
@@ -43,13 +42,10 @@ using bosdyn::api::StandCommand;
 using bosdyn::api::StandCommand_Feedback;
 using bosdyn::api::Lease;
 using bosdyn::api::LeaseUseResult;
-using google::protobuf::Duration;
-using google::protobuf::Timestamp;
-using google::protobuf::util::TimeUtil;
 
 class RobotCommandClient : public BaseClient<RobotCommandService> {
 public:
-  RobotCommandClient(const std::string &root, const std::string &server);
+  RobotCommandClient(const std::string &authority, const std::string &token);
 
   RobotCommandResponse robotCommand(Lease lease, RobotCommand command);
   RobotCommandResponse robotCommandAsync(Lease lease, RobotCommand command);

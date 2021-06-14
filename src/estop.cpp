@@ -1,9 +1,8 @@
-#include <spot/estop_client.h>
+#include <spot/estop.h>
 
-EstopClient::EstopClient(const std::string &root, const std::string &server) {
-	_stub = initializeNoAuthToken(server, root, "");
-  	_clientName = "estop";	
-}
+const static std::string CLIENT_NAME = "estop";
+
+EstopClient::EstopClient(const std::string &authority, const std::string &token) : BaseClient(CLIENT_NAME, authority, token) {}
 
  
 RegisterEstopEndpointResponse EstopClient::registerEndpoint(const std::string &targetConfigId, EstopEndpoint &targetEndpoint, EstopEndpoint &endpoint) {

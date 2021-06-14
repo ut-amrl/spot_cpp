@@ -1,9 +1,8 @@
-#include <spot/robot_command_client.h>
+#include <spot/robot_command.h>
 
-RobotCommandClient::RobotCommandClient(const std::string &root, const std::string &server) {
-	_stub = initializeNoAuthToken(server, root, "");
-  _clientName = "command";
-}
+const static std::string CLIENT_NAME = "robot-command";
+
+RobotCommandClient::RobotCommandClient(const std::string &authority, const std::string &token) : BaseClient(CLIENT_NAME, authority, token) {}
   
 // Assembles the client's payload, sends it and presents the response back
 // from the server.

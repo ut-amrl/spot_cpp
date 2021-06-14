@@ -1,9 +1,9 @@
-#include <spot/directory_client.h>
+#include <spot/directory.h>
 
-DirectoryClient::DirectoryClient(const std::string &root, const std::string &server) {
-  _stub = initializeNoAuthToken(server, root, "directory.spot.robot");
-  _clientName = "directory";
-}  
+const static std::string CLIENT_NAME = "directory";
+const static std::string AUTHORITY = "api.spot.robot";
+
+DirectoryClient::DirectoryClient(const std::string &token) : BaseClient(CLIENT_NAME, AUTHORITY, token) {}  
 
 ListServiceEntriesResponse DirectoryClient::list(){
     ListServiceEntriesRequest request;
@@ -11,13 +11,11 @@ ListServiceEntriesResponse DirectoryClient::list(){
     return call<ListServiceEntriesRequest, ListServiceEntriesResponse>(request, &DirectoryService::Stub::ListServiceEntries);
 }
 
-
 ListServiceEntriesResponse DirectoryClient::listAsync(){
   ListServiceEntriesRequest request;
   assembleRequestHeader<ListServiceEntriesRequest>(&request);
   return callAsync<ListServiceEntriesRequest, ListServiceEntriesResponse>(request, &DirectoryService::Stub::AsyncListServiceEntries);
 }
-
 
 GetServiceEntryResponse DirectoryClient::getEntry(std::string serviceName){
   GetServiceEntryRequest request;
@@ -25,7 +23,6 @@ GetServiceEntryResponse DirectoryClient::getEntry(std::string serviceName){
   request.set_service_name(serviceName);
   return call<GetServiceEntryRequest, GetServiceEntryResponse>(request, &DirectoryService::Stub::GetServiceEntry);
 }
-
 
 GetServiceEntryResponse DirectoryClient::getEntryAsync(std::string serviceName){
   GetServiceEntryRequest request;
