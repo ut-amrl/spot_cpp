@@ -108,3 +108,33 @@ EstopCheckInResponse EstopClient::checkInAsync(EstopStopLevel &stopLevel, EstopE
 	request.set_stop_level(stopLevel);
     return callAsync<EstopCheckInRequest, EstopCheckInResponse>(request, &EstopService::Stub::AsyncEstopCheckIn);
 }
+
+EstopKeepAlive::EstopKeepAlive(std::shared_ptr<EstopClient> clientPtr, std::shared_ptr<EstopEndpoint> endpointPtr, std::shared_ptr<EstopStopLevel> stopPtr, int rpcTimeoutSeconds, int rpcIntervalSeconds, uint64_t challenge) :
+		_clientPtr(clientPtr),
+		_endpointPtr(endpointPtr),
+		_stopPtr(stopPtr),
+		_rpcTimeoutSeconds(rpcTimeoutSeconds),
+		_rpcIntervalSeconds(rpcIntervalSeconds),
+		_challenge(challenge),
+		_keepRunning(true),
+		_thread(&EstopKeepAlive::periodicCheckIn, this) { // create thread
+}
+
+EstopKeepAlive::~EstopKeepAlive() {
+	_thread.std::thread::~thread();
+}
+
+void EstopKeepAlive::periodicCheckIn() {
+	// do first check in and set new challenge
+	EstopCheckInResponse reply = _clientPtr->checkIn(*_stopPtr, *_endpointPtr, _challenge, ~_challenge, false);
+	_challenge = reply.challenge();
+	while(true) {
+		checkIn();
+		sleep(1);
+	}
+}
+
+void EstopKeepAlive::checkIn() {
+	EstopCheckInResponse reply = _clientPtr->checkIn(*_stopPtr, *_endpointPtr, _challenge, ~_challenge, false);
+	_challenge = reply.challenge(); // update challenge
+}

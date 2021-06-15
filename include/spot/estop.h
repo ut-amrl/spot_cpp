@@ -53,12 +53,22 @@ public:
 // does periodic estop check-ins on a thread
 class EstopKeepAlive {
 public:
-  EstopKeepAlive(int rpcTimeoutSeconds, int rpcIntervalSeconds, EstopClient &client /*, keepAliveCallback cbFunc*/);
+  EstopKeepAlive(std::shared_ptr<EstopClient> clientPtr, std::shared_ptr<EstopEndpoint> endpointPtr, std::shared_ptr<EstopStopLevel> stopPtr, int rpcTimeoutSeconds, int rpcIntervalSeconds, uint64_t challenge /*, keepAliveCallback cbFunc*/);
   ~EstopKeepAlive(); // destroy thread ?
+
 private:
-  EstopClient &_client;
+  void periodicCheckIn();
+  void checkIn();
+
+private:
+  std::shared_ptr<EstopClient> _clientPtr;
+  std::shared_ptr<EstopEndpoint> _endpointPtr;
+  std::shared_ptr<EstopStopLevel> _stopPtr;
+  std::thread _thread;
+
   int _rpcTimeoutSeconds;
   int _rpcIntervalSeconds;
+  uint64_t _challenge;
   bool _keepRunning;
 };
 

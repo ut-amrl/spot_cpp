@@ -45,12 +45,20 @@ public:
 // issues lease liveness checks on background thread
 class LeaseKeepAlive {
 public:
-  LeaseKeepAlive(LeaseClient &client, const std::string &resource, int rpcIntervalSeconds);
+  LeaseKeepAlive(std::shared_ptr<LeaseClient> clientPtr, std::shared_ptr<Lease> leasePtr, int rpcIntervalSeconds);
   ~LeaseKeepAlive(); // destroy thread ?
+
 private:
-  LeaseClient &_client;
-  std::string resource;
+  void periodicCheckIn();
+  void checkIn();
+
+private:
+  std::shared_ptr<LeaseClient> _clientPtr;
+  std::shared_ptr<Lease> _leasePtr;
+  std::thread _thread;
+  std::string _resource;
   int _rpcIntervalSeconds;
+  bool _keepRunning;
 };
 
 #endif

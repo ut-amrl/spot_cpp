@@ -74,3 +74,28 @@ ListLeasesResponse LeaseClient::listLeasesAsync(bool includeFullLeasesInfo){
   request.set_include_full_lease_info(includeFullLeasesInfo);
   return callAsync<ListLeasesRequest, ListLeasesResponse>(request, &LeaseService::Stub::AsyncListLeases);
 }
+
+LeaseKeepAlive::LeaseKeepAlive(std::shared_ptr<LeaseClient> clientPtr, std::shared_ptr<Lease> leasePtr, int rpcIntervalSeconds) :
+    _clientPtr(clientPtr),
+    _leasePtr(leasePtr),
+    _rpcIntervalSeconds(rpcIntervalSeconds),
+    _keepRunning(true), // true for now
+    _thread(&LeaseKeepAlive::periodicCheckIn, this) { // create thread
+} 
+
+LeaseKeepAlive::~LeaseKeepAlive() {
+  // kill thread
+  _thread.std::thread::~thread();
+}
+
+void LeaseKeepAlive::periodicCheckIn() {
+  while(true) {
+    checkIn(); // check into lease system
+    sleep(1); // sleep for a little
+  }
+}
+
+void LeaseKeepAlive::checkIn() {
+  // retain the lease held in this class (change later to use lease wallet and resource)
+  _clientPtr->retainLease(_leasePtr.get());
+}
