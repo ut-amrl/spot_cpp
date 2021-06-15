@@ -139,6 +139,7 @@ add_executable(spot
   src/robot_command.cpp
   src/robot_state.cpp
   src/directory.cpp
+  src/directory_registration.cpp
   src/spot.cpp
   #src/client_handler.cpp
   src/utils.cpp
