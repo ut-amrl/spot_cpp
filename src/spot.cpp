@@ -57,34 +57,6 @@ void estop(EstopClient &client){
 	std::cout << "Challenge: " << checkInResp.challenge() << std::endl;
 }
 
-//void leaseCode(AcquireLeaseResponse leaseResp, ClientHandler handler){
-//	Lease *lease = new Lease(leaseResp.lease());
-//	handler.leaseClient().retainLease(lease);
-//}
-
-void movement(AcquireLeaseResponse leaseResp, LeaseClient leaseClient, RobotCommandClient robotCommandClient, std::string timeSyncClockId, int movementType){
-	// retLeaseResp = leaseClient.retainLease(lease);
-
-	Lease *lease = new Lease(leaseResp.lease());
-	RetainLeaseResponse retLeaseResp = leaseClient.retainLease(lease);
-	// retLeaseResp = handler.leaseClient().retainLease(lease);
-	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
-
-	RobotCommand command;
-	switch(movementType) {
-	  case 0: // sit 
-	    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
-		break;
-	  case 1: // stand 
-		command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-		break;
-	  case 2: // twist
-	  	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request();
-		break;
-	}
-	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
-}
-
 // main function for running Spot clients
 int main(int argc, char *argv[]) {
 	// make sure username and password are supplied
@@ -190,10 +162,7 @@ int main(int argc, char *argv[]) {
 //	std::cout << "Robot State Information" << std::endl;
 //	std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
 	
-	
-//	movement(leaseResp, leaseClient, robotCommandClient, timeSyncClockId, 0); // sit 
-//	movement(leaseResp, leaseClient, robotCommandClient, timeSyncClockId, 1); // stand 
-//	movement(leaseResp, leaseClient, robotCommandClient, timeSyncClockId, 2); // twist 
+
 	// Robot Command - Stand
 	// leaseResp = handler.leaseClient().acquire("body");
 	
@@ -218,56 +187,54 @@ int main(int argc, char *argv[]) {
 	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
 	// // RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 */	
-/*	// // Robot Command Velocity
-	 retLeaseResp = leaseClient.retainLease(lease);
-	 std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+	// // Robot Command Velocity
+	retLeaseResp = leaseClient.retainLease(lease);
+	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
-	 command;
-	 SE2VelocityCommand_Request se2VelocityCommand_Request;
-	 se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::GetCurrentTime());
-	 se2VelocityCommand_Request.set_se2_frame_name(ODOM_FRAME_NAME);
-	 SE2Velocity velocity;
-	 velocity.mutable_linear()->set_x(0.0);
-	 velocity.mutable_linear()->set_y(0.5);
-	 velocity.set_angular(0.0);
-	 se2VelocityCommand_Request.mutable_velocity()->CopyFrom(velocity);
-	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
-	 
-	 // // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->linear()->x(0.5); // should be optional 
-	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->linear()->y(0.7); // should be optional 
-	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->angular(0.3); // should be optional 
+	SE2VelocityCommand_Request se2VelocityCommand_Request;
+	se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::GetCurrentTime());
+	se2VelocityCommand_Request.set_se2_frame_name(ODOM_FRAME_NAME);
+	SE2Velocity velocity;
+	velocity.mutable_linear()->set_x(0.0);
+	velocity.mutable_linear()->set_y(0.5);
+	velocity.set_angular(0.0);
+	se2VelocityCommand_Request.mutable_velocity()->CopyFrom(velocity);
+	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
 
-	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId); */
+	// should be optional  
+	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->linear()->x(0.5);
+	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->linear()->y(0.7);
+	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->angular(0.3);  
+
+	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId); 
 
 	// // Robot Command Stance
-	 retLeaseResp = leaseClient.retainLease(lease);
-	 std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+	retLeaseResp = leaseClient.retainLease(lease);
+	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+	command;
+	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_end_time()->CopyFrom(TimeUtil::GetCurrentTime());
+	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_stance()->set_se2_frame_name(ODOM_FRAME_NAME);
 
-	 command;
-	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_end_time()->CopyFrom(TimeUtil::GetCurrentTime());
-	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_stance()->set_se2_frame_name(ODOM_FRAME_NAME);
-	
-	 Vec2 fl; // foot positions 
-	 fl.set_x(0);
-	 fl.set_y(0);
-	 Vec2 fr;
-	 fr.set_x(0);
-	 fr.set_y(0);
-	 Vec2 bl;
-	 bl.set_x(0);
-	 bl.set_y(0);
-	 Vec2 br;
-	 br.set_x(0);
-	 br.set_y(0);
-	 std::map<std::string, Vec2> footPositions;
-	 footPositions["fl"] = fl;
-	 footPositions["fr"] = fr;
-	 footPositions["bl"] = bl;
-	 footPositions["br"] = br;
-	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_stance()->clear_foot_positions(); // map
-	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_stance()->set_accuracy(0.05);
-
-	 RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
+	Vec2 fl; // foot positions 
+	fl.set_x(0);
+	fl.set_y(0);
+	Vec2 fr;
+	fr.set_x(0);
+	fr.set_y(0);
+	Vec2 bl;
+	bl.set_x(0);
+	bl.set_y(0);
+	Vec2 br;
+	br.set_x(0);
+	br.set_y(0);
+	std::map<std::string, Vec2> footPositions;
+	footPositions["fl"] = fl;
+	footPositions["fr"] = fr;
+	footPositions["bl"] = bl;
+	footPositions["br"] = br;
+	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_stance()->clear_foot_positions(); // map
+	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_stance()->set_accuracy(0.05);
+	robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 
 //	std::cout << "Command Status: " << robCommResp.status() << std::endl;
 
