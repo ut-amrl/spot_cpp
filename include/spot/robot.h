@@ -31,7 +31,7 @@ private:
 
 class Robot {
 public:
-    Robot(const std::string &name, const std::string &username, const std::string &password);
+    Robot(const std::string &name);
     // robot id stuff
     std::string getId();
 
@@ -40,13 +40,8 @@ public:
     void authenticateWithToken(const std::string &token);
     void updateToken(const std::string &token);
 
-    // ensureClient(): authorizes, caches client and creates channel
-    template <class client_T>
-    std::shared_ptr<client_T> ensureClient(CLIENT_TYPES type, const std::string &clientName);
-
-    // getClient(): only gets a client (throws exception if client not cached)
-    template <class client_T>
-    std::shared_ptr<client_T> getClient(CLIENT_TYPES type);
+    // setup (register all clients)
+    void setup();
 
     // startup
     void powerOn();
@@ -61,7 +56,19 @@ public:
     bool isPoweredOn();
     bool isEstopped();
     State getState();
-    
+
+    std::shared_ptr<AuthClient> getAuthClientPtr const { return _authClientPtr; }
+    std::shared_ptr<DirectoryClient> getDirectoryClientPtr const { return _directoryClientPtr; }
+    std::shared_ptr<EstopClient> getEstopClientPtr const { return _estopClientPtr; }
+    std::shared_ptr<ImageClient> getImageClientPtr const { return _imageClientPtr; }
+    std::shared_ptr<LeaseClient> getLeaseClientPtr const { return _leaseClientPtr; }
+    std::shared_ptr<PowerClient> getPowerClientPtr const { return _powerClientPtr; }
+    std::shared_ptr<RobotCommandClient> getRobotCommandClientPtr const { return _robotCommandClientPtr; }
+    std::shared_ptr<RobotIdClient> getRobotIdClientPtr const { return _robotIdClientPtr; }
+    std::shared_ptr<RobotStateClient> getRobotStateClientPtr const { return _robotStateClientPtr; }
+    std::shared_ptr<SpotCheckClient> getSpotCheckClientPtr const { return _spotCheckClientPtr; }
+    std::shared_ptr<TimeSyncClient> getTimeSyncClientPtr const { return _timesyncClientPtr; }
+
 private:
     // power
     bool _isOn = false; // false first
@@ -74,16 +81,22 @@ private:
     std::string _serialNumber;
 
     // clients (try to refactor into some client cache later)
-    std::shared_ptr<AuthClient> _authClientPtr;
-    std::shared_ptr<DirectoryClient> _directoryClientPtr;
-    std::shared_ptr<EstopClient> _estopClientPtr;
-    std::shared_ptr<ImageClient> _imageClientPtr;
-    std::shared_ptr<LeaseClient> _leaseClientPtr;
-    std::shared_ptr<PowerClient> _powerClientPtr;
-    std::shared_ptr<RobotCommandClient> _robotCommandClientPtr;
-    std::shared_ptr<RobotIdClient> _robotIdClientPtr;
-    std::shared_ptr<SpotCheckClient> _spotCheckClientPtr;
-    std::shared_ptr<TimeSyncClient> _timesyncClientPtr;
+    std::shared_ptr<AuthClient> _authClientPtr = nullptr;
+    std::shared_ptr<DirectoryClient> _directoryClientPtr = nullptr;
+    std::shared_ptr<EstopClient> _estopClientPtr = nullptr;
+    std::shared_ptr<ImageClient> _imageClientPtr = nullptr;
+    std::shared_ptr<LeaseClient> _leaseClientPtr = nullptr;
+    std::shared_ptr<PowerClient> _powerClientPtr = nullptr;
+    std::shared_ptr<RobotCommandClient> _robotCommandClientPtr = nullptr;
+    std::shared_ptr<RobotIdClient> _robotIdClientPtr = nullptr;
+    std::shared_ptr<RobotStateClient> _robotStateClientPtr = nullptr;
+    std::shared_ptr<SpotCheckClient> _spotCheckClientPtr = nullptr;
+    std::shared_ptr<TimeSyncClient> _timesyncClientPtr = nullptr;
+
+    std::list<std::string> _cachedClientNames;
+private:
+    template <class client_T>
+    std::shared_ptr<client_T> getPtr(CLIENT_TYPES type);
 };
 
 #endif
