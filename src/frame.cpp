@@ -4,15 +4,6 @@
 
 #include <spot/frame.h>
 
-const VISION_FRAME_NAME = "vision";
-const BODY_FRAME_NAME = "body";
-const GRAV_ALIGNED_BODY_FRAME_NAME = "gpe";
-const ODOM_FRAME_NAME = "odom";
-const GROUND_PLANE_FRAME_NAME = "gpe";
-const HAND_FRAME_NAME = "hand";
-const UNKNOWN_FRAME_NAME = "unknown";
-const RAYCAST_FRAME_NAME = "walkto_raycast_intersection";
-
 map<string, Vec2> getFootPositionMap(double fl_x, double fl_y, double fr_x, double fr_y, double bl_x, double bl_y, double br_x, double br_y){
     Vec2 fl;
 	fl.x(fl_x);

@@ -205,7 +205,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
 	RobotCommand command;
-	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+/*	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
 
 	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 	
@@ -217,53 +217,57 @@ int main(int argc, char *argv[]) {
 	// // RobotCommand command;
 	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
 	// // RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
-	
-	// // Robot Command Velocity
-	// retLeaseResp = leaseClient.retainLease(lease);
-	// std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+*/	
+/*	// // Robot Command Velocity
+	 retLeaseResp = leaseClient.retainLease(lease);
+	 std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
-	// RobotCommand command;
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->end_time(timeSyncClockId + 0.5); // end time of command in robot time
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->se2_frame_name(ODOM_FRAME_NAME);
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->velocity()->linear()->x(0.0);
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->velocity()->linear()->y(0.5);
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->velocity()->angular(0.0);
-	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->linear()->x(0.5); // should be optional 
+	 command;
+	 SE2VelocityCommand_Request se2VelocityCommand_Request;
+	 se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::GetCurrentTime());
+	 se2VelocityCommand_Request.set_se2_frame_name(ODOM_FRAME_NAME);
+	 SE2Velocity velocity;
+	 velocity.mutable_linear()->set_x(0.0);
+	 velocity.mutable_linear()->set_y(0.5);
+	 velocity.set_angular(0.0);
+	 se2VelocityCommand_Request.mutable_velocity()->CopyFrom(velocity);
+	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
+	 
+	 // // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->linear()->x(0.5); // should be optional 
 	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->linear()->y(0.7); // should be optional 
 	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->angular(0.3); // should be optional 
 
-	// RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
+	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId); */
 
 	// // Robot Command Stance
-	// retLeaseResp = leaseClient.retainLease(lease);
-	// std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+	 retLeaseResp = leaseClient.retainLease(lease);
+	 std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
-	// RobotCommand command;
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->end_time(timeSyncClockId + 1);
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->end_time(timeSyncClockId + 1);
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->stance()->se2_frame_name(ODOM_FRAME_NAME);
+	 command;
+	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_end_time()->CopyFrom(TimeUtil::GetCurrentTime());
+	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_stance()->set_se2_frame_name(ODOM_FRAME_NAME);
 	
-	// Vec2 fl; // foot positions 
-	// fl.x(0);
-	// fl.y(0);
-	// Vec2 fr;
-	// fr.x(0);
-	// fr.y(0);
-	// Vec2 bl;
-	// bl.x(0);
-	// bl.y(0);
-	// Vec2 br;
-	// br.x(0);
-	// br.y(0);
-	// map<string, Vec2> footPositions;
-	// footPositions.insert(pair<string, Vec2>("fl", fl));
-	// footPositions.insert(pair<string, Vec2>("fr", fr));
-	// footPositions.insert(pair<string, Vec2>("bl", bl));
-	// footPositions.insert(pair<string, Vec2>("br", br));
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->stance()->foot_positions(footPositions); // map
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->stance()->accuracy(0.05);
+	 Vec2 fl; // foot positions 
+	 fl.set_x(0);
+	 fl.set_y(0);
+	 Vec2 fr;
+	 fr.set_x(0);
+	 fr.set_y(0);
+	 Vec2 bl;
+	 bl.set_x(0);
+	 bl.set_y(0);
+	 Vec2 br;
+	 br.set_x(0);
+	 br.set_y(0);
+	 std::map<std::string, Vec2> footPositions;
+	 footPositions["fl"] = fl;
+	 footPositions["fr"] = fr;
+	 footPositions["bl"] = bl;
+	 footPositions["br"] = br;
+	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_stance()->clear_foot_positions(); // map
+	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->mutable_stance()->set_accuracy(0.05);
 
-	// RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
+	 RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 
 //	std::cout << "Command Status: " << robCommResp.status() << std::endl;
 
