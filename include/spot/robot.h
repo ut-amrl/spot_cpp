@@ -31,7 +31,7 @@ private:
 
 class Robot {
 public:
-    Robot(const std::string name);
+    Robot(const std::string &name, const std::string &username, const std::string &password);
     // robot id stuff
     std::string getId();
 
@@ -39,8 +39,6 @@ public:
     void authenticate(const std::string &username, const std::string &password);
     void authenticateWithToken(const std::string &token);
     void updateToken(const std::string &token);
-
-    // clients
 
     // ensureClient(): authorizes, caches client and creates channel
     template <class client_T>
@@ -63,19 +61,6 @@ public:
     bool isPoweredOn();
     bool isEstopped();
     State getState();
-
-public:
-    // testers
-    void print_cache();
-
-private:
-    template <class client_T>
-    void cacheClient(CLIENT_TYPES type);
-
-    void cacheDirectoryClient(const std::string &token);
-
-    template <class client_T>
-    void cacheClient(CLIENT_TYPES type, const std::string &clientName, const std::string &token);
     
 private:
     // power
@@ -88,8 +73,17 @@ private:
     std::string _address;
     std::string _serialNumber;
 
-    // stores pointer to client_container variant type, which could be one of the clients
-    std::map<CLIENT_TYPES, std::shared_ptr<CLIENT_CONTAINER>> _clients;
+    // clients (try to refactor into some client cache later)
+    std::shared_ptr<AuthClient> _authClientPtr;
+    std::shared_ptr<DirectoryClient> _directoryClientPtr;
+    std::shared_ptr<EstopClient> _estopClientPtr;
+    std::shared_ptr<ImageClient> _imageClientPtr;
+    std::shared_ptr<LeaseClient> _leaseClientPtr;
+    std::shared_ptr<PowerClient> _powerClientPtr;
+    std::shared_ptr<RobotCommandClient> _robotCommandClientPtr;
+    std::shared_ptr<RobotIdClient> _robotIdClientPtr;
+    std::shared_ptr<SpotCheckClient> _spotCheckClientPtr;
+    std::shared_ptr<TimeSyncClient> _timesyncClientPtr;
 };
 
 #endif
