@@ -88,7 +88,7 @@ private:
     std::string _address;
     std::string _serialNumber;
 
-    // clients (using boost::any for now, look at other methods later)
+    // stores pointer to client_container variant type, which could be one of the clients
     std::map<CLIENT_TYPES, std::shared_ptr<CLIENT_CONTAINER>> _clients;
 };
 
