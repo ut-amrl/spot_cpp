@@ -65,6 +65,10 @@ public:
     bool isEstopped();
     State getState();
 
+public:
+    // testers
+    void print_cache();
+
 private:
     template <class client_T>
     void cacheClient(CLIENT_TYPES type);

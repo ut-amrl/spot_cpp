@@ -221,3 +221,12 @@ State Robot::getState() {
 
 }
 
+void Robot::print_cache() {
+    for (auto const& [key, val] : _clients) {
+        std::cout << key
+                  << ':'
+                //   << val->getClientName();
+                  << std::endl;
+    }
+}
+
