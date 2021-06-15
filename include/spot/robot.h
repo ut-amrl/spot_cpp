@@ -21,7 +21,6 @@
 
 #include <map>
 #include <list>
-#include <boost/any.hpp>
 
 // class that encapsulates robot state
 class State {
@@ -90,7 +89,7 @@ private:
     std::string _serialNumber;
 
     // clients (using boost::any for now, look at other methods later)
-    std::map<CLIENT_TYPES, boost::any> _clients;
+    std::map<CLIENT_TYPES, std::shared_ptr<CLIENT_CONTAINER>> _clients;
 };
 
 #endif

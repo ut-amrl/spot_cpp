@@ -6,25 +6,25 @@ template<class client_T>
 void Robot::cacheClient(CLIENT_TYPES type) {
     client_T client;
     std::shared_ptr<client_T> ptr(&client);
-    _clients.insert(std::pair<CLIENT_TYPES, boost::any>(type, ptr));
+    _clients.insert(std::pair<CLIENT_TYPES, CLIENT_CONTAINER>(type, ptr));
 }
 
 void Robot::cacheDirectoryClient(const std::string &token) {
     // create client
     DirectoryClient client(token);
     std::shared_ptr<DirectoryClient> ptr(&client);
-    _clients.insert(std::pair<CLIENT_TYPES, boost::any>(CLIENT_TYPES::DIRECTORY, ptr));
+    _clients.insert(std::pair<CLIENT_TYPES, CLIENT_CONTAINER>(CLIENT_TYPES::DIRECTORY, ptr));
 }
 
 template <class client_T>
 void Robot::cacheClient(CLIENT_TYPES type, const std::string &clientName, const std::string &token) {
     // get directory client
-    std::shared_ptr<DirectoryClient> ptr = boost::any_cast<std::shared_ptr<DirectoryClient>>(_clients.at(CLIENT_TYPES::DIRECTORY));
+    std::shared_ptr<DirectoryClient> ptr = std::get<DirectoryClient>(_clients.at(CLIENT_TYPES::DIRECTORY));
     DirectoryClient &dClient = *ptr;
     
     client_T client(dClient.getEntry(clientName).service_entry().authority(), token);
     std::shared_ptr<client_T> nptr(&client);
-    _clients.insert(std::pair<CLIENT_TYPES, boost::any>(type, nptr));
+    _clients.insert(std::pair<CLIENT_TYPES, CLIENT_CONTAINER>(type, nptr));
 }
 
 std::string Robot::getId() {
