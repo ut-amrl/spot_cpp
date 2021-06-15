@@ -43,6 +43,9 @@ public:
     // setup (register all clients)
     void setup();
 
+    // Estop
+    void initBasicEstop();
+
     // startup
     void powerOn();
     void powerOff();
@@ -57,17 +60,17 @@ public:
     bool isEstopped();
     State getState();
 
-    std::shared_ptr<AuthClient> getAuthClientPtr const { return _authClientPtr; }
-    std::shared_ptr<DirectoryClient> getDirectoryClientPtr const { return _directoryClientPtr; }
-    std::shared_ptr<EstopClient> getEstopClientPtr const { return _estopClientPtr; }
-    std::shared_ptr<ImageClient> getImageClientPtr const { return _imageClientPtr; }
-    std::shared_ptr<LeaseClient> getLeaseClientPtr const { return _leaseClientPtr; }
-    std::shared_ptr<PowerClient> getPowerClientPtr const { return _powerClientPtr; }
-    std::shared_ptr<RobotCommandClient> getRobotCommandClientPtr const { return _robotCommandClientPtr; }
-    std::shared_ptr<RobotIdClient> getRobotIdClientPtr const { return _robotIdClientPtr; }
-    std::shared_ptr<RobotStateClient> getRobotStateClientPtr const { return _robotStateClientPtr; }
-    std::shared_ptr<SpotCheckClient> getSpotCheckClientPtr const { return _spotCheckClientPtr; }
-    std::shared_ptr<TimeSyncClient> getTimeSyncClientPtr const { return _timesyncClientPtr; }
+    std::shared_ptr<AuthClient> getAuthClientPtr() const { return _authClientPtr; }
+    std::shared_ptr<DirectoryClient> getDirectoryClientPtr() const { return _directoryClientPtr; }
+    std::shared_ptr<EstopClient> getEstopClientPtr() const { return _estopClientPtr; }
+    std::shared_ptr<ImageClient> getImageClientPtr() const { return _imageClientPtr; }
+    std::shared_ptr<LeaseClient> getLeaseClientPtr() const { return _leaseClientPtr; }
+    std::shared_ptr<PowerClient> getPowerClientPtr() const { return _powerClientPtr; }
+    std::shared_ptr<RobotCommandClient> getRobotCommandClientPtr() const { return _robotCommandClientPtr; }
+    std::shared_ptr<RobotIdClient> getRobotIdClientPtr() const { return _robotIdClientPtr; }
+    std::shared_ptr<RobotStateClient> getRobotStateClientPtr() const { return _robotStateClientPtr; }
+    std::shared_ptr<SpotCheckClient> getSpotCheckClientPtr() const { return _spotCheckClientPtr; }
+    std::shared_ptr<TimeSyncClient> getTimeSyncClientPtr() const { return _timesyncClientPtr; }
 
 private:
     // power
@@ -79,6 +82,9 @@ private:
     std::string _token;
     std::string _address;
     std::string _serialNumber;
+
+    // Threads
+    EstopKeepAlive *_estopThread;
 
     // clients (try to refactor into some client cache later)
     std::shared_ptr<AuthClient> _authClientPtr = nullptr;

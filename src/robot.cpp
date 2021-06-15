@@ -41,24 +41,15 @@ std::string Robot::getId() {
     return ret;
 }
 
-void Robot::powerOn() {
-    // check that the robot is off
-    if (_isOn) {
-        throw 1; // change later
-    }
-    
-    // acquire lease
-    AcquireLeaseResponse leaseReply = _leaseClientPtr->acquire("body");
-    std::shared_ptr<Lease> lease(new Lease(leaseReply.lease()));
-
+void Robot::initBasicEstop(){
     // estop config and endpoint
     EstopConfig estopConfig;
-    std::shared_ptr<EstopEndpoint> endpointPtr = estopConfig.add_endpoints();
+    EstopEndpoint* endpointPtr = estopConfig.add_endpoints();
     endpointPtr->set_role("PDB_rooted");
     endpointPtr->mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(30));
     SetEstopConfigResponse estopConfigReply = _estopClientPtr->setConfig(estopConfig);
     if(estopConfigReply.status() == 2){
-		estopConfigReply = estopPtr->setConfig(estopConfig, estopConfigReply.active_config().unique_id());
+		estopConfigReply = _estopClientPtr->setConfig(estopConfig, estopConfigReply.active_config().unique_id());
 	}
     std::string activeConfigId = estopConfigReply.active_config().unique_id();
 
@@ -69,20 +60,55 @@ void Robot::powerOn() {
 	targetEndpoint.set_role("PDB_rooted");
     RegisterEstopEndpointResponse regEndResp = _estopClientPtr->registerEndpoint(activeConfigId, targetEndpoint, newEndpoint);
     EstopEndpoint activeEndpoint = regEndResp.new_endpoint();  
-    std::shared_ptr<EstopEndpoint> activeEndpointPtr(&activeEndpoint);
 
     // estop stop level
     EstopStopLevel stopLevel = EstopStopLevel::ESTOP_LEVEL_NONE;
-    std::shared_ptr<EstopStopLevel> stopPtr(&stopLevel);
+
+    _estopThread = new EstopKeepAlive(_estopClientPtr, activeEndpoint, stopLevel, 0, 0, 0);
+}
+
+void Robot::powerOn() {
+    // // check that the robot is off
+    // if (_isOn) {
+    //     throw 1; // change later
+    // }
     
-    // create keep alive threads for estop, lease, timesync
-    EstopKeepAlive estopThread(_estopClientPtr, activeEndpointPtr, stopPtr, 0, 0, 0); // challenge is 0
-    LeaseKeepAlive leaseThread(_leaseClientPtr, lease, 0); // set rpcinterval to 0 for now
+    // // acquire lease
+    // AcquireLeaseResponse leaseReply = _leaseClientPtr->acquire("body");
+    // std::shared_ptr<Lease> lease(new Lease(leaseReply.lease()));
 
-    // power
-	PowerCommandRequest_Request pcr_r;
-	pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
-	PowerCommandResponse powerCommResp = _powerClientPtr->PowerCommand(leaseReply.lease(), pcr_r); 
+    // // estop config and endpoint
+    // EstopConfig estopConfig;
+    // std::shared_ptr<EstopEndpoint> endpointPtr = estopConfig.add_endpoints();
+    // endpointPtr->set_role("PDB_rooted");
+    // endpointPtr->mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(30));
+    // SetEstopConfigResponse estopConfigReply = _estopClientPtr->setConfig(estopConfig);
+    // if(estopConfigReply.status() == 2){
+	// 	estopConfigReply = estopPtr->setConfig(estopConfig, estopConfigReply.active_config().unique_id());
+	// }
+    // std::string activeConfigId = estopConfigReply.active_config().unique_id();
 
-    _isOn = true;
+    // EstopEndpoint newEndpoint;
+    // newEndpoint.set_role("PDB_rooted");
+    // newEndpoint.mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(30));
+    // EstopEndpoint targetEndpoint;
+	// targetEndpoint.set_role("PDB_rooted");
+    // RegisterEstopEndpointResponse regEndResp = _estopClientPtr->registerEndpoint(activeConfigId, targetEndpoint, newEndpoint);
+    // EstopEndpoint activeEndpoint = regEndResp.new_endpoint();  
+    // std::shared_ptr<EstopEndpoint> activeEndpointPtr(&activeEndpoint);
+
+    // // estop stop level
+    // EstopStopLevel stopLevel = EstopStopLevel::ESTOP_LEVEL_NONE;
+    // std::shared_ptr<EstopStopLevel> stopPtr(&stopLevel);
+    
+    // // create keep alive threads for estop, lease, timesync
+    // EstopKeepAlive estopThread(_estopClientPtr, activeEndpointPtr, stopPtr, 0, 0, 0); // challenge is 0
+    // LeaseKeepAlive leaseThread(_leaseClientPtr, lease, 0); // set rpcinterval to 0 for now
+
+    // // power
+	// PowerCommandRequest_Request pcr_r;
+	// pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
+	// PowerCommandResponse powerCommResp = _powerClientPtr->PowerCommand(leaseReply.lease(), pcr_r); 
+
+    // _isOn = true;
 }
