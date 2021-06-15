@@ -7,6 +7,7 @@
 #include <spot/auth.h>
 #include <spot/directory.h>
 #include <spot/estop.h>
+#include <spot/frame.h>
 #include <spot/image.h>
 #include <spot/power.h>
 #include <spot/robot_command.h>

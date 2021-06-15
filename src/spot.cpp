@@ -6,6 +6,7 @@
 #include <fstream>
 #include <streambuf>
 #include <assert.h>
+#include <map>
 
 // print_robot_id(): print robot id information
 void print_robot_id() {
@@ -209,22 +210,61 @@ int main(int argc, char *argv[]) {
 	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 	
 	// // Robot Command - Sit 
-	// lease = new Lease(leaseResp.lease());
-	// retLeaseResp = handler.leaseClient().retainLease(lease);
+	// // lease = new Lease(leaseResp.lease());
+	// // retLeaseResp = handler.leaseClient().retainLease(lease);
+	// // std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+
+	// // RobotCommand command;
+	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
+	// // RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
+	
+	// // Robot Command Velocity
+	// retLeaseResp = leaseClient.retainLease(lease);
 	// std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
 	// RobotCommand command;
-	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->end_time(timeSyncClockId + 0.5); // end time of command in robot time
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->se2_frame_name(ODOM_FRAME_NAME);
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->velocity()->linear()->x(0.0);
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->velocity()->linear()->y(0.5);
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->velocity()->angular(0.0);
+	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->linear()->x(0.5); // should be optional 
+	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->linear()->y(0.7); // should be optional 
+	// // command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->slew_rate_limit()->angular(0.3); // should be optional 
+
 	// RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
+
+	// // Robot Command Stance
+	// retLeaseResp = leaseClient.retainLease(lease);
+	// std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+
+	// RobotCommand command;
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->end_time(timeSyncClockId + 1);
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->end_time(timeSyncClockId + 1);
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->stance()->se2_frame_name(ODOM_FRAME_NAME);
 	
-	// Robot Command Velocity
-	retLeaseResp = leaseClient.retainLease(lease);
-	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+	// Vec2 fl; // foot positions 
+	// fl.x(0);
+	// fl.y(0);
+	// Vec2 fr;
+	// fr.x(0);
+	// fr.y(0);
+	// Vec2 bl;
+	// bl.x(0);
+	// bl.y(0);
+	// Vec2 br;
+	// br.x(0);
+	// br.y(0);
+	// map<string, Vec2> footPositions;
+	// footPositions.insert(pair<string, Vec2>("fl", fl));
+	// footPositions.insert(pair<string, Vec2>("fr", fr));
+	// footPositions.insert(pair<string, Vec2>("bl", bl));
+	// footPositions.insert(pair<string, Vec2>("br", br));
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->stance()->foot_positions(footPositions); // map
+	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stance_request()->stance()->accuracy(0.05);
 
-	RobotCommand command;
-	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request();
+	// RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 
-	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 //	std::cout << "Command Status: " << robCommResp.status() << std::endl;
 
 
