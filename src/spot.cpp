@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
 		RobotStateResponse stateReply = robotStateClient.getRobotState();
 		std::cout << "Robot State Information" << std::endl;
 		std::cout << "Motor Power State: " << stateReply.robot_state().power_state().motor_power_state() << std::endl;
-		sleep(1);
+    	sleep(1);
 	}
 	std::cout << "Power on!" << std::endl;
 
@@ -200,12 +200,13 @@ int main(int argc, char *argv[]) {
 	
 	// lease = new Lease(leaseResp.lease());
 	// retLeaseRespt = leaseClient.retainLease(lease);
-	 retLeaseResp = leaseClient.retainLease(lease);
-	 std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
+	retLeaseResp = leaseClient.retainLease(lease);
+	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
-	 RobotCommand command;
-	 command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-	 RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
+	RobotCommand command;
+	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+
+	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 	
 	// // Robot Command - Sit 
 	// lease = new Lease(leaseResp.lease());
@@ -216,7 +217,14 @@ int main(int argc, char *argv[]) {
 	// command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
 	// RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 	
+	// Robot Command Velocity
+	retLeaseResp = leaseClient.retainLease(lease);
+	std::cout << "Retain Lease Status: " << retLeaseResp.lease_use_result().status() << std::endl;
 
+	RobotCommand command;
+	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request();
+
+	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
 //	std::cout << "Command Status: " << robCommResp.status() << std::endl;
 
 
