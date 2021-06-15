@@ -57,35 +57,42 @@ void estop(EstopClient &client){
 	std::cout << "Challenge: " << checkInResp.challenge() << std::endl;
 }
 
-enum movementType {sit; stand; move};
+enum movementType {sit, stand, travel};
 
-RobotCommandResponse move(movementType mType, AcquireLeaseResponse leaseResp, RetainLeaseResponse retLeaseResp, double x, double y, double rot, double time, int64_t clock_skew){
+RobotCommandResponse move(movementType mType, LeaseClient& leaseClient, AcquireLeaseResponse leaseResp, RetainLeaseResponse retLeaseResp, RobotCommandClient& robotCommandClient, double x, double y, double rot, double time, int64_t clockSkew, std::__cxx11::string& timeSyncClockId){
 	RobotCommand command;
-	lease = new Lease(leaseResp.lease());
+	Lease *lease = new Lease(leaseResp.lease());
 	retLeaseResp = leaseClient.retainLease(lease);
 
-	switch (movementType){
+	switch (mType){
 		case sit:
 			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
 			break;
 		case stand:
 			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
 			break;
-		case move:
+		case travel:
 			SE2VelocityCommand_Request se2VelocityCommand_Request;
 			se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + clockSkew) + time*1000000000)));
 			se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
+			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
+			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
+			se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
+/*
 			SE2Velocity velocity;
 			velocity.mutable_linear()->set_x(x);
 			velocity.mutable_linear()->set_y(y);
-			velocity.set_angular(0.7);
-			se2VelocityCommand_Request.mutable_velocity()->CopyFrom(rot);
+			velocity.set_angular(rot);
+*/
+//			se2VelocityCommand_Request->mutable_velocity()->copyFrom(velocity);
+
 			RobotCommand command2;
 			command2.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
 			break;
 	}
 
 	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
+	return robCommResp;
 }
 
 // main function for running Spot clients
@@ -169,7 +176,7 @@ int main(int argc, char *argv[]) {
 	}
 	std::cout << "Power on!" << std::endl;
 
-	move(stand, leaseResp, retLeaseResp, 1, 0, 0.5, 0, clock_skew);
+	move(travel, leaseClient, leaseResp, retLeaseResp, robotCommandClient, 1.0, 0.0, 0.5, 3.0, clockSkew, timeSyncClockId);
 
 	// RobotStateResponse stateReply = handler.robotStateClient().getRobotState();
 	// while(pcfr.status() != 2){
