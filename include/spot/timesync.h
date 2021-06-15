@@ -27,4 +27,9 @@ public:
   TimeSyncUpdateResponse getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 };
 
+class TimeSyncKeepAlive {
+public:
+private:
+};
+
 #endif
