@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
 	robot.authenticate(username, password);
 	robot.setup();
 	robot.initBasicEstop();
+	robot.initBasicLease();
 	sleep(5);
 	std::cout << robot.getEstopClientPtr()->getStatus().status().stop_level() << std::endl;
 	return 0;

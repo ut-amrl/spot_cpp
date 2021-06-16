@@ -46,6 +46,9 @@ public:
     // Estop
     void initBasicEstop();
 
+    // lease
+    void initBasicLease();
+
     // startup
     void powerOn();
     void powerOff();
@@ -84,7 +87,9 @@ private:
     std::string _serialNumber;
 
     // Threads
-    EstopKeepAlive *_estopThread;
+    std::shared_ptr<EstopKeepAlive> _estopThread = nullptr;
+    std::shared_ptr<LeaseKeepAlive> _leaseThread = nullptr;
+
 
     // clients (try to refactor into some client cache later)
     std::shared_ptr<AuthClient> _authClientPtr = nullptr;
@@ -98,8 +103,6 @@ private:
     std::shared_ptr<RobotStateClient> _robotStateClientPtr = nullptr;
     std::shared_ptr<SpotCheckClient> _spotCheckClientPtr = nullptr;
     std::shared_ptr<TimeSyncClient> _timesyncClientPtr = nullptr;
-
-    std::list<std::string> _cachedClientNames;
 private:
     template <class client_T>
     std::shared_ptr<client_T> getPtr(CLIENT_TYPES type);

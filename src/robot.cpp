@@ -3,14 +3,12 @@
 Robot::Robot(const std::string &name) : 
         _name(name),
         _authClientPtr(std::shared_ptr<AuthClient>(new AuthClient)),
-        _robotIdClientPtr(std::shared_ptr<RobotIdClient>(new RobotIdClient)),
-        _cachedClientNames() {
-    _cachedClientNames.push_back(AUTH_CLIENT_NAME);
-    _cachedClientNames.push_back(ROBOT_ID_CLIENT_NAME);
+        _robotIdClientPtr(std::shared_ptr<RobotIdClient>(new RobotIdClient)) {
 }
 
 void Robot::setup() {
     if (_token.empty()) {
+        std::cout << "token not set (did you forget to authenticate?)" << std::endl;
         throw 1; // change later
     }
     _directoryClientPtr = std::shared_ptr<DirectoryClient>(new DirectoryClient(_token));
@@ -25,6 +23,10 @@ void Robot::setup() {
 
 void Robot::authenticate(const std::string &username, const std::string &password) {
     _token = _authClientPtr->auth(username, password).token();
+    if (_token.empty()) {
+        std::cout << "incorrect credentials" << std::endl;
+        throw 1;
+    }
 }
 
 std::string Robot::getId() {
@@ -64,7 +66,16 @@ void Robot::initBasicEstop(){
     // estop stop level
     EstopStopLevel stopLevel = EstopStopLevel::ESTOP_LEVEL_NONE;
 
-    _estopThread = new EstopKeepAlive(_estopClientPtr, activeEndpoint, stopLevel, 0, 0, 0);
+    _estopThread = std::shared_ptr<EstopKeepAlive>(new EstopKeepAlive(_estopClientPtr, activeEndpoint, stopLevel, 0, 0, 0));
+}
+
+void Robot::initBasicLease() {
+    // acquire lease
+    AcquireLeaseResponse leaseReply = _leaseClientPtr->acquire("body");
+    std::shared_ptr<Lease> lease(new Lease(leaseReply.lease()));
+
+    // create thread
+    _leaseThread = std::shared_ptr<LeaseKeepAlive>(new LeaseKeepAlive(_leaseClientPtr, *lease, 0));
 }
 
 void Robot::powerOn() {
