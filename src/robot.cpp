@@ -123,3 +123,44 @@ void Robot::powerOn() {
 
     // _isOn = true;
 }
+
+boolean move(movementType mType, double x, double y, double rot, double time, int64_t clockSkew, std::string timeSyncClockId){
+	if (_robotCommandClientPtr == NULL){
+        std::cout << "Need to setup" << std::endl; 
+        throw 1;
+    } // TODO: change later 
+
+    RobotCommand command;
+	Lease *lease = new Lease(leaseResp.lease());
+	AcquireLeaseResponse retLeaseResp = _leaseClientPtr.retainLease(lease);
+
+	switch (mType){
+		case sit:
+			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
+			break;
+		case stand:
+			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+			break;
+		case travel:
+			SE2VelocityCommand_Request se2VelocityCommand_Request;
+			se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + clockSkew) + time*1000000000)));
+			se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
+			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
+			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
+			se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
+/*
+			SE2Velocity velocity;
+			velocity.mutable_linear()->set_x(x);
+			velocity.mutable_linear()->set_y(y);
+			velocity.set_angular(rot);
+*/
+//			se2VelocityCommand_Request->mutable_velocity()->copyFrom(velocity);
+
+			RobotCommand command2;
+			command2.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
+			break;
+	}
+
+	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
+    return (robCommResp.Status == 1);
+}

@@ -22,6 +22,8 @@
 #include <map>
 #include <list>
 
+enum movementType = {sit, stand, move};
+
 // class that encapsulates robot state
 class State {
 public:

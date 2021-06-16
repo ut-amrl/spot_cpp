@@ -57,8 +57,6 @@ void estop(EstopClient &client){
 	std::cout << "Challenge: " << checkInResp.challenge() << std::endl;
 }
 
-enum movementType {sit, stand, travel};
-
 // RobotCommandResponse move(movementType mType, LeaseClient& leaseClient, AcquireLeaseResponse leaseResp, RetainLeaseResponse retLeaseResp, RobotCommandClient& robotCommandClient, double x, double y, double rot, double time, int64_t clockSkew, std::__cxx11::string& timeSyncClockId){
 // 	RobotCommand command;
 // 	Lease *lease = new Lease(leaseResp.lease());
