@@ -9,6 +9,7 @@
 #include <spot/directory.h>
 #include <spot/estop.h>
 #include <spot/exception.h>
+#include <spot/frame.h>
 #include <spot/image.h>
 #include <spot/lease.h>
 #include <spot/power.h>
@@ -21,6 +22,8 @@
 
 #include <map>
 #include <list>
+
+enum movementType {sit, stand, travel};
 
 // class that encapsulates robot state
 class State {
@@ -75,10 +78,16 @@ public:
     std::shared_ptr<SpotCheckClient> getSpotCheckClientPtr() const { return _spotCheckClientPtr; }
     std::shared_ptr<TimeSyncClient> getTimeSyncClientPtr() const { return _timesyncClientPtr; }
 
+    // movement
+    bool move(movementType, double, double, double, double, int64_t, std::__cxx11::string);
+
 private:
     // power
     bool _isOn = false; // false first
     bool _isEstopped = false; // false first
+    
+    // lease
+    std::shared_ptr<Lease> _leasePtr = nullptr;
 
     // config data
     std::string _name;

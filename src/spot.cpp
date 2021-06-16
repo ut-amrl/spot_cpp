@@ -56,7 +56,7 @@ static wchar_t getWCharClean()
 int main(int argc, char *argv[]) {
 
 	initTerminalInput();
-	
+
 	while(true){
 		wchar_t wchar = getWCharClean();
 		if(wchar == L'w')

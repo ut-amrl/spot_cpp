@@ -73,6 +73,7 @@ void Robot::initBasicLease() {
     // acquire lease
     AcquireLeaseResponse leaseReply = _leaseClientPtr->acquire("body");
     std::shared_ptr<Lease> lease(new Lease(leaseReply.lease()));
+    _leasePtr = lease;
 
     // create thread
     _leaseThread = std::shared_ptr<LeaseKeepAlive>(new LeaseKeepAlive(_leaseClientPtr, *lease, 0));
@@ -122,4 +123,43 @@ void Robot::powerOn() {
 	// PowerCommandResponse powerCommResp = _powerClientPtr->PowerCommand(leaseReply.lease(), pcr_r); 
 
     // _isOn = true;
+}
+
+bool Robot::move(movementType mType, double x, double y, double rot, double time, int64_t clockSkew, std::__cxx11::string timeSyncClockId){
+	if (_robotCommandClientPtr == NULL){
+	        std::cout << "Need to setup" << std::endl; 
+	        throw 1;
+	 } // TODO: change later 
+	
+	RobotCommand command;
+
+	switch (mType){
+		case sit:
+			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
+			break;
+		case stand:
+			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+			break;
+		case travel:
+			SE2VelocityCommand_Request se2VelocityCommand_Request;
+			se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + clockSkew) + time*1000000000)));
+			se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
+			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
+			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
+			se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
+/*
+			SE2Velocity velocity;
+			velocity.mutable_linear()->set_x(x);
+			velocity.mutable_linear()->set_y(y);
+			velocity.set_angular(rot);
+*/
+//			se2VelocityCommand_Request->mutable_velocity()->copyFrom(velocity);
+
+			RobotCommand command2;
+			command2.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
+			break;
+	}
+
+	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, timeSyncClockId);
+    return (robCommResp.status() == 1);
 }
