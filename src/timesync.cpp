@@ -1,6 +1,6 @@
 #include <spot/timesync.h>
 
-const std::string TIMESYNC_CLIENT_NAME = "timesync";
+const std::string TIMESYNC_CLIENT_NAME = "time-sync";
 
 TimeSyncClient::TimeSyncClient(const std::string &authority, const std::string &token) : BaseClient(TIMESYNC_CLIENT_NAME, authority, token) {}
 
