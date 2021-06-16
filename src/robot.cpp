@@ -73,6 +73,7 @@ void Robot::initBasicLease() {
     // acquire lease
     AcquireLeaseResponse leaseReply = _leaseClientPtr->acquire("body");
     std::shared_ptr<Lease> lease(new Lease(leaseReply.lease()));
+    _leasePtr = lease;
 
     // create thread
     _leaseThread = std::shared_ptr<LeaseKeepAlive>(new LeaseKeepAlive(_leaseClientPtr, *lease, 0));
@@ -124,15 +125,13 @@ void Robot::powerOn() {
     // _isOn = true;
 }
 
-boolean move(movementType mType, double x, double y, double rot, double time, int64_t clockSkew, std::string timeSyncClockId){
+bool Robot::move(movementType mType, double x, double y, double rot, double time, int64_t clockSkew, std::__cxx11::string timeSyncClockId){
 	if (_robotCommandClientPtr == NULL){
-        std::cout << "Need to setup" << std::endl; 
-        throw 1;
-    } // TODO: change later 
-
-    RobotCommand command;
-	Lease *lease = new Lease(leaseResp.lease());
-	AcquireLeaseResponse retLeaseResp = _leaseClientPtr.retainLease(lease);
+	        std::cout << "Need to setup" << std::endl; 
+	        throw 1;
+	 } // TODO: change later 
+	
+	RobotCommand command;
 
 	switch (mType){
 		case sit:
@@ -161,6 +160,6 @@ boolean move(movementType mType, double x, double y, double rot, double time, in
 			break;
 	}
 
-	RobotCommandResponse robCommResp = robotCommandClient.robotCommand(leaseResp.lease(), command, timeSyncClockId);
-    return (robCommResp.Status == 1);
+	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, timeSyncClockId);
+    return (robCommResp.status() == 1);
 }

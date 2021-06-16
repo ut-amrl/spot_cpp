@@ -36,6 +36,7 @@ using bosdyn::api::SE2TrajectoryCommand;
 using bosdyn::api::SE2TrajectoryCommand_Feedback;
 using bosdyn::api::SE2VelocityCommand;
 using bosdyn::api::SE2VelocityCommand_Feedback;
+using bosdyn::api::SE2VelocityCommand_Request;
 using bosdyn::api::SitCommand;
 using bosdyn::api::SitCommand_Feedback;
 using bosdyn::api::StandCommand;
