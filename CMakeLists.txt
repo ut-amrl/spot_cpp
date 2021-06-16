@@ -140,6 +140,8 @@ add_executable(spot
   src/robot_command.cpp
   src/robot_state.cpp
   src/directory.cpp
+  src/directory_registration.cpp
+  src/local_grid.cpp
   src/spot.cpp
   src/robot.cpp
   src/utils.cpp
