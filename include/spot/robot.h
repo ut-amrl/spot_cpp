@@ -23,7 +23,7 @@
 #include <map>
 #include <list>
 
-enum movementType {sit, stand, travel};
+enum movementType {sit, stand, travelBasic, travelTrajectory};
 
 // class that encapsulates robot state
 class State {
