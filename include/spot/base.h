@@ -113,7 +113,7 @@ res_T BaseClient<serv_T>::call(req_T request, Status(serv_T::Stub::*func)(grpc::
 
 	// Act upon its status.
 	if (status.ok()) {
-		std::cout << "Success" << std::endl;
+		//std::cout << "Success" << std::endl;
 	} else {
 		std::cout << status.error_code() << ": " << status.error_message()
 				<< std::endl;

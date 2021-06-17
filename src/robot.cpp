@@ -18,7 +18,7 @@ void Robot::setup() {
     _powerClientPtr = std::shared_ptr<PowerClient>(new PowerClient(_directoryClientPtr->getEntry(POWER_CLIENT_NAME).service_entry().authority(), _token));
     _robotCommandClientPtr = std::shared_ptr<RobotCommandClient>(new RobotCommandClient(_directoryClientPtr->getEntry(ROBOT_COMMAND_CLIENT_NAME).service_entry().authority(), _token));
     _spotCheckClientPtr = std::shared_ptr<SpotCheckClient>(new SpotCheckClient(_directoryClientPtr->getEntry(SPOT_CHECK_CLIENT_NAME).service_entry().authority(), _token));
-    _timesyncClientPtr = std::shared_ptr<TimeSyncClient>(new TimeSyncClient(_directoryClientPtr->getEntry(TIMESYNC_CLIENT_NAME).service_entry().authority(), _token));
+    _timeSyncClientPtr = std::shared_ptr<TimeSyncClient>(new TimeSyncClient(_directoryClientPtr->getEntry(TIMESYNC_CLIENT_NAME).service_entry().authority(), _token));
 }
 
 void Robot::authenticate(const std::string &username, const std::string &password) {
@@ -79,15 +79,15 @@ void Robot::initBasicLease() {
 }
 
 void Robot::initBasicTimesync() {
-    TimeSyncUpdateResponse timeSyncResp = _timesyncClientPtr->getTimeSyncUpdate();
-    _timesyncClockId = timeSyncResp.clock_identifier();
+    TimeSyncUpdateResponse timeSyncResp = _timeSyncClientPtr->getTimeSyncUpdate();
+    _timeSyncClockId = timeSyncResp.clock_identifier();
     while(timeSyncResp.state().status() != 1){
 		TimeSyncRoundTrip prevRoundTrip;
 		prevRoundTrip.mutable_client_rx()->CopyFrom(TimeUtil::GetCurrentTime());
 		prevRoundTrip.mutable_client_tx()->CopyFrom(timeSyncResp.header().request_header().request_timestamp());
 		prevRoundTrip.mutable_server_tx()->CopyFrom(timeSyncResp.header().response_timestamp());
 		prevRoundTrip.mutable_server_rx()->CopyFrom(timeSyncResp.header().request_received_timestamp());
-		timeSyncResp = _timesyncClientPtr->getTimeSyncUpdate(prevRoundTrip, _timesyncClockId);
+		timeSyncResp = _timeSyncClientPtr->getTimeSyncUpdate(prevRoundTrip, _timeSyncClockId);
         _clockSkew = TimeUtil::DurationToNanoseconds(timeSyncResp.state().best_estimate().clock_skew());
 	}
 }
@@ -103,6 +103,13 @@ void Robot::powerOn() {
 	PowerCommandRequest_Request pcr_r;
 	pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
 	PowerCommandResponse powerCommResp = _powerClientPtr->PowerCommand(*_leasePtr, pcr_r); 
+    uint32_t pcID = powerCommResp.power_command_id();
+
+    PowerCommandFeedbackResponse pcfr = _powerClientPtr->PowerCommandFeedback(pcID);
+	while(pcfr.status() != 2){
+		pcfr = _powerClientPtr->PowerCommandFeedback(pcID);
+		sleep(1);
+	}
     _isOn = true;
 }
 
@@ -119,7 +126,7 @@ void Robot::powerOff() {
     _isOn = false;
 }
 
-bool Robot::move(movementType mType, double x, double y, double rot, double time){
+bool Robot::move(movementType mType){
 	if (_robotCommandClientPtr == NULL){
 	        std::cout << "Need to setup" << std::endl; 
 	        throw 1;
@@ -136,12 +143,12 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
 			break;
 	}
 
-	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, timeSyncClockId);
+	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
     return (robCommResp.status() == 1);
 }
 
 // move method for travelling
-bool Robot::move(movementType mType, double x, double y, double rot, double time, int64_t clockSkew, std::__cxx11::string timeSyncClockId){
+bool Robot::move(movementType mType, double x, double y, double rot, double time){
 	if (_robotCommandClientPtr == NULL){
 	        std::cout << "Need to setup" << std::endl; 
 	        throw 1;
@@ -150,7 +157,7 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
 	RobotCommand command;
 
 	switch (mType){
-		case travelBasic:
+		case travel:
 			SE2VelocityCommand_Request se2VelocityCommand_Request;
 			se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
 			se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
@@ -180,6 +187,6 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
         //     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->mutable_trajectory()->CopyFrom(trajectory);
 	}
 
-	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timesyncClockId);
+	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
     return (robCommResp.status() == 1);
 }

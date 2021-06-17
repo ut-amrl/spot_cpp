@@ -46,10 +46,10 @@ ReturnLeaseResponse LeaseClient::returnLeaseAsync(Lease *lease){
   return callAsync<ReturnLeaseRequest, ReturnLeaseResponse>(request, &LeaseService::Stub::AsyncReturnLease);
 }
 
-RetainLeaseResponse LeaseClient::retainLease(Lease *lease){
+RetainLeaseResponse LeaseClient::retainLease(Lease lease){
   RetainLeaseRequest request;
   assembleRequestHeader<RetainLeaseRequest>(&request);
-  request.set_allocated_lease(lease);
+  request.mutable_lease()->CopyFrom(lease);
   return call<RetainLeaseRequest, RetainLeaseResponse>(request, &LeaseService::Stub::RetainLease);
 }
 
@@ -97,5 +97,5 @@ void LeaseKeepAlive::periodicCheckIn() {
 
 void LeaseKeepAlive::checkIn() {
   // retain the lease held in this class (change later to use lease wallet and resource)
-  _clientPtr->retainLease(&_lease);
+  _clientPtr->retainLease(_lease);
 }

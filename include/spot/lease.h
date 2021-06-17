@@ -36,7 +36,7 @@ public:
   TakeLeaseResponse takeAsync(const std::string &resource);
   ReturnLeaseResponse returnLease(Lease *lease);
   ReturnLeaseResponse returnLeaseAsync(Lease *lease);
-  RetainLeaseResponse retainLease(Lease *lease);
+  RetainLeaseResponse retainLease(Lease lease);
   RetainLeaseResponse retainLeaseAsync(Lease *lease); 
   ListLeasesResponse listLeases(bool includeFullLeaseInfo);
   ListLeasesResponse listLeasesAsync(bool includeFullLeasesInfo);

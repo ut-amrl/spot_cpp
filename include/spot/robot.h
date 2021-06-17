@@ -70,6 +70,7 @@ public:
     State getState();
 
     // movement
+    bool move(movementType mType);
     bool move(movementType, double, double, double, double);
 
     std::shared_ptr<AuthClient> getAuthClientPtr() const { return _authClientPtr; }
@@ -82,7 +83,7 @@ public:
     std::shared_ptr<RobotIdClient> getRobotIdClientPtr() const { return _robotIdClientPtr; }
     std::shared_ptr<RobotStateClient> getRobotStateClientPtr() const { return _robotStateClientPtr; }
     std::shared_ptr<SpotCheckClient> getSpotCheckClientPtr() const { return _spotCheckClientPtr; }
-    std::shared_ptr<TimeSyncClient> getTimeSyncClientPtr() const { return _timesyncClientPtr; }
+    std::shared_ptr<TimeSyncClient> getTimeSyncClientPtr() const { return _timeSyncClientPtr; }
 
 private:
     // power
@@ -93,7 +94,7 @@ private:
     std::shared_ptr<Lease> _leasePtr = nullptr;
 
     // time sync
-    std::string _timesyncClockId;
+    std::string _timeSyncClockId;
     int64_t _clockSkew;
 
     // config data
@@ -118,7 +119,7 @@ private:
     std::shared_ptr<RobotIdClient> _robotIdClientPtr = nullptr;
     std::shared_ptr<RobotStateClient> _robotStateClientPtr = nullptr;
     std::shared_ptr<SpotCheckClient> _spotCheckClientPtr = nullptr;
-    std::shared_ptr<TimeSyncClient> _timesyncClientPtr = nullptr;
+    std::shared_ptr<TimeSyncClient> _timeSyncClientPtr = nullptr;
 private:
     template <class client_T>
     std::shared_ptr<client_T> getPtr(CLIENT_TYPES type);

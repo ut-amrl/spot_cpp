@@ -64,69 +64,77 @@ int main(int argc, char *argv[]) {
 	Robot robot("spot");
 
 	// print id information
-	robot.getId();
+	std::cout << robot.getId() << std::endl;
 
-	// // authenticate robot
-	// robot.authenticate(username, password);
+	// authenticate robot
+	robot.authenticate(username, password);
 
-	// // setup robot (initialize clients)
-	// robot.setup();
+	// setup robot (initialize clients)
+	robot.setup();
+	
 
-	// // create estop and lease threads
-	// robot.initBasicEstop();
-	// robot.initBasicLease();
-	// robot.initBasicTimesync();
+	// create estop and lease threads
+	robot.initBasicEstop();
+	std::cout << "Estop initialized" << std::endl;
+	robot.initBasicLease();
+	std::cout << "Lease initialized" << std::endl;
+	robot.initBasicTimesync();
+	std::cout << "Timesync initialized" << std::endl;
+	
+	// power on
+	robot.powerOn();
+	std::cout << "Powered on" << std::endl;
 
-	// // power on
-	// robot.powerOn();
+	robot.move(stand);
+	std::cout << "Standing" << std::endl;
 
-	// // move
-	// initTerminalInput();
-	// bool keepRunning = true;
-	// while(keepRunning){
-	// 	wchar_t wchar = getWCharClean();
+	// move
+	initTerminalInput();
+	bool keepRunning = true;
+	while(keepRunning){
+		wchar_t wchar = getWCharClean();
 		
-	// 	// initialize velocities and angular velocity (rot)
-	// 	double velX = 0;
-	// 	double velY = 0;
-	// 	double rot = 0;
+		// initialize velocities and angular velocity (rot)
+		double velX = 0;
+		double velY = 0;
+		double rot = 0;
 
-	// 	// xy translation
-	// 	if (wchar == L'w') {
-	// 		velY += 1.0;
-	// 	}
-	// 	if (wchar == L'a') {
-	// 		velX -= 1.0;
-	// 	}
-	// 	if (wchar == L's') {
-	// 		velY -= 1.0;
-	// 	}
-	// 	if (wchar == L'd') {
-	// 		velX += 1.0;
-	// 	}
+		// xy translation
+		if (wchar == L'w') {
+			velX += 1.0;
+		}
+		if (wchar == L'a') {
+			velY -= 1.0;
+		}
+		if (wchar == L's') {
+			velX -= 1.0;
+		}
+		if (wchar == L'd') {
+			velY += 1.0;
+		}
 
-	// 	// orientation (once we figure out)
-	// 	if (wchar == L'i') {
+		// orientation (once we figure out)
+		if (wchar == L'i') {
 
-	// 	}
-	// 	if (wchar == L'j') {
-	// 		rot += 0.5;
-	// 	}
-	// 	if (wchar == L'k') {
+		}
+		if (wchar == L'j') {
+			rot += 0.5;
+		}
+		if (wchar == L'k') {
 
-	// 	}
-	// 	if (wchar == L'l') {
-	// 		rot -= 0.5;
-	// 	}
+		}
+		if (wchar == L'l') {
+			rot -= 0.5;
+		}
 
-	// 	// exit
-	// 	if (wchar == L'e') {
-	// 		keepRunning = false;
-	// 		break;
-	// 	}
+		// exit
+		if (wchar == L'e') {
+			keepRunning = false;
+			break;
+		}
 
-	// 	// issue move
-	// 	robot.move(travel, velX, velY, rot, 0.5);
-	// }
+		// issue move
+		robot.move(travel, velX, velY, rot, 0.5);
+	}
 	return 0;
 }
