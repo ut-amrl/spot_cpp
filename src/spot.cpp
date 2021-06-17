@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 	robot.powerOn();
 	std::cout << "Powered on" << std::endl;
 
-	robot.stand(0, 0, 1, 0, 0, 0);
+	robot.stand();
 	std::cout << "standing" << std::endl;
 	sleep(3);
 
@@ -172,16 +172,19 @@ int main(int argc, char *argv[]) {
 		// exit
 		if (wchar == L'x') {
 			keepRunning = false;
-			robot.move(sit);
+			// robot.move(sit);
+			robot.sit();
 			break;
 		}
 
 		// issue move
 		if (velY == 0 && velX == 0 && rot == 0){
-			robot.stand(posX, posY, posZ, pitch, yaw, roll);
+			// robot.stand(posX, posY, posZ, pitch, yaw, roll);
+			robot.tiltAndTwist(posX, posY, posZ, pitch, roll, yaw);
 		}
 		else {
-			robot.move(travelVelocity, velX, velY, rot, 0.5);
+			robot.travel(velX, velY, rot, 0.5);
+			// robot.move(travelVelocity, velX, velY, rot, 0.5);
 		}
 	
 	}

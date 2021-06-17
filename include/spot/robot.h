@@ -70,10 +70,12 @@ public:
     bool isEstopped();
     State getState();
 
-    // movement
-    bool stand(double, double, double, double, double, double);
-    bool move(movementType);
-    bool move(movementType, double, double, double, double);
+    // teleop control
+
+    bool sit();
+    bool stand();
+    bool travel(double, double, double, double);
+    bool tiltAndTwist(double, double, double, double, double, double);
 
     std::shared_ptr<AuthClient> getAuthClientPtr() const { return _authClientPtr; }
     std::shared_ptr<DirectoryClient> getDirectoryClientPtr() const { return _directoryClientPtr; }
@@ -122,6 +124,14 @@ private:
     std::shared_ptr<RobotStateClient> _robotStateClientPtr = nullptr;
     std::shared_ptr<SpotCheckClient> _spotCheckClientPtr = nullptr;
     std::shared_ptr<TimeSyncClient> _timeSyncClientPtr = nullptr;
+
+    // teleop control variables
+    double posX = 0;
+	double posY = 0;
+	double posZ = 0;
+	double pitch = 0.5;
+	double roll = 0;
+	double yaw = 0;
 private:
     template <class client_T>
     std::shared_ptr<client_T> getPtr(CLIENT_TYPES type);

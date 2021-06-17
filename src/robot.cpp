@@ -126,11 +126,72 @@ void Robot::powerOff() {
     _isOn = false;
 }
 
-bool Robot::stand(double x, double y, double z, double pitch, double yaw, double roll){
+// teleop stuff 
+
+bool Robot::sit() {
     if (_robotCommandClientPtr == NULL){
 	        std::cout << "Need to setup" << std::endl; 
 	        throw 1;
 	} // TODO: change later 
+
+    RobotCommand command;
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
+    RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    return (robCommResp.status() == 1);
+} // sits the robot down
+
+bool Robot::stand(){
+    if (_robotCommandClientPtr == NULL){
+	        std::cout << "Need to setup" << std::endl; 
+	        throw 1;
+	} // TODO: change later
+
+    // zeros all the values that have been changed by the previous modifications to the stand 
+    posX = 0;
+	posY = 0;
+	posZ = 0;
+	pitch = 0;
+	roll = 0;
+	yaw = 0; 
+
+    RobotCommand command;
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+    RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    return (robCommResp.status() == 1);
+} // stands the robot up
+
+bool Robot::travel(double x, double y, double rot, double time){
+    if (_robotCommandClientPtr == NULL){
+        std::cout << "Need to setup" << std::endl; 
+        throw 1;
+	} // TODO: change later 
+	
+    RobotCommand command;
+    SE2VelocityCommand_Request se2VelocityCommand_Request;
+    se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
+    se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
+    se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
+    se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
+    se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
+
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
+    RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    return (robCommResp.status() == 1);
+} // allows the robot to translate left/right and/or forward/backward and/or rotate left/right 
+
+bool Robot::tiltAndTwist(double xIn, double yIn, double zIn, double pitchIn, double rollIn, double yawIn){
+    if (_robotCommandClientPtr == NULL){
+	        std::cout << "Need to setup" << std::endl; 
+	        throw 1;
+	} // TODO: change later 
+
+    // add in user input 
+    posX += xIn;
+    posY += yIn;
+    posZ += zIn;
+    pitch += pitchIn;
+    roll += rollIn;
+    yaw += yawIn; 
 
     Eigen::AngleAxisd rotX(roll, Eigen::Vector3d::UnitX());
     Eigen::AngleAxisd rotY(pitch, Eigen::Vector3d::UnitY());
@@ -152,9 +213,9 @@ bool Robot::stand(double x, double y, double z, double pitch, double yaw, double
     trajectory.set_ang_interpolation(bosdyn::api::ANG_INTERP_LINEAR);
     
     SE3TrajectoryPoint trajectoryPoint;
-    trajectoryPoint.mutable_pose()->mutable_position()->set_x(x); // vec3
-    trajectoryPoint.mutable_pose()->mutable_position()->set_y(y);
-    trajectoryPoint.mutable_pose()->mutable_position()->set_z(z);
+    trajectoryPoint.mutable_pose()->mutable_position()->set_x(posX); // vec3
+    trajectoryPoint.mutable_pose()->mutable_position()->set_y(posY);
+    trajectoryPoint.mutable_pose()->mutable_position()->set_z(posZ);
     trajectoryPoint.mutable_pose()->mutable_rotation()->set_x(q.x()); // quaternion
     trajectoryPoint.mutable_pose()->mutable_rotation()->set_y(q.y());
     trajectoryPoint.mutable_pose()->mutable_rotation()->set_z(q.z());
@@ -174,107 +235,31 @@ bool Robot::stand(double x, double y, double z, double pitch, double yaw, double
 
     RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
     return (robCommResp.status() == 1);
-}
+} // tilts the robot left/right, forward back, up/down and twists the robot (pitch roll yaw)
 
-
-bool Robot::move(movementType mType){
-	if (_robotCommandClientPtr == NULL){
-	        std::cout << "Need to setup" << std::endl; 
-	        throw 1;
-	 } // TODO: change later 
+// // move method for travelling (trajectory based)
+// bool Robot::move(movementType mType, double x, double y, double rot, double time){
+// 	if (_robotCommandClientPtr == NULL){
+// 	        std::cout << "Need to setup" << std::endl; 
+// 	        throw 1;
+// 	 } // TODO: change later 
 	
-	RobotCommand command;
+// 	RobotCommand command;
+//     bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
+//     trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
+//     trajectoryCommandReq.set_se2_frame_name(ODOM_FRAME_NAME);
+//     SE2Trajectory trajectory;
+//     trajectory.mutable_reference_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew)));
+//     trajectory.set_interpolation(bosdyn::api::POS_INTERP_LINEAR);
+//     SE2TrajectoryPoint trajectoryPoint;
+//     trajectoryPoint.mutable_pose()->mutable_position()->set_x(1);
+//     trajectoryPoint.mutable_pose()->mutable_position()->set_y(1);
+//     trajectoryPoint.mutable_pose()->set_angle(3.14/4.0);
+//     trajectoryPoint.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(3));
+//     trajectory.add_points()->CopyFrom(trajectoryPoint);
+//     trajectoryCommandReq.mutable_trajectory()->CopyFrom(trajectory);
+//     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->CopyFrom(trajectoryCommandReq);
 
-	switch (mType){
-		case sit:
-			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
-			break;
-		// case stand:
-		// 	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-            
-        //     MobilityParams params;
-
-        //     BodyControlParams bodyParams;
-        //     bodyParams.set_rotation_setting(bosdyn::api::spot::BodyControlParams_RotationSetting_ROTATION_SETTING_ABSOLUTE);
-        //     // params.mutable_body_control()->set_rotation_setting(BodyControlParams.RotationSetting ROTATION_SETTING_ABSOLUTE);
-            
-        //     SE3Trajectory trajectory;
-        //     trajectory.set_pos_interpolation(bosdyn::api::POS_INTERP_LINEAR);
-        //     trajectory.set_ang_interpolation(bosdyn::api::ANG_INTERP_LINEAR);
-            
-        //     SE3TrajectoryPoint trajectoryPoint;
-        //     trajectoryPoint.mutable_pose()->mutable_position()->set_x(0); // vec3
-        //     trajectoryPoint.mutable_pose()->mutable_position()->set_y(0);
-        //     trajectoryPoint.mutable_pose()->mutable_position()->set_z(0);
-        //     trajectoryPoint.mutable_pose()->mutable_rotation()->set_x(0); // quaternion
-        //     trajectoryPoint.mutable_pose()->mutable_rotation()->set_y(rot);
-        //     trajectoryPoint.mutable_pose()->mutable_rotation()->set_z(0);
-        //     trajectoryPoint.mutable_pose()->mutable_rotation()->set_w(0);
-        //     // velocity optional
-        //     trajectoryPoint.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(3));
-            
-        //     // put it all together 
-        //     trajectory.add_points()->CopyFrom(trajectoryPoint);
-        //     bodyParams.mutable_base_offset_rt_footprint()->CopyFrom(trajectory);
-        //     params.mutable_body_control()->CopyFrom(bodyParams);
-        //     //params.mutable_body_control()->mutable_base_offset_rt_footprint()->CopyFrom(trajectory);
-
-        //     Any any;
-        //     any.PackFrom(params);
-        //     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
-		// 	break;
-	}
-
-	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
-    return (robCommResp.status() == 1);
-}
-
-// move method for travelling
-bool Robot::move(movementType mType, double x, double y, double rot, double time){
-	if (_robotCommandClientPtr == NULL){
-	        std::cout << "Need to setup" << std::endl; 
-	        throw 1;
-	 } // TODO: change later 
-	
-	RobotCommand command;
-
-	switch (mType){
-		case travelVelocity:{
-			SE2VelocityCommand_Request se2VelocityCommand_Request;
-			se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
-			se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
-			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
-			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
-			se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
-/*
-			SE2Velocity velocity;
-			velocity.mutable_linear()->set_x(x);
-			velocity.mutable_linear()->set_y(y);
-			velocity.set_angular(rot);
-*/
-//			se2VelocityCommand_Request->mutable_velocity()->copyFrom(velocity);
-			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
-			break;
-        }
-        case travelTrajectory:{
-            bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
-            trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
-            trajectoryCommandReq.set_se2_frame_name(ODOM_FRAME_NAME);
-            SE2Trajectory trajectory;
-            trajectory.mutable_reference_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew)));
-            trajectory.set_interpolation(bosdyn::api::POS_INTERP_LINEAR);
-            SE2TrajectoryPoint trajectoryPoint;
-            trajectoryPoint.mutable_pose()->mutable_position()->set_x(1);
-            trajectoryPoint.mutable_pose()->mutable_position()->set_y(1);
-            trajectoryPoint.mutable_pose()->set_angle(3.14/4.0);
-            trajectoryPoint.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(3));
-            trajectory.add_points()->CopyFrom(trajectoryPoint);
-            trajectoryCommandReq.mutable_trajectory()->CopyFrom(trajectory);
-            command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->CopyFrom(trajectoryCommandReq);
-        }
-	}
-
-	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
-    return (robCommResp.status() == 1);
-}
-
+// 	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+//     return (robCommResp.status() == 1);
+// }
