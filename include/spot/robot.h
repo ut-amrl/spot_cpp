@@ -22,6 +22,7 @@
 
 #include <map>
 #include <list>
+#include <Eigen/Geometry>
 
 enum movementType {sit, stand, travelVelocity, travelTrajectory};
 
@@ -70,7 +71,8 @@ public:
     State getState();
 
     // movement
-    bool move(movementType mType);
+    bool stand(double, double, double, double, double, double);
+    bool move(movementType);
     bool move(movementType, double, double, double, double);
 
     std::shared_ptr<AuthClient> getAuthClientPtr() const { return _authClientPtr; }

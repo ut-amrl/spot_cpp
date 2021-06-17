@@ -17,6 +17,8 @@
 
 using bosdyn::api::Vec2;
 using bosdyn::api::SE2Pose;
+using bosdyn::api::Vec3;
+using bosdyn::api::SE3Pose;
 
 const std::string VISION_FRAME_NAME = "vision";
 const std::string BODY_FRAME_NAME = "body";

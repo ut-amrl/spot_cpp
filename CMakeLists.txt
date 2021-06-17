@@ -189,6 +189,8 @@ add_executable(spot
   ${POWER}
   ${ROBOT_COMMAND}
   ${SPOT_CHECK}
+  include/bosdyn/api/spot/robot_command.pb.cc 
+  include/bosdyn/api/spot/robot_command.grpc.pb.cc
 
   # data
   ${DATA}
@@ -203,6 +205,7 @@ set(LINK_LIBRARIES
   ${Protobuf_LIBRARIES}
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}
+  Eigen3::Eigen
 )
 
 target_link_libraries(spot ${LINK_LIBRARIES})

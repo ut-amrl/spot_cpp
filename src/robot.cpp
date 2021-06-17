@@ -126,6 +126,57 @@ void Robot::powerOff() {
     _isOn = false;
 }
 
+bool Robot::stand(double x, double y, double z, double pitch, double yaw, double roll){
+    if (_robotCommandClientPtr == NULL){
+	        std::cout << "Need to setup" << std::endl; 
+	        throw 1;
+	} // TODO: change later 
+
+    Eigen::AngleAxisd rotX(roll, Eigen::Vector3d::UnitX());
+    Eigen::AngleAxisd rotY(pitch, Eigen::Vector3d::UnitY());
+    Eigen::AngleAxisd rotZ(yaw, Eigen::Vector3d::UnitZ());
+
+    Eigen::Quaternion<double> q = rotX * rotZ * rotY;
+	
+	RobotCommand command;
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+            
+    MobilityParams params;
+
+    BodyControlParams bodyParams;
+    bodyParams.set_rotation_setting(bosdyn::api::spot::BodyControlParams_RotationSetting_ROTATION_SETTING_ABSOLUTE);
+    // params.mutable_body_control()->set_rotation_setting(BodyControlParams.RotationSetting ROTATION_SETTING_ABSOLUTE);
+    
+    SE3Trajectory trajectory;
+    trajectory.set_pos_interpolation(bosdyn::api::POS_INTERP_LINEAR);
+    trajectory.set_ang_interpolation(bosdyn::api::ANG_INTERP_LINEAR);
+    
+    SE3TrajectoryPoint trajectoryPoint;
+    trajectoryPoint.mutable_pose()->mutable_position()->set_x(x); // vec3
+    trajectoryPoint.mutable_pose()->mutable_position()->set_y(y);
+    trajectoryPoint.mutable_pose()->mutable_position()->set_z(z);
+    trajectoryPoint.mutable_pose()->mutable_rotation()->set_x(q.x()); // quaternion
+    trajectoryPoint.mutable_pose()->mutable_rotation()->set_y(q.y());
+    trajectoryPoint.mutable_pose()->mutable_rotation()->set_z(q.z());
+    trajectoryPoint.mutable_pose()->mutable_rotation()->set_w(q.w());
+    // velocity optional
+    trajectoryPoint.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(3));
+    
+    // put it all together 
+    trajectory.add_points()->CopyFrom(trajectoryPoint);
+    bodyParams.mutable_base_offset_rt_footprint()->CopyFrom(trajectory);
+    params.mutable_body_control()->CopyFrom(bodyParams);
+    //params.mutable_body_control()->mutable_base_offset_rt_footprint()->CopyFrom(trajectory);
+
+    Any any;
+    any.PackFrom(params);
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
+
+    RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    return (robCommResp.status() == 1);
+}
+
+
 bool Robot::move(movementType mType){
 	if (_robotCommandClientPtr == NULL){
 	        std::cout << "Need to setup" << std::endl; 
@@ -138,9 +189,40 @@ bool Robot::move(movementType mType){
 		case sit:
 			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
 			break;
-		case stand:
-			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-			break;
+		// case stand:
+		// 	command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+            
+        //     MobilityParams params;
+
+        //     BodyControlParams bodyParams;
+        //     bodyParams.set_rotation_setting(bosdyn::api::spot::BodyControlParams_RotationSetting_ROTATION_SETTING_ABSOLUTE);
+        //     // params.mutable_body_control()->set_rotation_setting(BodyControlParams.RotationSetting ROTATION_SETTING_ABSOLUTE);
+            
+        //     SE3Trajectory trajectory;
+        //     trajectory.set_pos_interpolation(bosdyn::api::POS_INTERP_LINEAR);
+        //     trajectory.set_ang_interpolation(bosdyn::api::ANG_INTERP_LINEAR);
+            
+        //     SE3TrajectoryPoint trajectoryPoint;
+        //     trajectoryPoint.mutable_pose()->mutable_position()->set_x(0); // vec3
+        //     trajectoryPoint.mutable_pose()->mutable_position()->set_y(0);
+        //     trajectoryPoint.mutable_pose()->mutable_position()->set_z(0);
+        //     trajectoryPoint.mutable_pose()->mutable_rotation()->set_x(0); // quaternion
+        //     trajectoryPoint.mutable_pose()->mutable_rotation()->set_y(rot);
+        //     trajectoryPoint.mutable_pose()->mutable_rotation()->set_z(0);
+        //     trajectoryPoint.mutable_pose()->mutable_rotation()->set_w(0);
+        //     // velocity optional
+        //     trajectoryPoint.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(3));
+            
+        //     // put it all together 
+        //     trajectory.add_points()->CopyFrom(trajectoryPoint);
+        //     bodyParams.mutable_base_offset_rt_footprint()->CopyFrom(trajectory);
+        //     params.mutable_body_control()->CopyFrom(bodyParams);
+        //     //params.mutable_body_control()->mutable_base_offset_rt_footprint()->CopyFrom(trajectory);
+
+        //     Any any;
+        //     any.PackFrom(params);
+        //     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
+		// 	break;
 	}
 
 	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
@@ -195,3 +277,4 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
 	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
     return (robCommResp.status() == 1);
 }
+

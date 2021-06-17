@@ -85,16 +85,21 @@ int main(int argc, char *argv[]) {
 	robot.powerOn();
 	std::cout << "Powered on" << std::endl;
 
-	// robot.move(stand);
-	// std::cout << "Standing" << std::endl;
-	// sleep(5);
-	robot.move(travelTrajectory, 0, 0, 0, 5);
-	std::cout << "Travelling to trajectory" << std::endl;
-	sleep(5);
+	robot.stand(0, 0, 1, 0, 0, 0);
+	std::cout << "standing" << std::endl;
+	sleep(3);
 
 	// move
 	initTerminalInput();
 	bool keepRunning = true;
+	
+	double posX = 0;
+	double posY = 0;
+	double posZ = 0;
+	double pitch = 0.5;
+	double roll = 0;
+	double yaw = 0;
+
 	while(keepRunning){
 		wchar_t wchar = getWCharClean();
 		
@@ -104,41 +109,81 @@ int main(int argc, char *argv[]) {
 		double rot = 0;
 
 		// xy translation
+
 		if (wchar == L'w') {
 			velX += 1.0;
 		}
 		if (wchar == L'a') {
-			velY -= 1.0;
+			velY += 1.0;
 		}
 		if (wchar == L's') {
 			velX -= 1.0;
 		}
 		if (wchar == L'd') {
-			velY += 1.0;
+			velY -= 1.0;
+		}
+		if (wchar == L'q') {
+			rot += 0.5;
+		}
+		if (wchar == L'e') {
+			rot -= 0.5;
 		}
 
 		// orientation (once we figure out)
 		if (wchar == L'i') {
-
+			pitch += 3.14/16;
 		}
 		if (wchar == L'j') {
-			rot += 0.5;
+			roll += 3.14/16;
 		}
 		if (wchar == L'k') {
-
+			pitch -= 3.14/16;
 		}
 		if (wchar == L'l') {
-			rot -= 0.5;
+			roll -= 3.14/16;
+		}
+		if (wchar == L'u') {
+			yaw -= 3.14/16;
+		}
+		if (wchar == L'o') {
+			yaw += 3.14/16;
+		}
+
+		// height / positions ?
+		if (wchar == L'r') {
+			posX += 0.2;
+		}
+		if (wchar == L'f') {
+			posX -= 0.2;
+		}
+		if (wchar == L't') {
+			posY += 0.2;
+		}
+		if (wchar == L'g') {
+			posY -= 0.2;
+		}
+		if (wchar == L'y') {
+			posZ += 0.2;
+		}
+		if (wchar == L'h') {
+			posZ -= 0.2;
 		}
 
 		// exit
-		if (wchar == L'e') {
+		if (wchar == L'x') {
 			keepRunning = false;
+			robot.move(sit);
 			break;
 		}
 
 		// issue move
-		robot.move(travelVelocity, velX, velY, rot, 0.5);
+		if (velY == 0 && velX == 0 && rot == 0){
+			robot.stand(posX, posY, posZ, pitch, yaw, roll);
+		}
+		else {
+			robot.move(travelVelocity, velX, velY, rot, 0.5);
+		}
+	
 	}
 	return 0;
 }
