@@ -34,10 +34,10 @@ public:
   AcquireLeaseResponse acquireAsync(const std::string &resource);
   TakeLeaseResponse take(const std::string &resource);
   TakeLeaseResponse takeAsync(const std::string &resource);
-  ReturnLeaseResponse returnLease(Lease *lease);
-  ReturnLeaseResponse returnLeaseAsync(Lease *lease);
+  ReturnLeaseResponse returnLease(Lease lease);
+  ReturnLeaseResponse returnLeaseAsync(Lease lease);
   RetainLeaseResponse retainLease(Lease lease);
-  RetainLeaseResponse retainLeaseAsync(Lease *lease); 
+  RetainLeaseResponse retainLeaseAsync(Lease lease); 
   ListLeasesResponse listLeases(bool includeFullLeaseInfo);
   ListLeasesResponse listLeasesAsync(bool includeFullLeasesInfo);
 };

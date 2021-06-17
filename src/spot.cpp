@@ -71,7 +71,6 @@ int main(int argc, char *argv[]) {
 
 	// setup robot (initialize clients)
 	robot.setup();
-	
 
 	// create estop and lease threads
 	robot.initBasicEstop();

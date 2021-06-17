@@ -134,14 +134,14 @@ bool Robot::move(movementType mType){
 	
 	RobotCommand command;
 
-	switch (mType){
-		case sit:
-			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
-			break;
-		case stand:
-			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-			break;
-	}
+	if (mType == sit) {
+        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
+    } else if (mType == stand) {
+        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+    } else {
+        std::cout << "Use other move() command to issue velocity requests to robot." << std::endl;
+        throw 1;
+    }
 
 	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
     return (robCommResp.status() == 1);
@@ -156,36 +156,18 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
 	
 	RobotCommand command;
 
-	switch (mType){
-		case travel:
-			SE2VelocityCommand_Request se2VelocityCommand_Request;
-			se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
-			se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
-			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
-			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
-			se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
-/*
-			SE2Velocity velocity;
-			velocity.mutable_linear()->set_x(x);
-			velocity.mutable_linear()->set_y(y);
-			velocity.set_angular(rot);
-*/
-//			se2VelocityCommand_Request->mutable_velocity()->copyFrom(velocity);
-			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
-			break;
-        // case travelTrajectory:
-        //     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + clockSkew) + time*1000000000)));
-        //     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->set_se2_frame_name(BODY_FRAME_NAME);
-        //     SE2Trajectory trajectory;
-        //     trajectory.set_interpolation(POS_INTERP_LINEAR);
-        //     SE2TrajectoryPoint trajectoryPoint;
-        //     trajectoryPoint.mutable_pose()->mutable_position()->setx(0);
-        //     trajectoryPoint.mutable_pose()->mutable_position()->sety(0);
-        //     trajectoryPoint.mutable_pose()->set_angle(3.14/4);
-        //     trajectoryPoint.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(3));
-        //     trajectory.mutable_points()->CopyFrom(trajectoryPoint);
-        //     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->mutable_trajectory()->CopyFrom(trajectory);
-	}
+    if (mType == travel) {
+        SE2VelocityCommand_Request se2VelocityCommand_Request;
+        se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
+        se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
+        se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
+        se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
+        se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
+        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
+    } else {
+        std::cout << "Use other move command to sit and stand." << std::endl;
+        throw 1;
+    }
 
 	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
     return (robCommResp.status() == 1);

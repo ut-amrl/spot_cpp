@@ -32,17 +32,17 @@ TakeLeaseResponse LeaseClient::takeAsync(const std::string &resource){
   return callAsync<TakeLeaseRequest, TakeLeaseResponse>(request, &LeaseService::Stub::AsyncTakeLease);
 }
 
-ReturnLeaseResponse LeaseClient::returnLease(Lease *lease){
+ReturnLeaseResponse LeaseClient::returnLease(Lease lease){
   ReturnLeaseRequest request;
   assembleRequestHeader<ReturnLeaseRequest>(&request);
-  request.set_allocated_lease(lease);
+  request.set_allocated_lease(&lease);
   return call<ReturnLeaseRequest, ReturnLeaseResponse>(request, &LeaseService::Stub::ReturnLease);
 }
 
-ReturnLeaseResponse LeaseClient::returnLeaseAsync(Lease *lease){
+ReturnLeaseResponse LeaseClient::returnLeaseAsync(Lease lease){
   ReturnLeaseRequest request;
   assembleRequestHeader<ReturnLeaseRequest>(&request);
-  request.set_allocated_lease(lease);
+  request.set_allocated_lease(&lease);
   return callAsync<ReturnLeaseRequest, ReturnLeaseResponse>(request, &LeaseService::Stub::AsyncReturnLease);
 }
 
@@ -53,10 +53,10 @@ RetainLeaseResponse LeaseClient::retainLease(Lease lease){
   return call<RetainLeaseRequest, RetainLeaseResponse>(request, &LeaseService::Stub::RetainLease);
 }
 
-RetainLeaseResponse LeaseClient::retainLeaseAsync(Lease *lease){
+RetainLeaseResponse LeaseClient::retainLeaseAsync(Lease lease){
   RetainLeaseRequest request;
   assembleRequestHeader<RetainLeaseRequest>(&request);
-  request.set_allocated_lease(lease);
+  request.set_allocated_lease(&lease);
   return callAsync<RetainLeaseRequest, RetainLeaseResponse>(request, &LeaseService::Stub::AsyncRetainLease);
 }
 

@@ -13,3 +13,6 @@
 
 # cmake
 build/
+
+# misc
+notes.*
