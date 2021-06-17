@@ -12,12 +12,7 @@
 #include <iostream>
 #include <thread>
 
-#include <grpc++/grpc++.h>
-#include <grpc++/health_check_service_interface.h>
-#include <grpc++/ext/proto_server_reflection_plugin.h>
-#include <google/protobuf/util/time_util.h>
-
-#include "bosdyn/api/header.grpc.pb.h"
+#include <spot/common.h>
 
 #include <spot/exception.h>
 #include <spot/utils.h>
@@ -29,35 +24,35 @@ using grpc::CompletionQueue;
 using grpc::ClientAsyncResponseReader;
 using google::protobuf::util::TimeUtil;
 
-/* SpotAuthenticator(): class that encapsulates metadata to be sent in calls 
-   TODO: maybe use as static class so doesn't have to be recreated each time stub authenticated
-*/
-class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
- public:
-  SpotAuthenticator(const grpc::string& ticket) : ticket_(ticket) {}
+using grpc::StatusCode;
 
-  grpc::Status GetMetadata(
-      grpc::string_ref service_url, grpc::string_ref method_name,
-      const grpc::AuthContext& channel_auth_context,
-      std::multimap<grpc::string, grpc::string>* metadata) override {
-      metadata->insert(std::make_pair(_authorization_key, _authorization_value_prefix + ticket_));
-      return grpc::Status::OK;
-  }
-
- private:
-  grpc::string ticket_;
-  std::string _authorization_key = "authorization";
-  std::string _authorization_value_prefix = "Bearer ";
+/* EXCEPTIONS */
+template <class request_T>
+class UnauthenticatedError : RpcError<request_T> {
+public:
+    UnauthenticatedError(const request_T &request, const std::string &message) : RpcError<request_T>(request, message) {}
 };
 
-/* TypesClient: allows for consistent rpc calling for clients w/ client type specified*/
+template <class request_T>
+class PermissionDeniedError : RpcError<request_T> {
+public:
+	PermissionDeniedError(const request_T &request, const std::string &message) : RpcError<request_T>(request, message) {}
+};
+
+template <class request_T>
+class InvalidArgumentError : RpcError<request_T> {
+public:
+	InvalidArgumentError(const request_T &request, const std::string &message) : RpcError<request_T>(request, message) {}
+};
+
+/* SOURCE */
 template <class serv_T>
 class BaseClient {
 public:
-	std::string getClientName() const {return _clientName;}
-protected: // can't actually instantiate baseclient, must have derivations
 	BaseClient(const std::string &clientName, const std::string &authority, const std::string &token);	
+	std::string getClientName() const {return _clientName;}
 
+protected:
 	template<class req_T>
 	void assembleRequestHeader(req_T* req);
 
@@ -73,6 +68,25 @@ protected:
 	std::unique_ptr<typename serv_T::Stub> _stub;
 	std::string _authority;
 	std::string _clientName;
+
+private:
+	class SpotAuthenticator : public grpc::MetadataCredentialsPlugin {
+	public:
+	SpotAuthenticator(const grpc::string& ticket) : ticket_(ticket) {}
+
+	grpc::Status GetMetadata(
+		grpc::string_ref service_url, grpc::string_ref method_name,
+		const grpc::AuthContext& channel_auth_context,
+		std::multimap<grpc::string, grpc::string>* metadata) override {
+		metadata->insert(std::make_pair(_authorization_key, _authorization_value_prefix + ticket_));
+		return grpc::Status::OK;
+	}
+
+	private:
+	grpc::string ticket_;
+	std::string _authorization_key = "authorization";
+	std::string _authorization_value_prefix = "Bearer ";
+	};
 };
 
 // TypedClient(): constructor for TypedClient, takes in clientName, authority, and auth token
@@ -119,6 +133,33 @@ res_T BaseClient<serv_T>::call(req_T request, Status(serv_T::Stub::*func)(grpc::
 				<< std::endl;
 	}
 
+	if (!status.ok()) {
+		//  switch based on error case
+		switch (status.error_code()) {
+			case grpc::StatusCode::CANCELLED:
+				break;
+			case grpc::StatusCode::INVALID_ARGUMENT:
+				throw InvalidArgumentError<req_T>(request, "Invalid argument(s) for RPC call.");
+				break;
+			case grpc::StatusCode::UNKNOWN:
+				break;
+			case grpc::StatusCode::DEADLINE_EXCEEDED:
+				break;
+			case grpc::StatusCode::NOT_FOUND:
+				break;
+			case grpc::StatusCode::ALREADY_EXISTS:
+				break;
+			case grpc::StatusCode::PERMISSION_DENIED:
+				throw PermissionDeniedError<req_T>(request, "Permission denied.");
+				break;
+			case grpc::StatusCode::UNAUTHENTICATED:
+				throw UnauthenticatedError<req_T>(request, "Not authenticated.");
+				break;
+			default:
+				;
+		}
+	}
+
 	return reply;
 }
 
@@ -142,11 +183,30 @@ res_T BaseClient<serv_T>::callAsync(req_T request, std::unique_ptr<ClientAsyncRe
 	rpc->Finish(&reply, &status, (void*)1);
 
 	// Act upon its status.
-	if (status.ok()) {
-		std::cout << "Success" << std::endl;
-	} else {
-		std::cout << status.error_code() << ": " << status.error_message()
-				<< std::endl;
+	if (!status.ok()) {
+		//  switch based on error case
+		switch (status.error_code()) {
+			case grpc::StatusCode::CANCELLED:
+				break;
+			case grpc::StatusCode::INVALID_ARGUMENT:
+				break;
+			case grpc::StatusCode::UNKNOWN:
+				break;
+			case grpc::StatusCode::DEADLINE_EXCEEDED:
+				break;
+			case grpc::StatusCode::NOT_FOUND:
+				break;
+			case grpc::StatusCode::ALREADY_EXISTS:
+				break;
+			case grpc::StatusCode::PERMISSION_DENIED:
+				throw PermissionDeniedError<req_T>(request, "Permission denied.");
+				break;
+			case grpc::StatusCode::UNAUTHENTICATED:
+				throw UnauthenticatedError<req_T>(request, "Not authenticated.");
+				break;
+			default:
+				;
+		}
 	}
 
 	return reply;

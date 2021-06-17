@@ -7,10 +7,6 @@ Robot::Robot(const std::string &name) :
 }
 
 void Robot::setup() {
-    if (_token.empty()) {
-        std::cout << "token not set (did you forget to authenticate?)" << std::endl;
-        throw 1; // change later
-    }
     _directoryClientPtr = std::shared_ptr<DirectoryClient>(new DirectoryClient(_token));
     _estopClientPtr = std::shared_ptr<EstopClient>(new EstopClient(_directoryClientPtr->getEntry(ESTOP_CLIENT_NAME).service_entry().authority(), _token));
     _imageClientPtr =std::shared_ptr<ImageClient>(new ImageClient(_directoryClientPtr->getEntry(IMAGE_CLIENT_NAME).service_entry().authority(), _token));
@@ -22,18 +18,30 @@ void Robot::setup() {
 }
 
 void Robot::authenticate(const std::string &username, const std::string &password) {
-    _token = _authClientPtr->auth(username, password).token();
-    if (_token.empty()) {
-        std::cout << "incorrect credentials" << std::endl;
-        throw 1;
+    GetAuthTokenResponse reply;
+    try {
+        reply = _authClientPtr->auth(username, password);
+    } catch (Error &error) {
+        std::cout << error.what() << std::endl;
+    }
+    // check if token is empty
+    if (reply.token().empty()) {
+        throw InvalidCredentialsError(reply, "Username and/or password incorrect.");
+    } else {
+        _token = reply.token();
     }
 }
 
 std::string Robot::getId() {
     // check if robotid client already cached
-    RobotIdResponse reply = _robotIdClientPtr->getId();
-    RobotId id = reply.robot_id();
+    RobotIdResponse reply;
+    try {
+        reply = _robotIdClientPtr->getId();
+    } catch (Error &error) {
+        std::cout << error.what() << std::endl;
+    }
 
+    RobotId id = reply.robot_id();
     // populate ret string (disgusting concat)
     std::string ret = "[SERIAL NUMBER]: " + id.serial_number();
     ret += "\n[SPECIES]: " + id.species();
@@ -43,6 +51,7 @@ std::string Robot::getId() {
     return ret;
 }
 
+// todo : error handling
 void Robot::initBasicEstop(){
     // estop config and endpoint
     EstopConfig estopConfig;
@@ -68,6 +77,7 @@ void Robot::initBasicEstop(){
     _estopThread = std::shared_ptr<EstopKeepAlive>(new EstopKeepAlive(_estopClientPtr, activeEndpoint, stopLevel, 0, 0, 0));
 }
 
+// todo: error handling
 void Robot::initBasicLease() {
     // acquire lease
     AcquireLeaseResponse leaseReply = _leaseClientPtr->acquire("body");
@@ -78,6 +88,7 @@ void Robot::initBasicLease() {
     _leaseThread = std::shared_ptr<LeaseKeepAlive>(new LeaseKeepAlive(_leaseClientPtr, *lease, 0));
 }
 
+// todo: error handling
 void Robot::initBasicTimesync() {
     TimeSyncUpdateResponse timeSyncResp = _timeSyncClientPtr->getTimeSyncUpdate();
     _timeSyncClockId = timeSyncResp.clock_identifier();
@@ -92,6 +103,7 @@ void Robot::initBasicTimesync() {
 	}
 }
 
+// todo: error handling
 void Robot::powerOn() {
     // check that the robot is off
     if (_isOn) {
@@ -113,6 +125,7 @@ void Robot::powerOn() {
     _isOn = true;
 }
 
+// todo: error handling
 void Robot::powerOff() {
     if (!_isOn) {
         std::cout << "robot already off" << std::endl;
@@ -126,6 +139,7 @@ void Robot::powerOff() {
     _isOn = false;
 }
 
+// todo: error handling
 bool Robot::move(movementType mType){
 	if (_robotCommandClientPtr == NULL){
 	        std::cout << "Need to setup" << std::endl; 
@@ -140,19 +154,24 @@ bool Robot::move(movementType mType){
         command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
     } else {
         std::cout << "Use other move() command to issue velocity requests to robot." << std::endl;
-        throw 1;
+        return false;
     }
 
-	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
-    return (robCommResp.status() == 1);
+    try {
+	    RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+        return (robCommResp.status() == 1);
+    } catch (Error &error) {
+        std::cout << error.what() << std::endl;
+        return false;
+    }
 }
 
 // move method for travelling
 bool Robot::move(movementType mType, double x, double y, double rot, double time){
 	if (_robotCommandClientPtr == NULL){
-	        std::cout << "Need to setup" << std::endl; 
-	        throw 1;
-	 } // TODO: change later 
+	        std::cout << "Robot class needs call to setup method to setup clients." << std::endl; 
+	        return false;
+	 }
 	
 	RobotCommand command;
 
@@ -166,9 +185,14 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
         command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
     } else {
         std::cout << "Use other move command to sit and stand." << std::endl;
-        throw 1;
+        return false;
     }
 
-	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
-    return (robCommResp.status() == 1);
+    try {
+        RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+        return (robCommResp.status() == 1);
+    } catch (Error &error) {
+        std::cout << error.what() << std::endl;
+        return false;
+    }
 }

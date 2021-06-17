@@ -18,19 +18,18 @@
 #include <spot/robot_state.h>
 #include <spot/spot_check.h>
 #include <spot/timesync.h>
-#include <spot/common.h>
 
 #include <map>
 #include <list>
 
-enum movementType {sit, stand, travel};
+enum movementType {sit, stand, travel}; // move to robot_command
 
-// class that encapsulates robot state
-class State {
-public:
-    State(const std::string &name, const std::string &address, const std::string &serial);
-private:
-};
+// // class that encapsulates robot state
+// class State {
+// public:
+//     State(const std::string &name, const std::string &address, const std::string &serial);
+// private:
+// };
 
 class Robot {
 public:
@@ -67,7 +66,7 @@ public:
     // state stuff
     bool isPoweredOn();
     bool isEstopped();
-    State getState();
+    // State getState();
 
     // movement
     bool move(movementType mType);

@@ -4,6 +4,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <grpc++/grpc++.h>
+#include <google/protobuf/util/time_util.h>
+
+#include "bosdyn/api/header.grpc.pb.h"
+
 #include <variant>
 
 // types of clients used
@@ -20,19 +25,5 @@ enum class CLIENT_TYPES {
     SPOT_CHECK,
     TIMESYNC,
 };
-
-// variant type that holds clients, to be used in containers that store clients
-typedef std::variant<
-    AuthClient,
-    DirectoryClient,
-    EstopClient,
-    ImageClient,
-    LeaseClient,
-    PowerClient,
-    RobotCommandClient,
-    RobotIdClient,
-    RobotStateClient,
-    SpotCheckClient,
-    TimeSyncClient> CLIENT_CONTAINER;
 
 #endif
