@@ -85,8 +85,12 @@ int main(int argc, char *argv[]) {
 	robot.powerOn();
 	std::cout << "Powered on" << std::endl;
 
-	robot.move(stand);
-	std::cout << "Standing" << std::endl;
+	// robot.move(stand);
+	// std::cout << "Standing" << std::endl;
+	// sleep(5);
+	robot.move(travelTrajectory, 0, 0, 0, 5);
+	std::cout << "Travelling to trajectory" << std::endl;
+	sleep(5);
 
 	// move
 	initTerminalInput();
@@ -134,7 +138,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		// issue move
-		robot.move(travel, velX, velY, rot, 0.5);
+		robot.move(travelVelocity, velX, velY, rot, 0.5);
 	}
 	return 0;
 }

@@ -157,7 +157,7 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
 	RobotCommand command;
 
 	switch (mType){
-		case travel:
+		case travelVelocity:{
 			SE2VelocityCommand_Request se2VelocityCommand_Request;
 			se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
 			se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
@@ -173,18 +173,23 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
 //			se2VelocityCommand_Request->mutable_velocity()->copyFrom(velocity);
 			command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
 			break;
-        // case travelTrajectory:
-        //     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + clockSkew) + time*1000000000)));
-        //     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->set_se2_frame_name(BODY_FRAME_NAME);
-        //     SE2Trajectory trajectory;
-        //     trajectory.set_interpolation(POS_INTERP_LINEAR);
-        //     SE2TrajectoryPoint trajectoryPoint;
-        //     trajectoryPoint.mutable_pose()->mutable_position()->setx(0);
-        //     trajectoryPoint.mutable_pose()->mutable_position()->sety(0);
-        //     trajectoryPoint.mutable_pose()->set_angle(3.14/4);
-        //     trajectoryPoint.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(3));
-        //     trajectory.mutable_points()->CopyFrom(trajectoryPoint);
-        //     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->mutable_trajectory()->CopyFrom(trajectory);
+        }
+        case travelTrajectory:{
+            bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
+            trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
+            trajectoryCommandReq.set_se2_frame_name(ODOM_FRAME_NAME);
+            SE2Trajectory trajectory;
+            trajectory.mutable_reference_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew)));
+            trajectory.set_interpolation(bosdyn::api::POS_INTERP_LINEAR);
+            SE2TrajectoryPoint trajectoryPoint;
+            trajectoryPoint.mutable_pose()->mutable_position()->set_x(1);
+            trajectoryPoint.mutable_pose()->mutable_position()->set_y(1);
+            trajectoryPoint.mutable_pose()->set_angle(3.14/4.0);
+            trajectoryPoint.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(3));
+            trajectory.add_points()->CopyFrom(trajectoryPoint);
+            trajectoryCommandReq.mutable_trajectory()->CopyFrom(trajectory);
+            command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->CopyFrom(trajectoryCommandReq);
+        }
 	}
 
 	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
