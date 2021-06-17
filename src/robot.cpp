@@ -156,7 +156,7 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
 	
 	RobotCommand command;
 
-    if (mType == travel) {
+    if (mType == travelVelocity) {
         SE2VelocityCommand_Request se2VelocityCommand_Request;
         se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
         se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
