@@ -65,7 +65,6 @@ void Robot::initBasicEstop(){
 
     // estop stop level
     EstopStopLevel stopLevel = EstopStopLevel::ESTOP_LEVEL_NONE;
-
     _estopThread = std::shared_ptr<EstopKeepAlive>(new EstopKeepAlive(_estopClientPtr, activeEndpoint, stopLevel, 0, 0, 0));
 }
 
@@ -79,53 +78,48 @@ void Robot::initBasicLease() {
     _leaseThread = std::shared_ptr<LeaseKeepAlive>(new LeaseKeepAlive(_leaseClientPtr, *lease, 0));
 }
 
-void Robot::powerOn() {
-    // // check that the robot is off
-    // if (_isOn) {
-    //     throw 1; // change later
-    // }
-    
-    // // acquire lease
-    // AcquireLeaseResponse leaseReply = _leaseClientPtr->acquire("body");
-    // std::shared_ptr<Lease> lease(new Lease(leaseReply.lease()));
-
-    // // estop config and endpoint
-    // EstopConfig estopConfig;
-    // std::shared_ptr<EstopEndpoint> endpointPtr = estopConfig.add_endpoints();
-    // endpointPtr->set_role("PDB_rooted");
-    // endpointPtr->mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(30));
-    // SetEstopConfigResponse estopConfigReply = _estopClientPtr->setConfig(estopConfig);
-    // if(estopConfigReply.status() == 2){
-	// 	estopConfigReply = estopPtr->setConfig(estopConfig, estopConfigReply.active_config().unique_id());
-	// }
-    // std::string activeConfigId = estopConfigReply.active_config().unique_id();
-
-    // EstopEndpoint newEndpoint;
-    // newEndpoint.set_role("PDB_rooted");
-    // newEndpoint.mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(30));
-    // EstopEndpoint targetEndpoint;
-	// targetEndpoint.set_role("PDB_rooted");
-    // RegisterEstopEndpointResponse regEndResp = _estopClientPtr->registerEndpoint(activeConfigId, targetEndpoint, newEndpoint);
-    // EstopEndpoint activeEndpoint = regEndResp.new_endpoint();  
-    // std::shared_ptr<EstopEndpoint> activeEndpointPtr(&activeEndpoint);
-
-    // // estop stop level
-    // EstopStopLevel stopLevel = EstopStopLevel::ESTOP_LEVEL_NONE;
-    // std::shared_ptr<EstopStopLevel> stopPtr(&stopLevel);
-    
-    // // create keep alive threads for estop, lease, timesync
-    // EstopKeepAlive estopThread(_estopClientPtr, activeEndpointPtr, stopPtr, 0, 0, 0); // challenge is 0
-    // LeaseKeepAlive leaseThread(_leaseClientPtr, lease, 0); // set rpcinterval to 0 for now
-
-    // // power
-	// PowerCommandRequest_Request pcr_r;
-	// pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
-	// PowerCommandResponse powerCommResp = _powerClientPtr->PowerCommand(leaseReply.lease(), pcr_r); 
-
-    // _isOn = true;
+void Robot::initBasicTimesync() {
+    TimeSyncUpdateResponse timeSyncResp = _timesyncClientPtr->getTimeSyncUpdate();
+    _timesyncClockId = timeSyncResp.clock_identifier();
+    while(timeSyncResp.state().status() != 1){
+		TimeSyncRoundTrip prevRoundTrip;
+		prevRoundTrip.mutable_client_rx()->CopyFrom(TimeUtil::GetCurrentTime());
+		prevRoundTrip.mutable_client_tx()->CopyFrom(timeSyncResp.header().request_header().request_timestamp());
+		prevRoundTrip.mutable_server_tx()->CopyFrom(timeSyncResp.header().response_timestamp());
+		prevRoundTrip.mutable_server_rx()->CopyFrom(timeSyncResp.header().request_received_timestamp());
+		timeSyncResp = _timesyncClientPtr->getTimeSyncUpdate(prevRoundTrip, _timesyncClockId);
+        _clockSkew = TimeUtil::DurationToNanoseconds(timeSyncResp.state().best_estimate().clock_skew());
+	}
 }
 
-bool Robot::move(movementType mType, double x, double y, double rot, double time, int64_t clockSkew, std::__cxx11::string timeSyncClockId){
+void Robot::powerOn() {
+    // check that the robot is off
+    if (_isOn) {
+        std::cout << "robot already on" << std::endl;
+        return;
+    }
+    
+    // power
+	PowerCommandRequest_Request pcr_r;
+	pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
+	PowerCommandResponse powerCommResp = _powerClientPtr->PowerCommand(*_leasePtr, pcr_r); 
+    _isOn = true;
+}
+
+void Robot::powerOff() {
+    if (!_isOn) {
+        std::cout << "robot already off" << std::endl;
+        return;
+    }
+
+    // turn off
+    PowerCommandRequest_Request pcr_r;
+    pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_OFF;
+    PowerCommandResponse powerCommResp = _powerClientPtr->PowerCommand(*_leasePtr, pcr_r);
+    _isOn = false;
+}
+
+bool Robot::move(movementType mType, double x, double y, double rot, double time){
 	if (_robotCommandClientPtr == NULL){
 	        std::cout << "Need to setup" << std::endl; 
 	        throw 1;
@@ -142,24 +136,17 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
 			break;
 		case travel:
 			SE2VelocityCommand_Request se2VelocityCommand_Request;
-			se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + clockSkew) + time*1000000000)));
+			se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
 			se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
 			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
 			se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
 			se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
-/*
-			SE2Velocity velocity;
-			velocity.mutable_linear()->set_x(x);
-			velocity.mutable_linear()->set_y(y);
-			velocity.set_angular(rot);
-*/
-//			se2VelocityCommand_Request->mutable_velocity()->copyFrom(velocity);
 
 			RobotCommand command2;
 			command2.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
 			break;
 	}
 
-	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, timeSyncClockId);
+	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timesyncClockId);
     return (robCommResp.status() == 1);
 }

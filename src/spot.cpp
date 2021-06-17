@@ -54,14 +54,79 @@ static wchar_t getWCharClean()
 
 // main function for running Spot clients
 int main(int argc, char *argv[]) {
+	assert(argc == 3);
 
-	initTerminalInput();
+	// get username and password
+	const std::string username = argv[1];
+	const std::string password = argv[2];
 
-	while(true){
-		wchar_t wchar = getWCharClean();
-		if(wchar == L'w')
-			std::wcout << L"Forward" << std::endl;
-	}
+	// create robot
+	Robot robot("spot");
 
+	// print id information
+	robot.getId();
+
+	// // authenticate robot
+	// robot.authenticate(username, password);
+
+	// // setup robot (initialize clients)
+	// robot.setup();
+
+	// // create estop and lease threads
+	// robot.initBasicEstop();
+	// robot.initBasicLease();
+	// robot.initBasicTimesync();
+
+	// // power on
+	// robot.powerOn();
+
+	// // move
+	// initTerminalInput();
+	// bool keepRunning = true;
+	// while(keepRunning){
+	// 	wchar_t wchar = getWCharClean();
+		
+	// 	// initialize velocities and angular velocity (rot)
+	// 	double velX = 0;
+	// 	double velY = 0;
+	// 	double rot = 0;
+
+	// 	// xy translation
+	// 	if (wchar == L'w') {
+	// 		velY += 1.0;
+	// 	}
+	// 	if (wchar == L'a') {
+	// 		velX -= 1.0;
+	// 	}
+	// 	if (wchar == L's') {
+	// 		velY -= 1.0;
+	// 	}
+	// 	if (wchar == L'd') {
+	// 		velX += 1.0;
+	// 	}
+
+	// 	// orientation (once we figure out)
+	// 	if (wchar == L'i') {
+
+	// 	}
+	// 	if (wchar == L'j') {
+	// 		rot += 0.5;
+	// 	}
+	// 	if (wchar == L'k') {
+
+	// 	}
+	// 	if (wchar == L'l') {
+	// 		rot -= 0.5;
+	// 	}
+
+	// 	// exit
+	// 	if (wchar == L'e') {
+	// 		keepRunning = false;
+	// 		break;
+	// 	}
+
+	// 	// issue move
+	// 	robot.move(travel, velX, velY, rot, 0.5);
+	// }
 	return 0;
 }

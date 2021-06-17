@@ -52,6 +52,9 @@ public:
     // lease
     void initBasicLease();
 
+    // timesync
+    void initBasicTimesync();
+
     // startup
     void powerOn();
     void powerOff();
@@ -66,6 +69,9 @@ public:
     bool isEstopped();
     State getState();
 
+    // movement
+    bool move(movementType, double, double, double, double);
+
     std::shared_ptr<AuthClient> getAuthClientPtr() const { return _authClientPtr; }
     std::shared_ptr<DirectoryClient> getDirectoryClientPtr() const { return _directoryClientPtr; }
     std::shared_ptr<EstopClient> getEstopClientPtr() const { return _estopClientPtr; }
@@ -78,9 +84,6 @@ public:
     std::shared_ptr<SpotCheckClient> getSpotCheckClientPtr() const { return _spotCheckClientPtr; }
     std::shared_ptr<TimeSyncClient> getTimeSyncClientPtr() const { return _timesyncClientPtr; }
 
-    // movement
-    bool move(movementType, double, double, double, double, int64_t, std::__cxx11::string);
-
 private:
     // power
     bool _isOn = false; // false first
@@ -88,6 +91,10 @@ private:
     
     // lease
     std::shared_ptr<Lease> _leasePtr = nullptr;
+
+    // time sync
+    std::string _timesyncClockId;
+    int64_t _clockSkew;
 
     // config data
     std::string _name;

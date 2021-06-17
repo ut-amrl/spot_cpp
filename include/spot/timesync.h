@@ -29,7 +29,15 @@ public:
 
 class TimeSyncKeepAlive {
 public:
+  TimeSyncKeepAlive(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier);
+  ~TimeSyncKeepAlive();
+
 private:
+  void periodicCheckIn();
+  void checkIn();
+
+private:
+  std::shared_ptr<TimeSyncClient> _clientPtr;
 };
 
 #endif

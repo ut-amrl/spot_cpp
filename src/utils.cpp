@@ -6,7 +6,7 @@ std::string read_file(const std::string &filename) {
     return str;
 }
 
-std::string DEFAULT_SPOT_SERVER = "192.168.80.3";
+std::string DEFAULT_SPOT_SERVER = "10.0.0.105";
 std::string DEFAULT_SECURE_PORT = ":443";
 
 std::string DEFAULT_ROOT_CERT_FILEPATH = "../src/resources/robot.pem";

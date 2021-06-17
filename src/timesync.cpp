@@ -32,3 +32,19 @@ TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdateAsync(const TimeSyncRoun
 	request.mutable_previous_round_trip()->CopyFrom(previousRoundTrip);
 	return callAsync<TimeSyncUpdateRequest, TimeSyncUpdateResponse>(request, &TimeSyncService::Stub::AsyncTimeSyncUpdate);
 }
+
+TimeSyncKeepAlive::TimeSyncKeepAlive(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier) :
+		_clientPtr(clientPtr) {
+}
+
+TimeSyncKeepAlive::~TimeSyncKeepAlive() {
+
+}
+
+void TimeSyncKeepAlive::periodicCheckIn() {
+
+}
+
+void TimeSyncKeepAlive::checkIn() {
+
+}
