@@ -16,8 +16,7 @@
 #include <spot/base.h>
 
 using bosdyn::api::Vec2;
-using bosdyn::api::SE2VelocityCommand_Request;
-using bosdyn::api::SE2Velocity;
+using bosdyn::api::SE2Pose;
 
 const std::string VISION_FRAME_NAME = "vision";
 const std::string BODY_FRAME_NAME = "body";
