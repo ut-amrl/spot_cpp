@@ -89,6 +89,10 @@ int main(int argc, char *argv[]) {
 	std::cout << "standing" << std::endl;
 	sleep(3);
 
+	// if(robot.trajectoryMove(1,0,0,5))
+	// 	std::cout << "Command succeeded" << std::endl;
+	// sleep(10);
+
 	// move
 	initTerminalInput();
 	bool keepRunning = true;
@@ -96,7 +100,7 @@ int main(int argc, char *argv[]) {
 	double posX = 0;
 	double posY = 0;
 	double posZ = 0;
-	double pitch = 0.5;
+	double pitch = 0;
 	double roll = 0;
 	double yaw = 0;
 
@@ -177,13 +181,15 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 
+		//robot.setBodyPose(roll, pitch, yaw, posX, posY, posZ, true);
+
 		// issue move
 		if (velY == 0 && velX == 0 && rot == 0){
 			// robot.stand(posX, posY, posZ, pitch, yaw, roll);
-			robot.tiltAndTwist(posX, posY, posZ, pitch, roll, yaw);
+			robot.stand();
 		}
 		else {
-			robot.travel(velX, velY, rot, 0.5);
+			robot.velocityMove(velX, velY, rot, 0.5, FLAT_BODY);
 			// robot.move(travelVelocity, velX, velY, rot, 0.5);
 		}
 	

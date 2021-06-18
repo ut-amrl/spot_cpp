@@ -145,6 +145,8 @@ add_executable(spot
   src/spot.cpp
   src/robot.cpp
   src/utils.cpp
+  src/trajectory.cpp
+  src/frame.cpp
 
   # deps
   ${HEADER}
