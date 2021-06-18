@@ -8,7 +8,7 @@
 #include "bosdyn/api/spot/spot_check.grpc.pb.h"
 #include "bosdyn/api/spot/spot_check_service.grpc.pb.h"
 
-#include <spot/base.h>
+#include <spot/clients/base.h>
 
 using bosdyn::api::spot::SpotCheckService;
 using bosdyn::api::spot::SpotCheckCommandRequest;

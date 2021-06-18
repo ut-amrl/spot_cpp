@@ -5,7 +5,7 @@
 #ifndef DIRECTORY_H
 #define DIRECTORY_H
 
-#include <spot/base.h>
+#include <spot/clients/base.h>
 #include "bosdyn/api/directory_service.grpc.pb.h"
 
 #include <list>

@@ -1,0 +1,10 @@
+1. Refactor into library structure according to service structure on Spot
+    - Namespaces
+    - Layers (https://dev.bostondynamics.com/docs/concepts/readme)
+    - Core functions (per link above)
+2. Flesh out methods (optimizations and handling of more cases)
+3. Finish error handling and try to handle all user cases
+4. Rewrite robot class using above
+5. Figure out how to create a shared library with CMake
+6. ???
+7. profit

@@ -1,4 +1,4 @@
-#include <spot/spot_check.h>
+#include <spot/clients/spot_check.h>
 
 const std::string SPOT_CHECK_CLIENT_NAME = "spot-check";
 

@@ -1,4 +1,4 @@
-#include <spot/robot_command.h>
+#include <spot/clients/robot_command.h>
 
 const std::string ROBOT_COMMAND_CLIENT_NAME = "robot-command";
 

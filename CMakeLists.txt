@@ -129,22 +129,21 @@ include_files_service(data_buffer)
 include_files_docking_service(docking)
 
 add_executable(spot
-  src/auth.cpp
-  src/image.cpp
-  src/power.cpp
-  src/robot_id.cpp
-  src/spot_check.cpp
-  src/timesync.cpp
-  src/estop.cpp
-  src/lease.cpp
-  src/robot_command.cpp
-  src/robot_state.cpp
-  src/directory.cpp
-  src/directory_registration.cpp
-  src/local_grid.cpp
+  src/clients/auth.cpp
+  src/clients/image.cpp
+  src/clients/power.cpp
+  src/clients/robot_id.cpp
+  src/clients/spot_check.cpp
+  src/clients/timesync.cpp
+  src/clients/estop.cpp
+  src/clients/lease.cpp
+  src/clients/robot_command.cpp
+  src/clients/robot_state.cpp
+  src/clients/directory.cpp
+  src/clients/directory_registration.cpp
+  src/clients/local_grid.cpp
   src/spot.cpp
   src/robot.cpp
-  src/utils.cpp
 
   # deps
   ${HEADER}

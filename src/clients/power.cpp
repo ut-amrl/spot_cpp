@@ -1,4 +1,4 @@
-#include <spot/power.h>
+#include <spot/clients/power.h>
 
 const std::string POWER_CLIENT_NAME = "power";
 

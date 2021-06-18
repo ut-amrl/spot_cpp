@@ -2,7 +2,7 @@
 #define DIRECTORY_REGISTRATION_H
 
 #include "bosdyn/api/directory_registration_service.grpc.pb.h"
-#include <spot/base.h>
+#include <spot/clients/base.h>
 
 using bosdyn::api::DirectoryRegistrationService;
 using bosdyn::api::RegisterServiceResponse;

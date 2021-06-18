@@ -5,7 +5,7 @@
 #ifndef ESTOP_H
 #define ESTOP_H
 
-#include <spot/base.h>
+#include <spot/clients/base.h>
 #include "bosdyn/api/estop_service.grpc.pb.h"
 
 using bosdyn::api::RegisterEstopEndpointRequest;

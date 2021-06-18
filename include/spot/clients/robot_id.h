@@ -6,7 +6,7 @@
 #define ROBOT_ID_H
 
 #include "bosdyn/api/robot_id_service.grpc.pb.h"
-#include <spot/base.h>
+#include <spot/clients/base.h>
 
 using bosdyn::api::RobotId;
 using bosdyn::api::RobotIdService;

@@ -1,4 +1,4 @@
-#include <spot/timesync.h>
+#include <spot/clients/timesync.h>
 
 const std::string TIMESYNC_CLIENT_NAME = "time-sync";
 

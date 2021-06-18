@@ -1,4 +1,4 @@
-#include <spot/directory.h>
+#include <spot/clients/directory.h>
 
 const std::string DIRECTORY_CLIENT_NAME = "directory";
 const static std::string AUTHORITY = "api.spot.robot";

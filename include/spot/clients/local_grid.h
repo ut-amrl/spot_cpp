@@ -2,7 +2,7 @@
 #define LOCAL_GRID_H
 
 #include "bosdyn/api/local_grid_service.grpc.pb.h"
-#include <spot/base.h>
+#include <spot/clients/base.h>
 
 using bosdyn::api::LocalGridService;
 using bosdyn::api::GetLocalGridTypesResponse;

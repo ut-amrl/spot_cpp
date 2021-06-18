@@ -5,8 +5,8 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <spot/clients/base.h>
 #include "bosdyn/api/image_service.grpc.pb.h"
-#include <spot/base.h>
 
 using bosdyn::api::ImageService;
 using bosdyn::api::ImageRequest;

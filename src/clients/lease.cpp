@@ -1,4 +1,4 @@
-#include <spot/lease.h>
+#include <spot/clients/lease.h>
 
 const std::string LEASE_CLIENT_NAME = "lease";
 

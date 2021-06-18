@@ -1,4 +1,4 @@
-#include <spot/image.h>
+#include <spot/clients/image.h>
 
 const std::string IMAGE_CLIENT_NAME = "image";
 

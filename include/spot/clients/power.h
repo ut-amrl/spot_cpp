@@ -7,7 +7,7 @@
 
 #include "bosdyn/api/power_service.grpc.pb.h"
 #include "bosdyn/api/robot_state_service.grpc.pb.h"
-#include <spot/base.h>
+#include <spot/clients/base.h>
 
 using bosdyn::api::PowerCommandRequest;
 using bosdyn::api::PowerCommandRequest_Request;

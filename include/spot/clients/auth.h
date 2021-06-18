@@ -5,7 +5,7 @@
 #ifndef AUTH_H
 #define AUTH_H
 
-#include <spot/base.h>
+#include <spot/clients/base.h>
 #include "bosdyn/api/auth_service.grpc.pb.h"
 
 using bosdyn::api::GetAuthTokenRequest;

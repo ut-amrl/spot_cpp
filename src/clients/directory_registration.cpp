@@ -1,4 +1,4 @@
-#include <spot/directory_registration.h>
+#include <spot/clients/directory_registration.h>
 
 const std::string DIRECTORY_REGISTRATION_CLIENT_NAME = "directory-registration";
 

@@ -9,7 +9,7 @@
 #include "bosdyn/api/geometry.grpc.pb.h"
 #include "bosdyn/api/header.grpc.pb.h"
 
-#include <spot/base.h>
+#include <spot/clients/base.h>
 
 using bosdyn::api::RobotStateService;
 using bosdyn::api::RobotStateRequest;

@@ -5,19 +5,19 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
-#include <spot/auth.h>
-#include <spot/directory.h>
-#include <spot/estop.h>
+#include <spot/clients/auth.h>
+#include <spot/clients/directory.h>
+#include <spot/clients/estop.h>
 #include <spot/exception.h>
 #include <spot/frame.h>
-#include <spot/image.h>
-#include <spot/lease.h>
-#include <spot/power.h>
-#include <spot/robot_command.h>
-#include <spot/robot_id.h>
-#include <spot/robot_state.h>
-#include <spot/spot_check.h>
-#include <spot/timesync.h>
+#include <spot/clients/image.h>
+#include <spot/clients/lease.h>
+#include <spot/clients/power.h>
+#include <spot/clients/robot_command.h>
+#include <spot/clients/robot_id.h>
+#include <spot/clients/robot_state.h>
+#include <spot/clients/spot_check.h>
+#include <spot/clients/timesync.h>
 
 #include <map>
 #include <list>

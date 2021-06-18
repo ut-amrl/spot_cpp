@@ -1,4 +1,4 @@
-#include <spot/local_grid.h>
+#include <spot/clients/local_grid.h>
 
 const std::string LOCAL_GRID_CLIENT_NAME = "local-grid";
 

@@ -1,4 +1,4 @@
-#include <spot/robot_state.h>
+#include <spot/clients/robot_state.h>
 
 const std::string ROBOT_STATE_CLIENT_NAME = "robot-state";
 

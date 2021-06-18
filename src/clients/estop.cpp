@@ -1,4 +1,4 @@
-#include <spot/estop.h>
+#include <spot/clients/estop.h>
 
 const std::string ESTOP_CLIENT_NAME = "estop";
 

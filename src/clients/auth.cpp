@@ -1,4 +1,4 @@
-#include <spot/auth.h>
+#include <spot/clients/auth.h>
 
 const std::string AUTH_CLIENT_NAME = "auth";
 const static std::string AUTHORITY = "auth.spot.robot";

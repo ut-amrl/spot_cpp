@@ -5,8 +5,9 @@
 #ifndef LEASE_H
 #define LEASE_H
 
+#include <spot/clients/base.h>
 #include "bosdyn/api/lease_service.grpc.pb.h"
-#include <spot/base.h>
+
 
 using bosdyn::api::AcquireLeaseRequest;
 using bosdyn::api::AcquireLeaseResponse;
