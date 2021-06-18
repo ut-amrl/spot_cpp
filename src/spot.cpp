@@ -89,9 +89,11 @@ int main(int argc, char *argv[]) {
 	std::cout << "standing" << std::endl;
 	sleep(3);
 
-	// if(robot.trajectoryMove(1,0,0,5))
-	// 	std::cout << "Command succeeded" << std::endl;
-	// sleep(10);
+	Trajectory2D trajTest;
+	trajTest.addPoint(0.5, 0, 0, 2);
+	//trajTest.addPoint(1, 0, 0, 2);
+	robot.trajectoryMove(trajTest, ODOM, 10);
+	sleep(10);
 
 	// move
 	initTerminalInput();
@@ -181,11 +183,12 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 
-		//robot.setBodyPose(roll, pitch, yaw, posX, posY, posZ, true);
+		Trajectory3D trajPose;
+		trajPose.addPointRPY(posX, posY, posZ, roll, pitch, yaw, 1);
+		robot.setBodyPose(trajPose, true);
 
 		// issue move
 		if (velY == 0 && velX == 0 && rot == 0){
-			// robot.stand(posX, posY, posZ, pitch, yaw, roll);
 			robot.stand();
 		}
 		else {

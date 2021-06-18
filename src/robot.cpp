@@ -190,11 +190,18 @@ bool Robot::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, doub
 	        std::cout << "Need to setup" << std::endl; 
 	        throw 1;
 	 } // TODO: change later 
+
+    std::string frameName; 
+    if(frame == FLAT_BODY){
+        frameName = frameNameGravAligned(ODOM);
+    }
+    else{
+        frameName = frameNameGravAligned(frame);
+    }
 	
     bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
     trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + (time)*1000000000)));
-    trajectoryCommandReq.set_se2_frame_name(frameNameGravAligned(frame));
-
+    trajectoryCommandReq.set_se2_frame_name(frameName);
     trajectoryCommandReq.mutable_trajectory()->CopyFrom(trajectory.getTrajectory());
     
     RobotCommand command;
@@ -205,6 +212,7 @@ bool Robot::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, doub
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
 
 	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    std::cout << "traj move status: " << robCommResp.status() << std::endl;
     return (robCommResp.status() == 1);
 }
 
