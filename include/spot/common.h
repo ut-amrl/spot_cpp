@@ -21,18 +21,4 @@ enum class CLIENT_TYPES {
     TIMESYNC,
 };
 
-// variant type that holds clients, to be used in containers that store clients
-typedef std::variant<
-    AuthClient,
-    DirectoryClient,
-    EstopClient,
-    ImageClient,
-    LeaseClient,
-    PowerClient,
-    RobotCommandClient,
-    RobotIdClient,
-    RobotStateClient,
-    SpotCheckClient,
-    TimeSyncClient> CLIENT_CONTAINER;
-
 #endif

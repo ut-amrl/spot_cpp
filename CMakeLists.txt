@@ -199,6 +199,75 @@ add_executable(spot
   ${DATA_ACQUISITION_STORE}
   ${DATA_BUFFER})
 
+add_library(spotrobot SHARED
+  src/auth.cpp
+  src/image.cpp
+  src/power.cpp
+  src/robot_id.cpp
+  src/spot_check.cpp
+  src/timesync.cpp
+  src/estop.cpp
+  src/lease.cpp
+  src/robot_command.cpp
+  src/robot_state.cpp
+  src/directory.cpp
+  src/directory_registration.cpp
+  src/local_grid.cpp
+  src/utils.cpp  
+  src/robot.cpp
+  # deps
+  ${HEADER}
+  ${FULL_BODY_COMMAND}
+  ${MOBILITY_COMMAND}
+  ${BASIC_COMMAND}
+  ${ARM_COMMAND}
+  ${GRIPPER_COMMAND}
+  ${SYNCHRONIZED_COMMAND}
+  ${TIME_RANGE}
+  ${PAYLOAD_ESTIMATION}
+  ${TRAJECTORY}
+  ${PARAMETER}
+  ${GEOMETRY}
+  ${TIME_SYNC}
+  ${LICENSE}
+  ${SERVICE_FAULT}
+
+  # temp
+  ${DOCKING}
+
+  # base
+  ${AUTH}
+  ${DIRECTORY}
+  ${LOG_ANNOTATION}
+  ${ROBOT_ID}
+  ${TIME_SYNC}
+
+  # payloads
+  ${DIRECTORY_REGISTRATION}
+  ${PAYLOAD}
+
+  # state
+  ${IMAGE}
+  ${LOCAL_GRID}
+  ${ROBOT_STATE}
+  ${WORLD_OBJECT}
+
+  # control
+  ${ESTOP}
+  ${LEASE}
+  ${POWER}
+  ${ROBOT_COMMAND}
+  ${SPOT_CHECK}
+
+  # data
+  ${DATA}
+  ${DATA_INDEX}
+  ${DATA_CHUNK}
+  ${DATA_ACQUISITION_PLUGIN_SERVICE}
+  ${DATA_ACQUISITION}
+  ${DATA_ACQUISITION_STORE}
+  ${DATA_BUFFER})
+
 set(LINK_LIBRARIES 
   ${Protobuf_LIBRARIES}
   ${_GRPC_GRPCPP}
@@ -206,3 +275,4 @@ set(LINK_LIBRARIES
 )
 
 target_link_libraries(spot ${LINK_LIBRARIES})
+target_link_libraries(spotrobot ${LINK_LIBRARIES})
