@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "Estop initialized" << std::endl;
 	robot.initBasicLease();
 	std::cout << "Lease initialized" << std::endl;
-	robot.initBasicTimesync();
+	robot.performTimesync();
 	std::cout << "Timesync initialized" << std::endl;
 	
 	// power on

@@ -56,16 +56,12 @@ public:
     void initBasicLease();
 
     // timesync
-    void initBasicTimesync();
+    void performTimesync();
+    int64_t getClockSkew();
 
     // startup
     void powerOn();
     void powerOff();
-
-    // time sync
-    void startTimeSync();
-    void stopTimeSync();
-    void getTime();
 
     // state stuff
     bool isPoweredOn();
@@ -106,6 +102,7 @@ private:
     // time sync
     std::string _timeSyncClockId;
     int64_t _clockSkew;
+    TimeSyncRoundTrip _prevRoundTripTimeSync;
 
     // config data
     std::string _name;

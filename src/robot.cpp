@@ -79,9 +79,15 @@ void Robot::initBasicLease() {
     _leaseThread = std::shared_ptr<LeaseKeepAlive>(new LeaseKeepAlive(_leaseClientPtr, *lease, 0));
 }
 
-void Robot::initBasicTimesync() {
-    TimeSyncUpdateResponse timeSyncResp = _timeSyncClientPtr->getTimeSyncUpdate();
-    _timeSyncClockId = timeSyncResp.clock_identifier();
+void Robot::performTimesync() {
+    TimeSyncUpdateResponse timeSyncResp;
+    if(_timeSyncClockId.empty()){
+        timeSyncResp = _timeSyncClientPtr->getTimeSyncUpdate();
+        _timeSyncClockId = timeSyncResp.clock_identifier();
+    }
+    else{
+        timeSyncResp = _timeSyncClientPtr->getTimeSyncUpdate(_prevRoundTripTimeSync, _timeSyncClockId);
+    }
     while(timeSyncResp.state().status() != 1){
 		TimeSyncRoundTrip prevRoundTrip;
 		prevRoundTrip.mutable_client_rx()->CopyFrom(TimeUtil::GetCurrentTime());
@@ -90,7 +96,13 @@ void Robot::initBasicTimesync() {
 		prevRoundTrip.mutable_server_rx()->CopyFrom(timeSyncResp.header().request_received_timestamp());
 		timeSyncResp = _timeSyncClientPtr->getTimeSyncUpdate(prevRoundTrip, _timeSyncClockId);
         _clockSkew = TimeUtil::DurationToNanoseconds(timeSyncResp.state().best_estimate().clock_skew());
-	}
+        _prevRoundTripTimeSync = prevRoundTrip;
+    }
+    
+}
+
+int64_t Robot::getClockSkew(){
+    return _clockSkew;
 }
 
 void Robot::powerOn() {
@@ -133,22 +145,7 @@ bool Robot::sit() {
     if (_robotCommandClientPtr == NULL){
 	        std::cout << "Need to setup" << std::endl; 
 	        throw 1;
-<<<<<<< HEAD
-	 } // TODO: change later 
-	
-	RobotCommand command;
-
-	if (mType == sit) {
-        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
-    } else if (mType == stand) {
-        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-    } else {
-        std::cout << "Use other move() command to issue velocity requests to robot." << std::endl;
-        throw 1;
-    }
-=======
 	} // TODO: change later 
->>>>>>> teleop
 
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
@@ -215,22 +212,6 @@ bool Robot::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, doub
         frameName = frameNameGravAligned(frame);
     }
 	
-<<<<<<< HEAD
-	RobotCommand command;
-
-    if (mType == travelVelocity) {
-        SE2VelocityCommand_Request se2VelocityCommand_Request;
-        se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
-        se2VelocityCommand_Request.set_se2_frame_name(BODY_FRAME_NAME);
-        se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
-        se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
-        se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
-        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
-    } else {
-        std::cout << "Use other move command to sit and stand." << std::endl;
-        throw 1;
-    }
-=======
     bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
     trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + (time)*1000000000)));
     trajectoryCommandReq.set_se2_frame_name(frameName);
@@ -242,7 +223,6 @@ bool Robot::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, doub
     Any any;
     any.PackFrom(_mobilityParams);
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
->>>>>>> teleop
 
 	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
     std::cout << "traj move status: " << robCommResp.status() << std::endl;
