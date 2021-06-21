@@ -8,8 +8,6 @@
 #include <spot/clients/base.h>
 #include "bosdyn/api/directory_service.grpc.pb.h"
 
-#include <list>
-
 using bosdyn::api::DirectoryService;
 using bosdyn::api::ListServiceEntriesResponse;
 using bosdyn::api::ListServiceEntriesRequest;

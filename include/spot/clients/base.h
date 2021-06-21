@@ -12,6 +12,8 @@
 #include <iostream>
 #include <thread>
 
+#include <unistd.h>
+
 #include <spot/common.h>
 #include <spot/exception.h>
 #include <spot/utils.h>

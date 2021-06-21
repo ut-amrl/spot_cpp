@@ -1,3 +1,10 @@
+better implementations:
+1. Get all of the authorities from the directory client using one call (listservices).
+    - put into map where we have [name, authority]
+2. flesh out thread classes / make sure we have way to stop them without killing program
+
+
+refactors:
 1. Refactor into library structure according to service structure on Spot
     - Namespaces
     - Layers (https://dev.bostondynamics.com/docs/concepts/readme)
