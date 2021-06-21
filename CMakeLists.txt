@@ -203,7 +203,7 @@ add_executable(spot
   ${DATA_ACQUISITION_STORE}
   ${DATA_BUFFER})
 
-add_library(spotrobot SHARED
+add_library(utspot SHARED
   src/auth.cpp
   src/image.cpp
   src/power.cpp
@@ -219,6 +219,8 @@ add_library(spotrobot SHARED
   src/local_grid.cpp
   src/utils.cpp  
   src/robot.cpp
+  src/trajectory.cpp
+  src/frame.cpp
   # deps
   ${HEADER}
   ${FULL_BODY_COMMAND}
@@ -262,6 +264,8 @@ add_library(spotrobot SHARED
   ${POWER}
   ${ROBOT_COMMAND}
   ${SPOT_CHECK}
+  include/bosdyn/api/spot/robot_command.pb.cc 
+  include/bosdyn/api/spot/robot_command.grpc.pb.cc
 
   # data
   ${DATA}
@@ -280,4 +284,9 @@ set(LINK_LIBRARIES
 )
 
 target_link_libraries(spot ${LINK_LIBRARIES})
-target_link_libraries(spotrobot ${LINK_LIBRARIES})
+target_link_libraries(utspot ${LINK_LIBRARIES})
+
+
+install(TARGETS utspot DESTINATION lib)
+install(DIRECTORY include/spot DESTINATION include/)
+install(DIRECTORY include/bosdyn DESTINATION include/)
