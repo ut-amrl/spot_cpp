@@ -1,3 +1,0 @@
-/home/matt/spot/spot/CMakeFiles/rebuild_cache.dir
-/home/matt/spot/spot/CMakeFiles/edit_cache.dir
-/home/matt/spot/spot/CMakeFiles/spot.dir
