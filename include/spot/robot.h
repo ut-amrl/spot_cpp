@@ -19,9 +19,11 @@
 #include <spot/spot_check.h>
 #include <spot/timesync.h>
 #include <spot/common.h>
+#include <spot/trajectory.h>
 
 #include <map>
 #include <list>
+#include <Eigen/Geometry>
 
 enum movementType {sit, stand, travelVelocity, travelTrajectory};
 
@@ -31,6 +33,7 @@ public:
     State(const std::string &name, const std::string &address, const std::string &serial);
 private:
 };
+
 
 class Robot {
 public:
@@ -69,9 +72,16 @@ public:
     bool isEstopped();
     State getState();
 
-    // movement
-    bool move(movementType mType);
-    bool move(movementType, double, double, double, double);
+    // teleop control
+
+    bool sit();
+    bool stand();
+    bool velocityMove(double, double, double, double, gravAlignedFrame frame);
+    bool trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, double time);
+    
+    void setMobilityParams(MobilityParams);
+    void setBodyPose(Trajectory3D trajectory, bool gravityAlign);
+    void resetBodyPose(double time);
 
     std::shared_ptr<AuthClient> getAuthClientPtr() const { return _authClientPtr; }
     std::shared_ptr<DirectoryClient> getDirectoryClientPtr() const { return _directoryClientPtr; }
@@ -107,6 +117,8 @@ private:
     std::shared_ptr<EstopKeepAlive> _estopThread = nullptr;
     std::shared_ptr<LeaseKeepAlive> _leaseThread = nullptr;
 
+    MobilityParams _mobilityParams;
+
 
     // clients (try to refactor into some client cache later)
     std::shared_ptr<AuthClient> _authClientPtr = nullptr;
@@ -120,6 +132,7 @@ private:
     std::shared_ptr<RobotStateClient> _robotStateClientPtr = nullptr;
     std::shared_ptr<SpotCheckClient> _spotCheckClientPtr = nullptr;
     std::shared_ptr<TimeSyncClient> _timeSyncClientPtr = nullptr;
+
 private:
     template <class client_T>
     std::shared_ptr<client_T> getPtr(CLIENT_TYPES type);

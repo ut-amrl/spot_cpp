@@ -5,6 +5,7 @@
 #ifndef ROBOT_COMMAND_H
 #define ROBOT_COMMAND_H
 
+#include "bosdyn/api/spot/robot_command.grpc.pb.h"
 #include "bosdyn/api/robot_command_service.grpc.pb.h"
 #include "bosdyn/api/geometry.grpc.pb.h"
 #include "bosdyn/api/lease_service.grpc.pb.h"
@@ -40,12 +41,18 @@ using bosdyn::api::SE2Velocity;
 using bosdyn::api::SE2VelocityCommand;
 using bosdyn::api::SE2VelocityCommand_Feedback;
 using bosdyn::api::SE2VelocityCommand_Request;
+using bosdyn::api::SE3Trajectory;
+using bosdyn::api::SE3TrajectoryPoint;
 using bosdyn::api::SitCommand;
 using bosdyn::api::SitCommand_Feedback;
 using bosdyn::api::StandCommand;
 using bosdyn::api::StandCommand_Feedback;
 using bosdyn::api::Lease;
 using bosdyn::api::LeaseUseResult;
+using bosdyn::api::spot::MobilityParams;
+using bosdyn::api::spot::BodyControlParams;
+
+using google::protobuf::Any;
 
 const extern std::string ROBOT_COMMAND_CLIENT_NAME;
 

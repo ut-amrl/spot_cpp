@@ -1,5 +1,6 @@
 #include <spot/robot.h>
 
+
 Robot::Robot(const std::string &name) : 
         _name(name),
         _authClientPtr(std::shared_ptr<AuthClient>(new AuthClient)),
@@ -126,10 +127,13 @@ void Robot::powerOff() {
     _isOn = false;
 }
 
-bool Robot::move(movementType mType){
-	if (_robotCommandClientPtr == NULL){
+// teleop stuff 
+
+bool Robot::sit() {
+    if (_robotCommandClientPtr == NULL){
 	        std::cout << "Need to setup" << std::endl; 
 	        throw 1;
+<<<<<<< HEAD
 	 } // TODO: change later 
 	
 	RobotCommand command;
@@ -142,18 +146,76 @@ bool Robot::move(movementType mType){
         std::cout << "Use other move() command to issue velocity requests to robot." << std::endl;
         throw 1;
     }
+=======
+	} // TODO: change later 
+>>>>>>> teleop
 
-	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    RobotCommand command;
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();
+    Any any;
+    any.PackFrom(_mobilityParams);
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
+    
+    RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
     return (robCommResp.status() == 1);
-}
+} // sits the robot down
 
-// move method for travelling
-bool Robot::move(movementType mType, double x, double y, double rot, double time){
+bool Robot::stand(){
+    if (_robotCommandClientPtr == NULL){
+	        std::cout << "Need to setup" << std::endl; 
+	        throw 1;
+	} // TODO: change later
+
+    RobotCommand command;
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+    Any any;
+    any.PackFrom(_mobilityParams);
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
+
+    RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    return (robCommResp.status() == 1);
+} // stands the robot up
+
+bool Robot::velocityMove(double x, double y, double rot, double time, gravAlignedFrame frame){
+    if (_robotCommandClientPtr == NULL){
+        std::cout << "Need to setup" << std::endl; 
+        throw 1;
+	} // TODO: change later 
+	
+    RobotCommand command;
+    SE2VelocityCommand_Request se2VelocityCommand_Request;
+    se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + time*1000000000)));
+    se2VelocityCommand_Request.set_se2_frame_name(frameNameGravAligned(frame));
+    se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
+    se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
+    se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
+
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
+    Any any;
+    any.PackFrom(_mobilityParams);
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
+    
+    RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    return (robCommResp.status() == 1);
+} // allows the robot to translate left/right and/or forward/backward and/or rotate left/right 
+
+// move method for travelling (trajectory based)
+bool Robot::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, double time){
 	if (_robotCommandClientPtr == NULL){
 	        std::cout << "Need to setup" << std::endl; 
 	        throw 1;
 	 } // TODO: change later 
+
+    // TODO: Make it so that flat body works as a frame
+    std::string frameName; 
+    if(frame == FLAT_BODY){
+        frameName = frameNameGravAligned(ODOM);
+    }
+    else{
+        frameName = frameNameGravAligned(frame);
+    }
 	
+<<<<<<< HEAD
 	RobotCommand command;
 
     if (mType == travelVelocity) {
@@ -168,7 +230,43 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
         std::cout << "Use other move command to sit and stand." << std::endl;
         throw 1;
     }
+=======
+    bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
+    trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) + (time)*1000000000)));
+    trajectoryCommandReq.set_se2_frame_name(frameName);
+    trajectoryCommandReq.mutable_trajectory()->CopyFrom(trajectory.getTrajectory());
+    
+    RobotCommand command;
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->CopyFrom(trajectoryCommandReq);
+
+    Any any;
+    any.PackFrom(_mobilityParams);
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
+>>>>>>> teleop
 
 	RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    std::cout << "traj move status: " << robCommResp.status() << std::endl;
     return (robCommResp.status() == 1);
+}
+
+void Robot::setMobilityParams(MobilityParams params){
+    _mobilityParams = params;
+}
+
+void Robot::setBodyPose(Trajectory3D trajectory, bool gravityAlign){
+    BodyControlParams bodyParams;
+
+    if(gravityAlign)
+        bodyParams.set_rotation_setting(bosdyn::api::spot::BodyControlParams_RotationSetting_ROTATION_SETTING_ABSOLUTE);
+    else
+        bodyParams.set_rotation_setting(bosdyn::api::spot::BodyControlParams_RotationSetting_ROTATION_SETTING_OFFSET);
+    
+    bodyParams.mutable_base_offset_rt_footprint()->CopyFrom(trajectory.getTrajectory());
+    _mobilityParams.mutable_body_control()->CopyFrom(bodyParams);
+}
+
+void Robot::resetBodyPose(double time){
+    Trajectory3D traj;
+    traj.addPointRPY(0,0,0,0,0,0, time);
+    setBodyPose(traj, false);
 }

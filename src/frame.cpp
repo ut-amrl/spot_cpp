@@ -4,6 +4,15 @@
 
 #include <spot/frame.h>
 
+std::string frameNameGravAligned(gravAlignedFrame frame){
+	switch (frame){
+        case ODOM: return ODOM_FRAME_NAME;  
+		case VISION: return VISION_FRAME_NAME;
+		case FLAT_BODY: return FLAT_BODY_FRAME_NAME;  
+    }
+}
+
+/*
 map<string, Vec2> getFootPositionMap(double fl_x, double fl_y, double fr_x, double fr_y, double bl_x, double bl_y, double br_x, double br_y){
     Vec2 fl;
 	fl.x(fl_x);
@@ -46,3 +55,4 @@ SE2Velocity makeSE2Velocity(double x, double y, double angular){
     ret.angular(angular);
     return ret;
 } // create SE2Velocity 
+*/
