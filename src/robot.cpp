@@ -191,6 +191,7 @@ bool Robot::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, doub
 	        throw 1;
 	 } // TODO: change later 
 
+    // TODO: Make it so that flat body works as a frame
     std::string frameName; 
     if(frame == FLAT_BODY){
         frameName = frameNameGravAligned(ODOM);
