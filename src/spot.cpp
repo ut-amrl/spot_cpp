@@ -79,7 +79,78 @@ int main(int argc, char *argv[]) {
 	std::cout << "Lease initialized" << std::endl;
 	robot.performTimesync();
 	std::cout << "Timesync initialized" << std::endl;
-	
+
+	// Spot check joint calibration and camera check
+	std::cout << "Starting joint calibration and camera check..." << std::endl;
+	robot.getSpotCheckClientPtr()->spotCheckCommand(robot.getLease(), bosdyn::api::spot::SpotCheckCommandRequest_Command_COMMAND_START);
+	SpotCheckFeedbackResponse checkFback = robot.getSpotCheckClientPtr()->spotCheckFeedback();
+	while(checkFback.state() != 7 && checkFback.state() != 10){
+		checkFback = robot.getSpotCheckClientPtr()->spotCheckFeedback();
+		std::cout << "Spot Check State: " << checkFback.state() << std::endl;
+		std::cout << "Spot Check Progress: " << checkFback.progress() << std::endl << std::endl;
+		if(checkFback.state() == 9){
+			std::cout << "Spot Check Error: " << checkFback.error() << std::endl;
+			break;
+		}
+		sleep(1);
+	}
+
+	checkFback = robot.getSpotCheckClientPtr()->spotCheckFeedback();
+
+	// Camera check results
+	std::cout << "Camera Results:" << std::endl;
+	for (google::protobuf::Map<std::string, DepthPlaneSpotCheckResult>::const_iterator it=checkFback.camera_results().begin(); it!=checkFback.camera_results().end(); ++it){
+    	std::cout << "Camera: " << it->first << std::endl;
+		std::cout << "Camera Status: " << it->second.status() << std::endl;
+		std::cout << "Camera Severity: " << it->second.severity_score() << std::endl << std::endl;
+	}
+	std::cout << std::endl;
+
+	// Load cell results
+	std::cout << "Load Cell Results:" << std::endl;
+	for (google::protobuf::Map<std::string, LoadCellSpotCheckResult>::const_iterator it=checkFback.load_cell_results().begin(); it!=checkFback.load_cell_results().end(); ++it){
+    	std::cout << "Joint Location: " << it->first << std::endl;
+		std::cout << "Error: " << it->second.error() << std::endl;
+		std::cout << "Zero: " << it->second.zero() << std::endl;
+		std::cout << "Old Zero: " << it->second.old_zero() << std::endl << std::endl;
+	}
+	std::cout << std::endl;
+
+	// Kinematic Calibration results
+	std::cout << "Kinematic Calibration Results:" << std::endl;
+	for (google::protobuf::Map<std::string, JointKinematicCheckResult>::const_iterator it=checkFback.kinematic_cal_results().begin(); it!=checkFback.kinematic_cal_results().end(); ++it){
+    	std::cout << "Joint Location: " << it->first << std::endl;
+		std::cout << "Error: " << it->second.error() << std::endl;
+		std::cout << "Health Score: " << it->second.health_score() << std::endl;
+		std::cout << "Offset: " << it->second.offset() << std::endl;
+		std::cout << "Old Offset: " << it->second.old_offset() << std::endl << std::endl;
+	}
+	std::cout << std::endl;
+
+	// Payload result
+	std::cout << "Payload Check Results:" << std::endl;
+	std::cout << "Error: " << checkFback.payload_result().error() << std::endl;
+	std::cout << "Extra payload: " << checkFback.payload_result().extra_payload() << std::endl << std::endl << std::endl;
+
+	// Hip RoM results
+	std::cout << "Hip Range of Motion Results:" << std::endl;
+	for (google::protobuf::Map<std::string, HipRangeOfMotionResult>::const_iterator it=checkFback.hip_range_of_motion_results().begin(); it!=checkFback.hip_range_of_motion_results().end(); ++it){
+    	std::cout << "Leg: " << it->first << std::endl;
+		std::cout << "Error: " << it->second.error() << std::endl;
+		for(int j = 0; j < it->second.hx_size(); j++){
+			std::cout << "hx obstruction angle: " << it->second.hx(j) << std::endl;
+		}
+		for(int j = 0; j < it->second.hy_size(); j++){
+			std::cout << "hy obstruction angle: " << it->second.hy(j) << std::endl;
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "Spot check results complete" << std::endl;
+
+
+
+	while(true){}
+
 	// power on
 	robot.powerOn();
 	std::cout << "Powered on" << std::endl;

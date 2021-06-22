@@ -79,6 +79,10 @@ void Robot::initBasicLease() {
     _leaseThread = std::shared_ptr<LeaseKeepAlive>(new LeaseKeepAlive(_leaseClientPtr, *lease, 0));
 }
 
+Lease Robot::getLease(){
+    return *_leasePtr;
+}
+
 void Robot::performTimesync() {
     TimeSyncUpdateResponse timeSyncResp;
     if(_timeSyncClockId.empty()){

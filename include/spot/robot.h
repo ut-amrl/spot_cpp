@@ -54,6 +54,7 @@ public:
 
     // lease
     void initBasicLease();
+    Lease getLease();
 
     // timesync
     void performTimesync();
