@@ -2,8 +2,6 @@
 
 const std::string ESTOP_CLIENT_NAME = "estop";
 
-// TODO: IMPLEMENT NEW ENDPOINT SYSTEM AND FINISH THREad
-
 Endpoint::Endpoint(std::shared_ptr<EstopClient> client, const std::string &name, const std::string &role, const std::string &targetConfigId, 
 		const std::string &uniqueId, int64_t estopTimeout, int64_t estopCutPowerTimeout) :
 		_name(name),
@@ -36,6 +34,7 @@ void Endpoint::allow() {
 	checkIn(EstopStopLevel::ESTOP_LEVEL_NONE);
 }
 
+// todo: timeouts
 void Endpoint::checkIn(EstopStopLevel level, bool suppressIncorrect) {
 	EstopCheckInResponse reply;
 	try {
@@ -189,7 +188,7 @@ EstopCheckInResponse EstopClient::checkInAsync(EstopStopLevel &stopLevel, EstopE
     return callAsync<EstopCheckInRequest, EstopCheckInResponse>(request, &EstopService::Stub::AsyncEstopCheckIn);
 }
 
-EstopThread::EstopThread(std::shared_ptr<EstopClient> clientPtr, Endpoint &endpoint) :
+EstopThread::EstopThread(std::shared_ptr<EstopClient> clientPtr, Endpoint endpoint) :
 		_client(clientPtr),
 		_endpoint(endpoint) {}
 
@@ -212,8 +211,8 @@ EstopThread::endEstop() {
 void EstopThread::periodicCheckIn() {
 	while (_keepRunning) {
 		// will update challenge / response within endpoint obj
-		_endpoint.checkIn(EstopStopLevel::ESTOP_LEVEL_NONE, false);
-
+		_endpoint.allow();
+		std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECS));
 		// todo: timeouts, etc.
 	}
 	return;

@@ -75,27 +75,29 @@ ListLeasesResponse LeaseClient::listLeasesAsync(bool includeFullLeasesInfo){
   return callAsync<ListLeasesRequest, ListLeasesResponse>(request, &LeaseService::Stub::AsyncListLeases);
 }
 
-LeaseKeepAlive::LeaseKeepAlive(std::shared_ptr<LeaseClient> clientPtr, Lease lease, int rpcIntervalSeconds) :
-    _clientPtr(clientPtr),
-    _lease(lease),
-    _rpcIntervalSeconds(rpcIntervalSeconds),
-    _keepRunning(true), // true for now
-    _thread(&LeaseKeepAlive::periodicCheckIn, this) { // create thread
-} 
+LeaseThread::LeaseThread(std::shared_ptr<LeaseClient> clientPtr, Lease lease) :
+    _client(clientPtr),
+    _lease(lease) {}
 
-LeaseKeepAlive::~LeaseKeepAlive() {
-  // kill thread
-  _thread.std::thread::~thread();
+LeaseThread:~LeaseThread() {
+  endLease();
 }
 
-void LeaseKeepAlive::periodicCheckIn() {
-  while(true) {
-    checkIn(); // check into lease system
-    sleep(1); // sleep for a little
+LeaseThread::beginLease() {
+  _keepRunning = true;
+
+  // just begin thread
+  _thread = std::shared_ptr<std::thread>(new std::thread(LeaseThread::periodicCheckIn, this));
+}
+
+LeaseThread::endLease() {
+  _keepRunning = false;
+  _thread->join(); // waits until end
+}
+
+void LeaseThread::periodicCheckIn() {
+  while(_keepRunning) {
+    _clientPtr->retainLease(_lease);
+    std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_RPC_INTERVAL_SECS));
   }
-}
-
-void LeaseKeepAlive::checkIn() {
-  // retain the lease held in this class (change later to use lease wallet and resource)
-  _clientPtr->retainLease(_lease);
 }

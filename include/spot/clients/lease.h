@@ -43,22 +43,51 @@ public:
   ListLeasesResponse listLeasesAsync(bool includeFullLeasesInfo);
 };
 
-// issues lease liveness checks on background thread
-class LeaseKeepAlive {
+/*
+  class LeaseThread: issues lease check-ins on a thread
+*/
+class LeaseThread {
+  
 public:
-  LeaseKeepAlive(std::shared_ptr<LeaseClient> clientPtr, Lease lease, int rpcIntervalSeconds);
-  ~LeaseKeepAlive(); // destroy thread ?
+  static int DEFAULT_RPC_INTERVAL_SECS = 2;
+
+  LeaseThread(std::shared_ptr<LeaseClient> clientPtr, Lease lease);
+  ~LeaseThread();
+
+  /*  beginEstop(): begins lease check-ins on a thread
+      Input: -
+      Output: -
+      Side effects: Creates thread for lease check-ins
+  */
+  void beginLease();
+
+  /*  endEstop(): ends lease checkins
+      Input: -
+      Output: -
+      Side effects: Destroys thread for estop check-ins
+  */
+  void endLease();
+
+  /* Mutators */
+  void setKeepRunning(bool keepRunning) { _keepRunning = keepRunning; }
+  
+  /* Accessors */
+  const std::shared_ptr<std::thread> getThread() const { return _thread; }
+  const Lease getLease() const { return _lease; }
 
 private:
+  /* periodicCheckIn(): function that thread runs, loop depends on boolean set by main thread
+     Input: -
+     Output: -
+     Side effects: issues RPCs to lease service
+  */
   void periodicCheckIn();
-  void checkIn();
 
 private:
-  std::shared_ptr<LeaseClient> _clientPtr;
-  Lease _lease;
-  std::thread _thread;
-  std::string _resource;
-  int _rpcIntervalSeconds;
+  std::shared_ptr<LeaseClient> _client;
+  std::shared_ptr<std::thread> _thread;
+
+  Lease _lease; // copy of lease
   bool _keepRunning;
 };
 

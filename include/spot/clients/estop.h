@@ -136,7 +136,9 @@ public:
 */
 class EstopThread {
 public:
-  EstopThread(std::shared_ptr<EstopClient> clientPtr, Endpoint &endpoint);
+  static int DEFAULT_TIME_SYNC_INTERVAL_SECS = 2;
+  
+  EstopThread(std::shared_ptr<EstopClient> clientPtr, Endpoint endpoint);
   ~EstopThread();
 
   /*  beginEstop(): begins estop check-ins on a thread
