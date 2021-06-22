@@ -27,6 +27,7 @@
 #include <fstream>
 
 #include <gtk/gtk.h>
+#include <cairo.h>
 #include <opencv2/opencv.hpp>
 // #include <gtkmm/drawingarea.h>
 // #include <gdkmm/pixbuf.h>
@@ -145,7 +146,6 @@ class Display {
 public:
     Display(int rows, int cols, int nCameras);
     ~Display();
-    bool getImages();
     // void receiveFrame(MultiKinectPacket &mkp);
     // void receiveAprilTag(AprilTagPacket atp);
     void buildWidgets(GtkWidget *container);

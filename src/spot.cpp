@@ -58,8 +58,64 @@ static wchar_t getWCharClean()
 //   set_child(m_area);
 // }
 
+// void activate (GtkWindow* win,
+//           gpointer        user_data)
+// {
+//   GtkWidget *window;
+
+//   window = gtk_window_new (win);
+//   gtk_window_set_title (GTK_WINDOW (window), "Window");
+//   gtk_window_set_default_size (GTK_WINDOW (window), 200, 200);
+//   gtk_widget_show_all (window);
+// }
+struct {
+	cairo_surface_t *image;  
+} glob;
+
+gboolean Spot::on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+{      
+//   do_drawing(cr);
+	cr = gdk_cairo_create (gtk_widget_get_window (widget));
+	// do_drawing (cr, widget);
+
+	gfloat screen_width;
+	gfloat screen_height;
+	gfloat image_width;
+	gfloat image_height;
+	gfloat x_scaling;
+	gfloat y_scaling;
+
+	/* Display screen dimension in console  */
+	screen_width = gdk_screen_get_width (gdk_screen_get_default ());
+	screen_height = gdk_screen_get_height (gdk_screen_get_default ());
+	g_message ("Screen width %f", screen_width);
+	g_message ("Screen height %f", screen_height);
+
+	/* Scale the loaded image to occupy the entire screen  */
+	image_width = cairo_image_surface_get_width (glob.image);
+	image_height = cairo_image_surface_get_height (glob.image);
+
+	g_message ("Image width %f", image_width);
+	g_message ("Image height %f", image_height);
+
+	x_scaling = screen_width / image_width;
+	y_scaling = screen_height / image_height;
+
+	g_message ("x_scaling %f", x_scaling);
+	g_message ("y_scaling %f", y_scaling);
+
+	cairo_scale (cr, x_scaling, y_scaling);
+
+	cairo_set_source_surface (cr, glob.image, 0, 0);
+	cairo_paint (cr);
+
+	cairo_destroy (cr);
+
+ 	return FALSE;
+}
+
 // main function for running Spot clients
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]){
 	assert(argc == 3);
 
 	// get username and password
@@ -69,6 +125,9 @@ int main(int argc, char *argv[]) {
 	// create robot
 	Robot robot("spot");
 
+	// // create id 
+	// Display display(100, 100, 1);
+
 	// print id information
 	std::cout << robot.getId() << std::endl;
 
@@ -76,74 +135,97 @@ int main(int argc, char *argv[]) {
 	robot.authenticate(username, password);
 
 	// setup robot (initialize clients)
-	robot.setup();
+	// robot.setup();
 
-	// // create estop and lease threads
-	// robot.initBasicEstop();
-	// std::cout << "Estop initialized" << std::endl;
-	// robot.initBasicLease();
-	// std::cout << "Lease initialized" << std::endl;
-	// robot.initBasicTimesync();
-	// std::cout << "Timesync initialized" << std::endl;
+	// robot.getImages();
+
+	// GtkWidget *window;
+	// gtk_init(&argc, &argv);
+
+	// window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	// gtk_widget_show(window);
+	// g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+	// gtk_main();
+
+	GtkWidget *window;
+	GtkWidget *darea;
+	cairo_t *cr;
+
+	glob.image = cairo_image_surface_create_from_png ("data.png");
+
+	gtk_init (&argc, &argv);
+
+
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+
+	darea = gtk_drawing_area_new ();
+	gtk_container_add (GTK_CONTAINER (window), darea);
+
+	g_signal_connect (G_OBJECT (darea), "draw",
+		G_CALLBACK (Spot::on_draw_event), NULL);
+	g_signal_connect (window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
+
+	gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
+	gtk_window_set_title (GTK_WINDOW (window), "Cairo Test");
+	gtk_window_set_decorated (GTK_WINDOW (window), FALSE);
+	gtk_window_fullscreen (GTK_WINDOW (window));
+
+
+	gtk_widget_show_all (window);
+
+	gtk_main ();
+
+	cairo_surface_destroy (glob.image);
+
+
+
+	// GtkWidget *window;
+	// GtkWidget *darea;
 	
-	// // power on
-	// robot.powerOn();
-	// std::cout << "Powered on" << std::endl;
+	// glob.image = cairo_image_surface_create_from_png("data.jpg");
 
-	robot.getImages();
-	// robot.move(stand);
-	// std::cout << "Standing" << std::endl;
+	// gtk_init(&argc, &argv);
 
-	// (theoretically display images)
+	// window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
+	// darea = gtk_drawing_area_new();
+	// gtk_container_add(GTK_CONTAINER (window), darea);
 
-	// move
-	initTerminalInput();
-	bool keepRunning = true;
-	while(keepRunning){
-		wchar_t wchar = getWCharClean();
-		
-		// initialize velocities and angular velocity (rot)
-		double velX = 0;
-		double velY = 0;
-		double rot = 0;
+	// g_signal_connect(G_OBJECT(darea), "draw", 
+	// 	G_CALLBACK(Spot::on_draw_event), NULL); 
+	// g_signal_connect(window, "destroy",
+	// 	G_CALLBACK (gtk_main_quit), NULL);
 
-		// xy translation
-		if (wchar == L'w') {
-			velX += 1.0;
-		}
-		if (wchar == L'a') {
-			velY -= 1.0;
-		}
-		if (wchar == L's') {
-			velX -= 1.0;
-		}
-		if (wchar == L'd') {
-			velY += 1.0;
-		}
+	// gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+	// gtk_window_set_default_size(GTK_WINDOW(window), 900, 900); 
+	// gtk_window_set_title(GTK_WINDOW(window), "Image");
 
-		// orientation (once we figure out)
-		if (wchar == L'i') {
+	// gtk_widget_show_all(window);
 
-		}
-		if (wchar == L'j') {
-			rot += 0.5;
-		}
-		if (wchar == L'k') {
+	// gtk_main();
 
-		}
-		if (wchar == L'l') {
-			rot -= 0.5;
-		}
+	// cairo_surface_destroy(glob.image);
+	
+	// GtkWidget *win;
 
-		// exit
-		if (wchar == L'e') {
-			keepRunning = false;
-			break;
-		}
+	// win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	// // win = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+	
+	// std::cout << "reached here" << std::endl;
+	// g_signal_connect (win, "activate", G_CALLBACK (activate), NULL);
+	// int status = g_application_run (G_APPLICATION (win), argc, argv);
+	// g_object_unref (app);
 
-		// issue move
-		robot.move(travel, velX, velY, rot, 0.5);
-	}
+	// GtkApplication *app;
+	// app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+	// g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
+
+	// std::cout << "reach" << std::endl;
+	// GtkWidget *widget = gtk_widget_new(GTK_TYPE_LABEL, "label", "Hello World", "xalign", 0.0, NULL);
+	// std::cout << "reach 2" << std::endl;
+	// display.buildWidgets(widget);
+	// std::cout << "reach 3" << std::endl;
+	// display.receiveFrame();
+	// std::cout << "reach 4" << std::endl;
 	return 0;
 }

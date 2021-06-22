@@ -207,119 +207,124 @@ bool Robot::getImages(){
     ListImageSourcesResponse sources = _imageClientPtr->listImageSources();
 
     // list out image sources 
-    // for (ImageSource source : sources.image_sources()){
-    //     std::cout << source.name() << std::endl;
-    // }
+    for (ImageSource source : sources.image_sources()){
+        std::cout << source.name() << std::endl;
+    }
 
     request.set_image_source_name("frontright_fisheye_image");
     request.set_quality_percent(100.0);
-    request.set_image_format(bosdyn::api::Image_Format_FORMAT_RAW);
+    request.set_image_format(bosdyn::api::Image_Format_FORMAT_JPEG);
 	std::vector<bosdyn::api::ImageRequest> vector;
     vector.push_back(request);
 
 	GetImageResponse imageResp = _imageClientPtr->getImage(vector);
 
+    std::cout << "status: " << imageResp.image_responses(0).status() << std::endl;
     std::cout << "pixel format: " << imageResp.image_responses(0).shot().image().pixel_format() << std::endl;
 
-    std::ofstream myfile ("data.raw");
+    std::ofstream myfile ("data.jpg");
     myfile << imageResp.image_responses(0).shot().image().data();
     myfile.close();
 
     return true;
 }
 
-Display::Display(int rows, int cols, int nCameras) :
-    _rows(rows), _cols(cols), _initialized(false),
-    _darea(NULL), _cameras(nCameras),
-    //_pixbuf(NULL),
-    _buf(NULL){
-    //window = gtk_application_window_new (app);
-    //free(_colorMat.data);  
-}
+// Display::Display(int rows, int cols, int nCameras) :
+//     _rows(rows), _cols(cols), _initialized(false),
+//     _darea(NULL), _cameras(nCameras),
+//     //_pixbuf(NULL),
+//     _buf(NULL){
+//     //window = gtk_application_window_new (app);
+//     //free(_colorMat.data);  
+// }
 
-Display::~Display() {
-    if(_initialized) {}
-}
+// Display::~Display() {
+//     if(_initialized) {}
+// }
 
-void Display::buildWidgets(GtkWidget *container){
-    _initialized = true;
-    //Create a grid, adjust spacing 
-    _gtkGrid = (GtkGrid*)gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER (container), (GtkWidget * ) _gtkGrid );
-    gtk_grid_set_row_homogeneous(_gtkGrid, true);
-    gtk_grid_set_column_homogeneous(_gtkGrid, true);
+// void Display::buildWidgets(GtkWidget *container){
+//     _initialized = true;
+//     //Create a grid, adjust spacing 
+//     _gtkGrid = (GtkGrid*)gtk_grid_new();
+//     gtk_container_add(GTK_CONTAINER (container), (GtkWidget * ) _gtkGrid );
+//     gtk_grid_set_row_homogeneous(_gtkGrid, true);
+//     gtk_grid_set_column_homogeneous(_gtkGrid, true);
 
-    //Add cameras 
-    for (int i = 0;i<_cameras;i++){
-        drawingAreas[i] = gtk_drawing_area_new();
-    } 
+//     //Add cameras 
+//     for (int i = 0;i<_cameras;i++){
+//         drawingAreas[i] = gtk_drawing_area_new();
+//     } 
     
+//     cairo_surface_t *cSurf = cairo_image_surface_create(CAIRO_FORMAT_A1, 10, 10);
+// 	cairo_t *cr = cairo_create(cSurf);
 
-    //Callback methods
-    int count = 0;
-    //Two loops - rows, columns
-    for (int i = 0; i<2; i++){
-        for (int j = 0;j<_cameras/2;j++){
-            // (GtkGrid *grid, GtkWidget *child, int column,int row,int width,int height);
-            gtk_grid_attach(_gtkGrid,drawingAreas[count], j, i , 1, 1);
-            g_signal_connect (G_OBJECT (drawingAreas[count++]), "draw", G_CALLBACK (drawCallback), this);
-        }
-    } 
-}
+//     FILE *fp;
+//     fp = fopen("../build/data.jpg", "r");
 
-void Display::receiveFrame() {
-    //Add the frame to the buffer
-    _rows = 540;
-    _cols = 960;
-    size_t bytes = _cols * _rows * 1; // Bc greyscale instead of rgb
+//     //Callback methods
+//     int count = 0;
+//     //Two loops - rows, columns
+//     for (int i = 0; i<2; i++){
+//         for (int j = 0;j<_cameras/2;j++){
+//             // (GtkGrid *grid, GtkWidget *child, int column,int row,int width,int height);
+//             gtk_grid_attach(_gtkGrid,drawingAreas[count], j, i , 1, 1);
+//             g_signal_connect (G_OBJECT (drawingAreas[count++]), "draw", G_CALLBACK(drawCallback(container, cr, fp)), this);
+//         }
+//     } 
+// }
 
-    if(_buf == NULL) {
-        _buf = new unsigned char*[8];
-        for (int i = 0; i < 8; i++) {
-            _buf[i] = (unsigned char*)calloc(1, bytes);
-        }
-    }
+// void Display::receiveFrame() {
+//     //Add the frame to the buffer
+//     // _rows = 540;
+//     // _cols = 960;
+//     size_t bytes = _cols * _rows * 1; // Bc greyscale instead of rgb
 
-    FILE *fp;
-    fp = fopen("../build/data.raw", "r");
-    for (int i = 0; i < 1; i++){ // < 1 bc displaying 1 camera rn
-        cv::Mat m(_rows, _cols, CV_8UC1, fp);
-        memcpy(_buf[i], m.data, bytes);
-    }
+//     if(_buf == NULL) {
+//         _buf = new unsigned char*[8];
+//         for (int i = 0; i < 8; i++) {
+//             _buf[i] = (unsigned char*)calloc(1, bytes);
+//         }
+//     }
 
-    //Draw each area
-    if(_initialized) {
-        for (int i = 0;i<_cameras;i++){
-             gtk_widget_queue_draw(drawingAreas[i]);
-        }
-    }
-}
+//     FILE *fp;
+//     fp = fopen("../build/data.jpg", "r");
+//     for (int i = 0; i < 1; i++){ // < 1 bc displaying 1 camera rn
+//         cv::Mat m(_rows, _cols, CV_8UC1, fp);
+//         memcpy(_buf[i], m.data, bytes);
+//     }
 
-gboolean Display::drawCallback (GtkWidget *widget, cairo_t *cr, gpointer data){
-    Display *display = (Display *)data;
-    return display->doDraw(cr);
-}
+//     //Draw each area
+//     if(_initialized) {
+//         for (int i = 0;i<_cameras;i++){
+//              gtk_widget_queue_draw(drawingAreas[i]);
+//         }
+//     }
+// }
 
-gboolean Display::doDraw(cairo_t *cr){
-    //draw each camera
-    static int cameraDisplayCount = 0;
-    if (cameraDisplayCount == _cameras)
-        cameraDisplayCount = 0;
-    if(_buf != NULL) {
-        GdkPixbuf *pixbuf = gdk_pixbuf_new_from_data(
-            (guint8*)(_buf[cameraDisplayCount]),
-            GDK_COLORSPACE_RGB,
-            false,
-            8,
-            _cols,
-            _rows,
-            (int)3 * _cols, NULL, NULL);
-        gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
-        cairo_paint(cr);
-        // free(_buf[cameraDisplayCount]);
-        cameraDisplayCount++;
-    }
-}
+// gboolean Display::drawCallback(GtkWidget *widget, cairo_t *cr, gpointer data){
+//     Display *display = (Display *)data;
+//     return display->doDraw(cr);
+// }
+
+// gboolean Display::doDraw(cairo_t *cr){
+//     // cairo_surface_t *image = cairo_image_surface_create_from_png("../build/data.raw");
+//     // cairo_t *cr = 
+//     //draw each camera
+//     static int cameraDisplayCount = 0;
+//     if (cameraDisplayCount == _cameras)
+//         cameraDisplayCount = 0;
+//     if(_buf != NULL) {
+//         std::cout << "Buf has something in it" << std::endl;
+//         GdkPixbuf *pixbuf = gdk_pixbuf_new_from_data((guint8*)(_buf[cameraDisplayCount]), GDK_COLORSPACE_RGB, 
+//                             false, 8, _cols, _rows, (int)3 * _cols, NULL, NULL);
+//         std::cout << "reached here" << std::endl;
+//         gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
+//         std::cout << "reached here 2" << std::endl;
+//         cairo_paint(cr);
+//         // free(_buf[cameraDisplayCount]);
+//         cameraDisplayCount++;
+//     }
+// }
 
 // // following code from 
 // // https://developer.gnome.org/gtkmm-tutorial/stable/sec-draw-images.html.en
