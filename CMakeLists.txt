@@ -153,7 +153,7 @@ add_executable(spot
   src/clients/directory.cpp
   src/clients/directory_registration.cpp
   src/clients/local_grid.cpp
-  # src/kfr_display.cpp
+  src/display.cpp
   src/spot.cpp
   src/robot.cpp
 

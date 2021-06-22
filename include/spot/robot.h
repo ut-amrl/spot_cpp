@@ -10,6 +10,7 @@
 #include <spot/clients/estop.h>
 #include <spot/exception.h>
 #include <spot/frame.h>
+#include <spot/display.h>
 #include <spot/clients/image.h>
 #include <spot/clients/lease.h>
 #include <spot/clients/power.h>
@@ -26,9 +27,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <gtk/gtk.h>
-#include <cairo.h>
-#include <opencv2/opencv.hpp>
 // #include <gtkmm/drawingarea.h>
 // #include <gdkmm/pixbuf.h>
 // #include <cairomm/context.h>
@@ -141,39 +139,5 @@ private:
     template <class client_T>
     std::shared_ptr<client_T> getPtr(CLIENT_TYPES type);
 };
-
-class Display {
-public:
-    Display(int rows, int cols, int nCameras);
-    ~Display();
-    // void receiveFrame(MultiKinectPacket &mkp);
-    // void receiveAprilTag(AprilTagPacket atp);
-    void buildWidgets(GtkWidget *container);
-    void receiveFrame();
-    static gboolean drawCallback (GtkWidget *widget, cairo_t *cr, gpointer data);
-    gboolean doDraw(cairo_t *cr);
-
-protected:
-    int _rows, _cols, _cameras;
-    bool _initialized;
-    //cv::Mat _colorMat;
-    GtkWidget *_darea;
-
-    GtkWidget *drawingAreas[8];
-    GtkGrid *_gtkGrid;
-    //GdkPixbuf *_pixbuf;
-    unsigned char **_buf;
-};
-
-// class MyArea : public Gtk::DrawingArea{
-// public:
-//     MyArea();
-//     virtual ~MyArea();
-
-// protected:
-//     void on_draw(const Cairo::RefPtr<Cairo::Context>&cr, int width, int height);
-
-//     Glib::RefPtr<Gdk::Pixbuf> m_image;
-// };
 
 #endif
