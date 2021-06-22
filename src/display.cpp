@@ -55,7 +55,7 @@ void Display::runDisplay(int argc, char *argv[]){
 	GtkWidget *darea;
 	cairo_t *cr;
 
-	glob.image = cairo_image_surface_create_from_png ("test.png");
+	glob.image = cairo_image_surface_create_from_png ("data.png");
 
 	gtk_init (&argc, &argv);
 

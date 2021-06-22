@@ -226,5 +226,8 @@ bool Robot::getImages(){
     myfile << imageResp.image_responses(0).shot().image().data();
     myfile.close();
 
+    cv::Mat img = cv::imread("data.jpg", cv::IMREAD_ANYCOLOR);
+    cv::imwrite("data.png", img);
+
     return true;
 }

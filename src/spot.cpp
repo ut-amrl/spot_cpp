@@ -14,6 +14,7 @@
 
 // main function for running Spot clients
 int main(int argc, char *argv[]){
+	std::cout<<"in main"<< std::endl;
 	assert(argc == 3);
 
 	// get username and password
@@ -32,7 +33,13 @@ int main(int argc, char *argv[]){
 	// authenticate robot
 	robot.authenticate(username, password);
 
-	display.runDisplay(argc, argv);
+	// setup robot (initialize clients)
+	robot.setup(); 
+
+	while (true){
+		robot.getImages();
+		display.runDisplay(argc, argv);
+	}
 
 	return 0;
 }
