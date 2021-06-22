@@ -11,13 +11,15 @@
 
 class Display{
 public:
-    Display(int argc);
+    Display();
+    void modify_image_surface (cairo_surface_t *surface);
     static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data);
     void do_drawing(cairo_t *cr);
     void runDisplay(int argc, char *argv[]);
 private:
-    int _argc; 
-    char *_argv[];
+    GtkWidget *_window;
+	GtkWidget *_darea;
+	cairo_t *_cr;
 };
 
 #endif

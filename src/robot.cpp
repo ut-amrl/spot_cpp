@@ -206,10 +206,10 @@ bool Robot::getImages(){
     ImageRequest request;
     ListImageSourcesResponse sources = _imageClientPtr->listImageSources();
 
-    // list out image sources 
-    for (ImageSource source : sources.image_sources()){
-        std::cout << source.name() << std::endl;
-    }
+    // // list out image sources 
+    // for (ImageSource source : sources.image_sources()){
+    //     std::cout << source.name() << std::endl;
+    // }
 
     request.set_image_source_name("frontright_fisheye_image");
     request.set_quality_percent(100.0);

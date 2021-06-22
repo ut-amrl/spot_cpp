@@ -25,7 +25,6 @@ int main(int argc, char *argv[]){
 	Robot robot("spot");
 
 	// create a display
-	Display display(argc);
 
 	// print id information
 	std::cout << robot.getId() << std::endl;
@@ -35,10 +34,12 @@ int main(int argc, char *argv[]){
 
 	// setup robot (initialize clients)
 	robot.setup(); 
-
+	
+	Display display;
 	while (true){
 		robot.getImages();
 		display.runDisplay(argc, argv);
+		std::cout << "start loop again" << std::endl;
 	}
 
 	return 0;
