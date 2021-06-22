@@ -8,6 +8,7 @@
 #include <spot/clients/base.h>
 #include "bosdyn/api/image_service.grpc.pb.h"
 
+using bosdyn::api::ImageSource;
 using bosdyn::api::ImageService;
 using bosdyn::api::ImageRequest;
 using bosdyn::api::ImageResponse;

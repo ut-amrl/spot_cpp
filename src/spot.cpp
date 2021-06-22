@@ -51,6 +51,12 @@ static wchar_t getWCharClean()
   return inputWChar;
 }
 
+// ExampleWindow::ExampleWindow()
+// {
+//   set_title("DrawingArea");
+//   set_default_size(300, 200);
+//   set_child(m_area);
+// }
 
 // main function for running Spot clients
 int main(int argc, char *argv[]) {
@@ -72,20 +78,24 @@ int main(int argc, char *argv[]) {
 	// setup robot (initialize clients)
 	robot.setup();
 
-	// create estop and lease threads
-	robot.initBasicEstop();
-	std::cout << "Estop initialized" << std::endl;
-	robot.initBasicLease();
-	std::cout << "Lease initialized" << std::endl;
-	robot.initBasicTimesync();
-	std::cout << "Timesync initialized" << std::endl;
+	// // create estop and lease threads
+	// robot.initBasicEstop();
+	// std::cout << "Estop initialized" << std::endl;
+	// robot.initBasicLease();
+	// std::cout << "Lease initialized" << std::endl;
+	// robot.initBasicTimesync();
+	// std::cout << "Timesync initialized" << std::endl;
 	
-	// power on
-	robot.powerOn();
-	std::cout << "Powered on" << std::endl;
+	// // power on
+	// robot.powerOn();
+	// std::cout << "Powered on" << std::endl;
 
-	robot.move(stand);
-	std::cout << "Standing" << std::endl;
+	robot.getImages();
+	// robot.move(stand);
+	// std::cout << "Standing" << std::endl;
+
+	// (theoretically display images)
+
 
 	// move
 	initTerminalInput();

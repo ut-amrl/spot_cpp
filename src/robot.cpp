@@ -196,3 +196,181 @@ bool Robot::move(movementType mType, double x, double y, double rot, double time
         return false;
     }
 }
+
+bool Robot::getImages(){
+    if (_imageClientPtr == NULL){
+	        std::cout << "Need to setup" << std::endl; 
+	        throw 1;
+	} // TODO: change later 
+
+    ImageRequest request;
+    ListImageSourcesResponse sources = _imageClientPtr->listImageSources();
+
+    // list out image sources 
+    // for (ImageSource source : sources.image_sources()){
+    //     std::cout << source.name() << std::endl;
+    // }
+
+    request.set_image_source_name("frontright_fisheye_image");
+    request.set_quality_percent(100.0);
+    request.set_image_format(bosdyn::api::Image_Format_FORMAT_RAW);
+	std::vector<bosdyn::api::ImageRequest> vector;
+    vector.push_back(request);
+
+	GetImageResponse imageResp = _imageClientPtr->getImage(vector);
+
+    std::cout << "pixel format: " << imageResp.image_responses(0).shot().image().pixel_format() << std::endl;
+
+    std::ofstream myfile ("data.raw");
+    myfile << imageResp.image_responses(0).shot().image().data();
+    myfile.close();
+
+    return true;
+}
+
+Display::Display(int rows, int cols, int nCameras) :
+    _rows(rows), _cols(cols), _initialized(false),
+    _darea(NULL), _cameras(nCameras),
+    //_pixbuf(NULL),
+    _buf(NULL){
+    //window = gtk_application_window_new (app);
+    //free(_colorMat.data);  
+}
+
+Display::~Display() {
+    if(_initialized) {}
+}
+
+void Display::buildWidgets(GtkWidget *container){
+    _initialized = true;
+    //Create a grid, adjust spacing 
+    _gtkGrid = (GtkGrid*)gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER (container), (GtkWidget * ) _gtkGrid );
+    gtk_grid_set_row_homogeneous(_gtkGrid, true);
+    gtk_grid_set_column_homogeneous(_gtkGrid, true);
+
+    //Add cameras 
+    for (int i = 0;i<_cameras;i++){
+        drawingAreas[i] = gtk_drawing_area_new();
+    } 
+    
+
+    //Callback methods
+    int count = 0;
+    //Two loops - rows, columns
+    for (int i = 0; i<2; i++){
+        for (int j = 0;j<_cameras/2;j++){
+            // (GtkGrid *grid, GtkWidget *child, int column,int row,int width,int height);
+            gtk_grid_attach(_gtkGrid,drawingAreas[count], j, i , 1, 1);
+            g_signal_connect (G_OBJECT (drawingAreas[count++]), "draw", G_CALLBACK (drawCallback), this);
+        }
+    } 
+}
+
+void Display::receiveFrame() {
+    //Add the frame to the buffer
+    _rows = 540;
+    _cols = 960;
+    size_t bytes = _cols * _rows * 1; // Bc greyscale instead of rgb
+
+    if(_buf == NULL) {
+        _buf = new unsigned char*[8];
+        for (int i = 0; i < 8; i++) {
+            _buf[i] = (unsigned char*)calloc(1, bytes);
+        }
+    }
+
+    FILE *fp;
+    fp = fopen("../build/data.raw", "r");
+    for (int i = 0; i < 1; i++){ // < 1 bc displaying 1 camera rn
+        cv::Mat m(_rows, _cols, CV_8UC1, fp);
+        memcpy(_buf[i], m.data, bytes);
+    }
+
+    //Draw each area
+    if(_initialized) {
+        for (int i = 0;i<_cameras;i++){
+             gtk_widget_queue_draw(drawingAreas[i]);
+        }
+    }
+}
+
+gboolean Display::drawCallback (GtkWidget *widget, cairo_t *cr, gpointer data){
+    Display *display = (Display *)data;
+    return display->doDraw(cr);
+}
+
+gboolean Display::doDraw(cairo_t *cr){
+    //draw each camera
+    static int cameraDisplayCount = 0;
+    if (cameraDisplayCount == _cameras)
+        cameraDisplayCount = 0;
+    if(_buf != NULL) {
+        GdkPixbuf *pixbuf = gdk_pixbuf_new_from_data(
+            (guint8*)(_buf[cameraDisplayCount]),
+            GDK_COLORSPACE_RGB,
+            false,
+            8,
+            _cols,
+            _rows,
+            (int)3 * _cols, NULL, NULL);
+        gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
+        cairo_paint(cr);
+        // free(_buf[cameraDisplayCount]);
+        cameraDisplayCount++;
+    }
+}
+
+// // following code from 
+// // https://developer.gnome.org/gtkmm-tutorial/stable/sec-draw-images.html.en
+
+// void MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr, int width, int height){
+//     auto image = Gdk::Pixbuf::create_from_file("data.png"); // the file saved from image loader
+//     Gdk::Cairo::set_source_pixbuf(cr, image, 100, 80);
+//     cr->rectangle(110, 90, image->get_width()-20, image->get_height()-20);
+//     cr->fill();
+// }
+
+// MyArea::MyArea()
+// {
+//   try
+//   {
+//     // The fractal image has been created by the XaoS program.
+//     // http://xaos.sourceforge.net
+//     m_image = Gdk::Pixbuf::create_from_resource("/image/fractal_image.png");
+//   }
+//   catch(const Gio::ResourceError& ex)
+//   {
+//     std::cerr << "ResourceError: " << ex.what() << std::endl;
+//   }
+//   catch(const Gdk::PixbufError& ex)
+//   {
+//     std::cerr << "PixbufError: " << ex.what() << std::endl;
+//   }
+
+//   // Show at least a quarter of the image.
+//   if (m_image)
+//   {
+//     set_content_width(m_image->get_width()/2);
+//     set_content_height(m_image->get_height()/2);
+//   }
+
+//   // Set the draw function.
+//   set_draw_func(sigc::mem_fun(*this, &MyArea::on_draw));
+// }
+
+// MyArea::~MyArea()
+// {
+// }
+
+// void MyArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr, int width, int height)
+// {
+//   if (!m_image)
+//     return;
+
+//   // Draw the image in the middle of the drawing area, or (if the image is
+//   // larger than the drawing area) draw the middle part of the image.
+//   Gdk::Cairo::set_source_pixbuf(cr, m_image,
+//     (width - m_image->get_width())/2, (height - m_image->get_height())/2);
+//   cr->paint();
+// }

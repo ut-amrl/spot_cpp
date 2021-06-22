@@ -20,7 +20,21 @@
 #include <spot/clients/timesync.h>
 
 #include <map>
+#include <vector>
 #include <list>
+
+#include <iostream>
+#include <fstream>
+
+#include <gtk/gtk.h>
+#include <opencv2/opencv.hpp>
+// #include <gtkmm/drawingarea.h>
+// #include <gdkmm/pixbuf.h>
+// #include <cairomm/context.h>
+// #include <giomm/resource.h>
+// #include <gdkmm/general.h> // set_source_pixbuf()
+// #include <glibmm/fileutils.h>
+// #include <iostream>
 
 enum movementType {sit, stand, travel}; // move to robot_command
 
@@ -71,6 +85,9 @@ public:
     // movement
     bool move(movementType mType);
     bool move(movementType, double, double, double, double);
+
+    // image 
+    bool getImages();
 
     std::shared_ptr<AuthClient> getAuthClientPtr() const { return _authClientPtr; }
     std::shared_ptr<DirectoryClient> getDirectoryClientPtr() const { return _directoryClientPtr; }
@@ -123,5 +140,40 @@ private:
     template <class client_T>
     std::shared_ptr<client_T> getPtr(CLIENT_TYPES type);
 };
+
+class Display {
+public:
+    Display(int rows, int cols, int nCameras);
+    ~Display();
+    bool getImages();
+    // void receiveFrame(MultiKinectPacket &mkp);
+    // void receiveAprilTag(AprilTagPacket atp);
+    void buildWidgets(GtkWidget *container);
+    void receiveFrame();
+    static gboolean drawCallback (GtkWidget *widget, cairo_t *cr, gpointer data);
+    gboolean doDraw(cairo_t *cr);
+
+protected:
+    int _rows, _cols, _cameras;
+    bool _initialized;
+    //cv::Mat _colorMat;
+    GtkWidget *_darea;
+
+    GtkWidget *drawingAreas[8];
+    GtkGrid *_gtkGrid;
+    //GdkPixbuf *_pixbuf;
+    unsigned char **_buf;
+};
+
+// class MyArea : public Gtk::DrawingArea{
+// public:
+//     MyArea();
+//     virtual ~MyArea();
+
+// protected:
+//     void on_draw(const Cairo::RefPtr<Cairo::Context>&cr, int width, int height);
+
+//     Glib::RefPtr<Gdk::Pixbuf> m_image;
+// };
 
 #endif
