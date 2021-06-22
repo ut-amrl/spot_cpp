@@ -69,6 +69,7 @@ private:
 private:
   std::shared_ptr<TimeSyncClient> _client;
   std::shared_ptr<std::thread> _thread;
+  
   std::string _clockIdentifier;
   int64_t _clockSkew;
   bool _keepRunning;

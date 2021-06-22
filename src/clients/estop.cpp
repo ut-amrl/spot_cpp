@@ -2,15 +2,84 @@
 
 const std::string ESTOP_CLIENT_NAME = "estop";
 
+// TODO: IMPLEMENT NEW ENDPOINT SYSTEM AND FINISH THREad
+
+Endpoint::Endpoint(std::shared_ptr<EstopClient> client, const std::string &name, const std::string &role, const std::string &targetConfigId, 
+		const std::string &uniqueId, int64_t estopTimeout, int64_t estopCutPowerTimeout) :
+		_name(name),
+		_client(client),
+		_role(role),
+		_estopTimeout(estopTimeout),
+		_estopCutPowerTimeout(estopCutPowerTimeout),
+		_configId(configId),
+		_uniqueId(uniqueId) {
+	// send the first check in request to retrieve the challenge
+	EstopCheckInResponse reply;
+	try {
+		reply = _client->checkIn(EstopStopLevel::ESTOP_LEVEL_CUT, toProto(), _challenge, ~_challenge, suppressIncorrect);
+	} catch (Error &error) {
+		throw;
+	}
+	// set challenge
+	setChallenge(reply.challenge());
+}
+
+void Endpoint::cut() {
+	checkIn(EstopStopLevel::ESTOP_LEVEL_CUT);
+}
+
+void Endpoint::settleThenCut() {
+	checkIn(EstopStopLevel::ESTOP_LEVEL_SETTLE_THEN_CUT);
+}
+
+void Endpoint::allow() {
+	checkIn(EstopStopLevel::ESTOP_LEVEL_NONE);
+}
+
+void Endpoint::checkIn(EstopStopLevel level, bool suppressIncorrect) {
+	EstopCheckInResponse reply;
+	try {
+		reply = _client->checkIn(level, toProto(), _challenge, ~_challenge, suppressIncorrect);
+	} catch (Error &error) {
+		throw;
+	}
+	// handle errors
+	switch (reply.status()) {
+		case 0:
+			break;
+		case 1:
+			// set new challenge
+			setChallenge(reply.challenge());
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+	}
+}
+
+void Endpoint::setChallenge(uint64_t newChallenge) {
+	std::lock_guard<std::mutex> locker(_mu);
+	_challenge = newChallenge;
+}
+
+EstopEndpoint Endpoint::toProto() {
+	EstopEndpoint ret;
+	ret.set_role(_role);
+	ret.set_name(_name);
+	ret.set_unique_id(_uniqueId);
+	ret.mutable_timeout(TimeUtil::SecondsToDuration(_estopTimeout));
+	ret.mutable_cut_power_timeout(TimeUtil::SecondsToDuration(_estopCutPowerTimeout));
+	return ret;
+}
+ 
 EstopClient::EstopClient(const std::string &authority, const std::string &token) : BaseClient(ESTOP_CLIENT_NAME, authority, token) {}
 
- 
-RegisterEstopEndpointResponse EstopClient::registerEndpoint(const std::string &targetConfigId, EstopEndpoint &targetEndpoint, EstopEndpoint &endpoint) {
+RegisterEstopEndpointResponse EstopClient::registerEndpoint(const std::string &targetConfigId, EstopEndpoint &endpoint) {
 	RegisterEstopEndpointRequest request;
     assembleRequestHeader<RegisterEstopEndpointRequest>(&request);
 	request.set_target_config_id(targetConfigId);
 	request.mutable_new_endpoint()->CopyFrom(endpoint);
-	request.mutable_target_endpoint()->CopyFrom(targetEndpoint);
     return call<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::RegisterEstopEndpoint);
 }
 
@@ -20,6 +89,24 @@ RegisterEstopEndpointResponse EstopClient::registerEndpointAsync(const std::stri
 	request.set_target_config_id(targetConfigId);
 	request.mutable_new_endpoint()->CopyFrom(endpoint);
     return callAsync<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::AsyncRegisterEstopEndpoint);
+}
+
+RegisterEstopEndpointResponse replaceEndpoint(const std::string &targetConfigId, const std::string &uniqueId, EstopEndpoint &endpoint) {
+	RegisterEstopEndpointRequest request;
+	assembleRequestHeader<RegisterEstopEndpointRequest>(&request);
+	request.set_target_config_id(targetConfigId);
+	request.mutable_new_endpoint()->CopyFrom(endpoint);
+	request.mutable_target_endpoint()->unique_id(uniqueId);
+	return call<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::RegisterEstopEndpoint);
+}
+
+RegisterEstopEndpointResponse replaceEndpointAsync(const std::string &targetConfigId, const std::string &uniqueId, EstopEndpoint &endpoint) {
+	RegisterEstopEndpointRequest request;
+	assembleRequestHeader<RegisterEstopEndpointRequest>(&request);
+	request.set_target_config_id(targetConfigId);
+	request.mutable_new_endpoint()->CopyFrom(endpoint);
+	request.mutable_target_endpoint()->unique_id(uniqueId);
+	return callAsync<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::RegisterEstopEndpoint);
 }
 
 DeregisterEstopEndpointResponse EstopClient::deregister(const std::string &targetConfigId, EstopEndpoint &endpoint) {
@@ -50,13 +137,6 @@ GetEstopConfigResponse EstopClient::getConfigAsync(const std::string &targetConf
     assembleRequestHeader<GetEstopConfigRequest>(&request);
 	request.set_target_config_id(targetConfigId);
     return callAsync<GetEstopConfigRequest, GetEstopConfigResponse>(request, &EstopService::Stub::AsyncGetEstopConfig);
-}
-
-SetEstopConfigResponse EstopClient::setConfig(EstopConfig &config){
-	SetEstopConfigRequest request;
-    assembleRequestHeader<SetEstopConfigRequest>(&request);
-	request.mutable_config()->CopyFrom(config);
-    return call<SetEstopConfigRequest, SetEstopConfigResponse>(request, &EstopService::Stub::SetEstopConfig);
 }
 
 SetEstopConfigResponse EstopClient::setConfig(EstopConfig &config, std::string targetConfigId) {
@@ -109,33 +189,32 @@ EstopCheckInResponse EstopClient::checkInAsync(EstopStopLevel &stopLevel, EstopE
     return callAsync<EstopCheckInRequest, EstopCheckInResponse>(request, &EstopService::Stub::AsyncEstopCheckIn);
 }
 
-EstopKeepAlive::EstopKeepAlive(std::shared_ptr<EstopClient> clientPtr, EstopEndpoint endpoint, EstopStopLevel stopLevel, int rpcTimeoutSeconds, int rpcIntervalSeconds, uint64_t challenge) :
-		_clientPtr(clientPtr),
-		_endpoint(endpoint),
-		_stopLevel(stopLevel),
-		_rpcTimeoutSeconds(rpcTimeoutSeconds),
-		_rpcIntervalSeconds(rpcIntervalSeconds),
-		_challenge(challenge),
-		_keepRunning(true) { // create thread
-		_thread = std::thread(&EstopKeepAlive::periodicCheckIn, this);
+EstopThread::EstopThread(std::shared_ptr<EstopClient> clientPtr, Endpoint &endpoint) :
+		_client(clientPtr),
+		_endpoint(endpoint) {}
 
+EstopThread::~EstopThread() {
+	endEstop();
 }
 
-EstopKeepAlive::~EstopKeepAlive() {
-	_thread.std::thread::~thread();
+EstopThread::beginEstop() {
+	_keepRunning = true;
+
+	// endpoint passed in already has valid challenge / response pair
+	_thread = std::shared_ptr<std::thread>(new std::thread(EstopThread::periodicCheckIn, this));
 }
 
-void EstopKeepAlive::periodicCheckIn() {
-	// do first check in and set new challenge
-	EstopCheckInResponse reply = _clientPtr->checkIn(_stopLevel, _endpoint, _challenge, ~_challenge, false);
-	_challenge = reply.challenge();
-	while(true) {
-		checkIn();
-		sleep(1);
+EstopThread::endEstop() {
+	_keepRunning = false;
+	_thread->join(); // should wait for thread to stop
+}
+
+void EstopThread::periodicCheckIn() {
+	while (_keepRunning) {
+		// will update challenge / response within endpoint obj
+		_endpoint.checkIn(EstopStopLevel::ESTOP_LEVEL_NONE, false);
+
+		// todo: timeouts, etc.
 	}
-}
-
-void EstopKeepAlive::checkIn() {
-	EstopCheckInResponse reply = _clientPtr->checkIn(_stopLevel, _endpoint, _challenge, ~_challenge, false);
-	_challenge = reply.challenge(); // update challenge
+	return;
 }
