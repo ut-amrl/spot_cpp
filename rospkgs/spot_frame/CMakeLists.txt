@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  tf
 )
 
 #find_package(utspot REQUIRED)
@@ -51,7 +52,9 @@ include_directories(
 )
 
 
-add_executable(spot_frame src/spot_frame.cpp)
+add_executable(spot_frame 
+src/spot_frame.cpp
+src/tf_broadcast_pr.cpp)
 
 
 

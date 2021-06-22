@@ -20,6 +20,7 @@ void Robot::setup() {
     _robotCommandClientPtr = std::shared_ptr<RobotCommandClient>(new RobotCommandClient(_directoryClientPtr->getEntry(ROBOT_COMMAND_CLIENT_NAME).service_entry().authority(), _token));
     _spotCheckClientPtr = std::shared_ptr<SpotCheckClient>(new SpotCheckClient(_directoryClientPtr->getEntry(SPOT_CHECK_CLIENT_NAME).service_entry().authority(), _token));
     _timeSyncClientPtr = std::shared_ptr<TimeSyncClient>(new TimeSyncClient(_directoryClientPtr->getEntry(TIMESYNC_CLIENT_NAME).service_entry().authority(), _token));
+    _robotStateClientPtr = std::shared_ptr<RobotStateClient>(new RobotStateClient(_directoryClientPtr->getEntry(ROBOT_STATE_CLIENT_NAME).service_entry().authority(), _token));
 }
 
 void Robot::authenticate(const std::string &username, const std::string &password) {
