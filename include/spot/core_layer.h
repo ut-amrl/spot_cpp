@@ -35,6 +35,9 @@ namespace CoreLayer {
     */
     class SpotBase {
     public:
+        static int DEFAULT_TIME_SYNC_INTERVAL_SECS = 60;
+        static int DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECS = 5;
+        
         SpotBase();
 
         /* Common SpotBase functionality */
@@ -96,8 +99,16 @@ namespace CoreLayer {
         const std::shared_ptr<DirectoryClient> getDirectoryClient() const { return _directoryClient; }
         const std::shared_ptr<RobotIdClient> getRobotIdClient() const { return _robotIdClient; }
         const std::shared_ptr<TimeSyncClient> getTimeSyncClient() const { return _timeSyncClient; }
+
+        /* Other accessor methods */
+        const std::string getAuthToken() const { return _authToken; }
+        const std::shared_ptr<TimeSyncThread> getTimeSyncThread() const { return _timeSyncThread; }
     private:
+        /* authToken: stored authorization token */
         std::string _authToken;
+
+        /* timeSyncThread: stored pointer to time sync thread */
+        std::shared_ptr<TimeSyncThread> _timeSyncThread;
     private:
         std::shared_ptr<AuthClient> _authClient;
         std::shared_ptr<DirectoryClient> _directoryClient;

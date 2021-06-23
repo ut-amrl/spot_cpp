@@ -83,9 +83,32 @@ namespace CoreLayer {
 };
 
 void SpotBase::beginTimesync() {
+    // do initial rpc
+    TimeSyncUpdateReponse reply;
+	try {
+		reply = _client->getTimeSyncUpdate();
+	} catch (Error &error) {
+		std::cout << error.what() << std::endl;
+        return;
+	}
 
+    std::string clockIdentifier = reply.clock_identifier();
+    int64_t clockSkew;
+
+    // send rpcs until synchronized
+	while (reply.state().status() == 2 || reply.state().status() == 3) {
+		// send new rpc and set clockskew
+		reply = _timeSyncClient->getTimeSyncUpdate(createTrip(reply), clockIdentifier);
+		clockSkew  = TimeUtil::DurationToSeconds(reply.state().best_estimate().clock_skew());
+		std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECONDS));
+	}
+
+    // create time sync thread object and kick off thread
+    _timeSyncThread = std::shared_ptr<TimeSyncThread>(new TimeSyncThread(_timeSyncClient, clockIdentifier, clockSkew));
+    _timeSyncThread->beginTimeSync();
 }
 
 void SpotBase::endTimesync() {
-
+    // todo: other stuff, for now just kill thread
+    _timeSyncThread->endTimeSync();
 }

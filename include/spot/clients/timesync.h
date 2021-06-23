@@ -30,10 +30,7 @@ public:
 
 class TimeSyncThread {
 public:
-  static int DEFAULT_TIME_SYNC_INTERVAL_SECS = 60;
-  static int DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECS = 5;
-
-  TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr);
+  TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier, int64_t initClockSkew);
   ~TimeSyncThread();
   
   /* beginTimeSync(): does intitial RPC to timesync service and kicks off thread for constant check-ins
@@ -64,7 +61,7 @@ private:
      Output: -
      Side effects: issues RPCs to timesync service
   */
-  void periodicCheckIn(TimeSyncRoundTrip &init);
+  void periodicCheckIn();
 
 private:
   std::shared_ptr<TimeSyncClient> _client;

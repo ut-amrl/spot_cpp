@@ -26,8 +26,10 @@ TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdateAsync(const TimeSyncRoun
 	return callAsync<TimeSyncUpdateRequest, TimeSyncUpdateResponse>(request, &TimeSyncService::Stub::AsyncTimeSyncUpdate);
 }
 
-TimeSyncThread::TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier) :
-		_client(clientPtr) {}
+TimeSyncThread::TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier, int64_t initClockSkew) :
+		_client(clientPtr),
+		_clockIdentifier(clockIdentifier),
+		_clockSkew(initClockSkew) {}
 		
 TimeSyncThread::~TimeSyncThread() {
 	endTimeSync();
@@ -47,25 +49,6 @@ TimeSyncRoundTrip createTrip(TimeSyncUpdateResponse &reply) {
 }
 
 void TimeSyncThread::beginTimeSync() {
-	// initial rpc
-	TimeSyncUpdateReponse reply;
-	try {
-		reply = _client->getTimeSyncUpdate();
-	} catch (Error &error) {
-		throw;
-	}
-
-	// set clock id
-	_clockIdentifier = reply.clock_identifier();
-
-	// send rpcs until synchronized
-	while (reply.state().status() == 2 || reply.state().status() == 3) {
-		// send new rpc and set clockskew
-		reply = _client->getTimeSyncUpdate(createTrip(reply), _timeSyncClockId);
-		_clockSkew = TimeUtil::DurationToSeconds(reply.state().best_estimate().clock_skew());
-		std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECONDS));
-	}
-
 	// clock skew available, thread is ready to be kicked off
 	_keepRunning = true;
 	_thread = std::shared_ptr<std::thread>(new std::thread(TimeSyncThread::periodicCheckIn, this));
@@ -79,11 +62,11 @@ void TimeSyncThread::endTimeSync() {
 	_thread->join();
 }
 
-void TimeSyncThread::periodicCheckIn(TimeSyncRoundTrip &init) {
-	TimeSyncUpdateResponse reply = init;
+void TimeSyncThread::periodicCheckIn() {
+	TimeSyncUpdateResponse reply;
 	while (_keepRunning) {
 		// send new rpc and set clockskew
-		reply = _timeSyncClientPtr->getTimeSyncUpdate(createTrip(reply), _timeSyncClockId);
+		reply = _timeSyncClientPtr->getTimeSyncUpdate(createTrip(reply), _clockIdentifier);
 		_clockSkew = TimeUtil::DurationToSeconds(reply.state().best_estimate().clock_skew());
 		std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECS));
 	}
