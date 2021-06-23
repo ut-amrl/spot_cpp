@@ -34,11 +34,18 @@ int main(int argc, char *argv[]){
 
 	// setup robot (initialize clients)
 	robot.setup(); 
-	
-	Display display;
-	while (true){
+
+	int i = 0;
+	while (i < 100){
+		i += 1;
 		robot.getImages();
-		display.runDisplay(argc, argv);
+		std::cout << "sleeping" << std::endl;
+		sleep(1);
+		std::cout << "done sleeping" << std::endl;
+		{
+			Display display;
+			display.runDisplay(argc, argv);
+		}
 		std::cout << "start loop again" << std::endl;
 	}
 
