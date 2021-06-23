@@ -8,6 +8,10 @@
 
 class Spot {
 public:
+    // int main(int argc, char *argv[]);
+    static void activate(GtkApplication *app, gpointer user_data);
+    // static GtkWidget *_window;
+    // GtkApplication *_app;
 private:
 };
 

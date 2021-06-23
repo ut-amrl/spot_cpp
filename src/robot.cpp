@@ -224,10 +224,14 @@ bool Robot::getImages(){
 
     std::ofstream myfile ("data.jpg");
     myfile << imageResp.image_responses(0).shot().image().data();
+    // GBytes *g_bytes_new (*imageResp.image_responses(0).shot().image().data(), );
+    // GBytes temp = imageResp.image_responses(0).shot().image().data();
     myfile.close();
 
     cv::Mat img = cv::imread("data.jpg", cv::IMREAD_ANYCOLOR);
     cv::imwrite("data.png", img);
+
+    
 
     return true;
 }

@@ -13,13 +13,16 @@ Display::Display() {
 // 	gtk_widget_queue_draw(widget);
 // }
 
-gboolean Display::on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
-{       
-	cairo_set_source_surface(cr, glob.image, 10, 10);
-	cairo_paint(cr);
-	gtk_widget_queue_draw(widget);
-
-  	return FALSE;
+gboolean Display::drawCallback(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+{     
+	Display *display =(Display *)user_data;  
+	// glob.image = cairo_image_surface_create_from_png("data.png"); 
+	// cairo_set_source_surface(cr, glob.image, 10, 10);
+	// cairo_paint(cr);
+	// gtk_widget_queue_draw(widget);
+	
+	return display->doDraw(cr);
+  	// return FALSE;
 // //   do_drawing(cr);
 // 	cr = gdk_cairo_create (gtk_widget_get_window (widget));
 // 	// gtk_widget_queue_draw(widget);
@@ -81,97 +84,87 @@ gboolean Display::on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_da
 //   cairo_surface_mark_dirty (surface);
 // }
 
-void Display::runDisplay(int argc, char *argv[]){
-	GtkWidget *window;
-	GtkWidget *darea;
+// void Display::runDisplay(int argc, char *argv[]){
+void Display::buildWidgets(GtkWidget *container){
+	_initialized = true;
+	// GtkWidget *window;
+	// GtkWidget *darea;
+	_gtkGrid = (GtkGrid*)gtk_grid_new();
+	gtk_container_add(GTK_CONTAINER (container), (GtkWidget * ) _gtkGrid );
+	gtk_grid_set_row_homogeneous(_gtkGrid, true);
+    gtk_grid_set_column_homogeneous(_gtkGrid, true);
+	_darea = gtk_drawing_area_new();
+	// glob.image = cairo_image_surface_create_from_png("data.png");
+
+	gtk_grid_attach(_gtkGrid,_darea, 0, 0 , 1, 1);
+	g_signal_connect (G_OBJECT (_darea), "draw", G_CALLBACK (drawCallback), this);
+
+
+	// gtk_init(&argc, &argv);
+
+	// window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+	// darea = gtk_drawing_area_new();
 	
-	glob.image = cairo_image_surface_create_from_png("data.png");
+	// g_signal_connect (G_OBJECT (darea), "draw", G_CALLBACK (on_draw_event), this);
 
-	gtk_init(&argc, &argv);
+	// gtk_container_add(GTK_CONTAINER (window), darea);
 
-	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	// g_signal_connect(G_OBJECT(darea), "draw", 
+	// 	G_CALLBACK(on_draw_event), NULL); 
 
-	darea = gtk_drawing_area_new();
+	// g_signal_connect(window, "destroy",
+	// 	G_CALLBACK (gtk_main_quit), NULL);
 	
-	gtk_container_add(GTK_CONTAINER (window), darea);
+	// // g_signal_connect(window, "destroy", G_CALLBACK (gtk_widget_destroy), NULL);
 
-	g_signal_connect(G_OBJECT(darea), "draw", 
-		G_CALLBACK(on_draw_event), NULL); 
+	// gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
+	// gtk_window_set_default_size(GTK_WINDOW(window), 500, 500); 
+	// gtk_window_set_title(GTK_WINDOW(window), "Image");
 
-	g_signal_connect(window, "destroy",
-		G_CALLBACK (gtk_main_quit), NULL);
-	
-	// g_signal_connect(window, "destroy", G_CALLBACK (gtk_widget_destroy), NULL);
+	// gtk_widget_show_all(window);
 
-	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-	gtk_window_set_default_size(GTK_WINDOW(window), 500, 500); 
-	gtk_window_set_title(GTK_WINDOW(window), "Image");
+	// gtk_main();
+	// // gtk_widget_queue_draw();
+	// std::cout << "reached bottom" << std::endl;
 
-	gtk_widget_show_all(window);
-
-	gtk_main();
-	// gtk_widget_queue_draw();
-
-	cairo_surface_destroy(glob.image);
-	glob.image = NULL;
-
-	// return 0;
-	// std::cout << "in runDisplay" << std::endl;
-	// glob.image = cairo_image_surface_create_from_png ("data.png");
-
-
-	// gtk_init (&argc, &argv);
-
-
-	// _window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-
-	// _darea = gtk_drawing_area_new ();
-	// gtk_container_add (GTK_CONTAINER (_window), _darea);
-
-	// g_signal_connect (G_OBJECT(_darea), "draw", G_CALLBACK (Display::on_draw_event), NULL);
-	// g_signal_connect (GTK_CONTAINER (_window), "destroy", G_CALLBACK (gtk_main_quit), NULL);
-
-	// gtk_window_set_position (GTK_WINDOW (_window), GTK_WIN_POS_CENTER);
-	// gtk_window_set_title (GTK_WINDOW (_window), "Cairo Test");
-	// gtk_window_set_decorated (GTK_WINDOW (_window), FALSE);
-	// // gtk_window_fullscreen (GTK_WINDOW (_window));
-
-	// gtk_widget_show_all (_window);
-
-	// // gtk_main ();
-	// std::cout << "bottom run display" << std::endl;
-
-
-	// cairo_surface_destroy (glob.image);
-	// // glob.image = NULL;
-	// // remove("data.png");
-	// // remove("data.jpg");
+	// cairo_surface_destroy(glob.image);
+	// glob.image = NULL;
 }
 
-// void Display::continueDisplay(int argc, char *argv[]){
+gboolean Display::doDraw(cairo_t *cr) {
+	_rows = 480;
+    _cols = 640;
+	if(_buf != NULL) {
+        GdkPixbuf *pixbuf = gdk_pixbuf_new_from_data(
+            (guint8*)(_buf[0]),
+            GDK_COLORSPACE_RGB,
+            false,
+            8,
+            _cols,
+            _rows,
+            (int)3 * _cols, NULL, NULL);
+        gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
+        cairo_paint(cr);
+    }
+}
 
-// 	glob.image = cairo_image_surface_create_from_png ("data.png");
+void Display::receiveFrame(cv::Mat img) {
+    //Add the frame to the buffer
+    _rows = 480;
+    _cols = 640;
+    size_t bytes = _cols * _rows * 3;
+    if(_buf == NULL) {
+        _buf = new unsigned char*[8];
+        for (int i = 0; i < 8; i++) {
+            _buf[i] = (unsigned char*)calloc(1, bytes);
+        }
+    }
 
+	memcpy(_buf[0], img.data, bytes);
 
-// 	gtk_init (&argc, &argv);
-
-
-// 	_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-
-// 	_darea = gtk_drawing_area_new ();
-// 	gtk_container_add (GTK_CONTAINER (_window), _darea);
-
-// 	g_signal_connect (G_OBJECT(_darea), "draw", G_CALLBACK (Display::on_draw_event), NULL);
-// 	g_signal_connect (_window, "destroy", G_CALLBACK (gtk_main_quit), NULL);
-
-// 	gtk_window_set_position (GTK_WINDOW (_window), GTK_WIN_POS_CENTER);
-// 	gtk_window_set_title (GTK_WINDOW (_window), "Cairo Test");
-// 	gtk_window_set_decorated (GTK_WINDOW (_window), FALSE);
-// 	// gtk_window_fullscreen (GTK_WINDOW (_window));
-
-// 	gtk_widget_show_all (_window);
-
-// 	gtk_main ();
-
-// 	cairo_surface_destroy (glob.image);
-// }
+    //Draw each area
+    if(_initialized) {
+		gtk_widget_queue_draw(_darea);
+    }
+}
