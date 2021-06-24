@@ -60,33 +60,6 @@ int main(int argc, char *argv[]) {
 	const std::string username = argv[1];
 	const std::string password = argv[2];
 
-	// create robot
-	Robot robot("spot");
-
-	// print id information
-	std::cout << robot.getId() << std::endl;
-
-	// authenticate robot
-	robot.authenticate(username, password);
-
-	// setup robot (initialize clients)
-	robot.setup();
-
-	// create estop and lease threads
-	robot.initBasicEstop();
-	std::cout << "Estop initialized" << std::endl;
-	robot.initBasicLease();
-	std::cout << "Lease initialized" << std::endl;
-	robot.initBasicTimesync();
-	std::cout << "Timesync initialized" << std::endl;
-	
-	// power on
-	robot.powerOn();
-	std::cout << "Powered on" << std::endl;
-
-	robot.move(stand);
-	std::cout << "Standing" << std::endl;
-
 	// move
 	initTerminalInput();
 	bool keepRunning = true;
@@ -133,7 +106,6 @@ int main(int argc, char *argv[]) {
 		}
 
 		// issue move
-		robot.move(travel, velX, velY, rot, 0.5);
 	}
 	return 0;
 }

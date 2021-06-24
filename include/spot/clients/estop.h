@@ -29,13 +29,15 @@ using bosdyn::api::EstopStopLevel;
 const extern std::string ESTOP_CLIENT_NAME;
 static const std::string REQUIRED_ROLE = "PDB_rooted";
 
+class EstopClient;
+
 /*
   class Endpoint: Represents and endpoint in the E-stop system
   // TODO: ADD TO NAMESPACE W/ OTHER CLIENTS TO DIFFERENTIATE FROM PROTOBUF CLASS
 */
-class Endpoint {
+class SpotEstopEndpoint {
 public:
-  Endpoint(std::shared_ptr<EstopClient> client, const std::string &name, const std::string &role, const std::string &configId, 
+  SpotEstopEndpoint(std::shared_ptr<EstopClient> client, const std::string &name, const std::string &role, const std::string &configId, 
       const std::string &uniqueId, int64_t estopTimeout, int64_t estopCutPowerTimeout);
 
   /* cut(): issues a STOP command to the robot
@@ -136,9 +138,9 @@ public:
 */
 class EstopThread {
 public:
-  static int DEFAULT_TIME_SYNC_INTERVAL_SECS = 2;
+  static int DEFAULT_TIME_SYNC_INTERVAL_SECS;
   
-  EstopThread(std::shared_ptr<EstopClient> clientPtr, Endpoint endpoint);
+  EstopThread(std::shared_ptr<EstopClient> clientPtr, std::shared_ptr<SpotEstopEndpoint> endpoint);
   ~EstopThread();
 
   /*  beginEstop(): begins estop check-ins on a thread
@@ -161,7 +163,7 @@ public:
   /* Accessors */
   const std::shared_ptr<EstopClient> getClient() const { return _client; }
   const std::shared_ptr<std::thread> getThread() const { return _thread; }
-  const Endpoint getEndpoint() const { return _endpoint; }
+  std::shared_ptr<SpotEstopEndpoint> getEndpoint() const { return _endpoint; }
 
 private:
   /*  periodicCheckIn(): function that thread runs, loop depends on boolean set by main thread and timeout
@@ -176,7 +178,7 @@ private:
   std::shared_ptr<std::thread>_thread;
   
 
-  Endpoint _endpoint;
+  std::shared_ptr<SpotEstopEndpoint> _endpoint;
   bool _keepRunning;
 };
 

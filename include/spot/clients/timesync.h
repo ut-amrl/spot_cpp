@@ -16,7 +16,7 @@ using bosdyn::api::TimeSyncRoundTrip;
 using bosdyn::api::TimeSyncState;
 
 const extern std::string TIMESYNC_CLIENT_NAME;
-static int 
+//static int 
 
 class TimeSyncClient : public BaseClient<TimeSyncService> {
 public: 
@@ -24,12 +24,14 @@ public:
 
   TimeSyncUpdateResponse getTimeSyncUpdate(); // used to get clock identifier initially
   TimeSyncUpdateResponse getTimeSyncUpdate(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
-  TimeSyncUpdateResponse getTimeSyncUpdate();
+  TimeSyncUpdateResponse getTimeSyncUpdateAsync();
   TimeSyncUpdateResponse getTimeSyncUpdateAsync(const TimeSyncRoundTrip &previousRoundTrip, const std::string &clockIdentifier);
 };
 
 class TimeSyncThread {
 public:
+  static int DEFAULT_TIME_SYNC_INTERVAL_SECONDS;
+
   TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier, int64_t initClockSkew);
   ~TimeSyncThread();
   
@@ -53,7 +55,7 @@ public:
   /* Accessors */
   const std::shared_ptr<std::thread> getThread() const { return _thread; }
   const std::string getClockIdentifier() const { return _clockIdentifier; }
-  const std::string getClockSkew() const { return _clockSkew; }
+  int64_t getClockSkew() const { return _clockSkew; }
 
 private:
   /* periodicCheckIn(): function that thread runs, loop depends on boolean set by main thread
@@ -71,5 +73,12 @@ private:
   int64_t _clockSkew;
   bool _keepRunning;
 };
+
+/* createTrip(): helper method to create a new round trup from a previous response
+   Input: Old TimeSyncUpdateReponse
+   Output: TimeSyncRoundTrip
+   Side effects: -
+*/
+TimeSyncRoundTrip createTrip(TimeSyncUpdateResponse &reply);
 
 #endif

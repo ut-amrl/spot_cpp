@@ -49,7 +49,7 @@ public:
 class LeaseThread {
   
 public:
-  static int DEFAULT_RPC_INTERVAL_SECS = 2;
+  static int DEFAULT_RPC_INTERVAL_SECS;
 
   LeaseThread(std::shared_ptr<LeaseClient> clientPtr, Lease lease);
   ~LeaseThread();

@@ -16,11 +16,6 @@ using bosdyn::api::GetServiceEntryResponse;
 
 const extern std::string DIRECTORY_CLIENT_NAME;
 
-class ServiceEntry {
-public:
-private:
-};
-
 class DirectoryClient : public BaseClient<DirectoryService> {
 public:
 	DirectoryClient(const std::string &token);

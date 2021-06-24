@@ -5,6 +5,7 @@
 #include <spot/clients/directory.h>
 #include <spot/clients/robot_id.h>
 #include <spot/clients/timesync.h>
+#include <spot/clients/directory_registration.h>
 
 #include <list>
 #include <map>
@@ -35,8 +36,8 @@ namespace CoreLayer {
     */
     class SpotBase {
     public:
-        static int DEFAULT_TIME_SYNC_INTERVAL_SECS = 60;
-        static int DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECS = 5;
+        static int DEFAULT_TIME_SYNC_INTERVAL_SECS;
+        static int DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECS;
         
         SpotBase();
 
@@ -48,13 +49,6 @@ namespace CoreLayer {
            Side effects: initializes the authToken member in the instance
         */
         void authenticate(const std::string &username, const std::string &password);
-
-        /* getAuthToken(): returns the authToken from this instance
-           Input: -
-           Output: authToken for this instance
-           Side effects: -
-        */
-        const std::string getAuthToken() const;
 
         /* Robot Id */
         /* getRobotId(): Gets the robot id information from Spot

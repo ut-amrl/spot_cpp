@@ -35,23 +35,12 @@ TimeSyncThread::~TimeSyncThread() {
 	endTimeSync();
 }
 
-/* createTrip(): helper method to create a new round trup from a previous response
-   Input: Old TimeSyncUpdateReponse
-   Output: TimeSyncRoundTrip
-   Side effects: -
-*/
-TimeSyncRoundTrip createTrip(TimeSyncUpdateResponse &reply) {
-	TimeSyncRoundTrip trip;
-	trip.mutable_client_rx()->CopyFrom(TimeUtil::GetCurrentTime());
-	trip.mutable_client_tx()->CopyFrom(reply.header().request_header().request_timestamp());
-	trip.mutable_server_tx()->CopyFrom(reply.header().response_timestamp());
-	trip.mutable_server_rx()->CopyFrom(reply.header().request_received_timestamp());
-}
+int TimeSyncThread::DEFAULT_TIME_SYNC_INTERVAL_SECONDS = 60;
 
 void TimeSyncThread::beginTimeSync() {
 	// clock skew available, thread is ready to be kicked off
 	_keepRunning = true;
-	_thread = std::shared_ptr<std::thread>(new std::thread(TimeSyncThread::periodicCheckIn, this));
+	_thread = std::shared_ptr<std::thread>(new std::thread(&TimeSyncThread::periodicCheckIn, this));
 }
 
 void TimeSyncThread::endTimeSync() {
@@ -66,10 +55,18 @@ void TimeSyncThread::periodicCheckIn() {
 	TimeSyncUpdateResponse reply;
 	while (_keepRunning) {
 		// send new rpc and set clockskew
-		reply = _timeSyncClientPtr->getTimeSyncUpdate(createTrip(reply), _clockIdentifier);
+		reply = _client->getTimeSyncUpdate(createTrip(reply), _clockIdentifier);
 		_clockSkew = TimeUtil::DurationToSeconds(reply.state().best_estimate().clock_skew());
-		std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECS));
+		std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECONDS));
 	}
 	return;
 }
 
+TimeSyncRoundTrip createTrip(TimeSyncUpdateResponse &reply) {
+	TimeSyncRoundTrip trip;
+	trip.mutable_client_rx()->CopyFrom(TimeUtil::GetCurrentTime());
+	trip.mutable_client_tx()->CopyFrom(reply.header().request_header().request_timestamp());
+	trip.mutable_server_tx()->CopyFrom(reply.header().response_timestamp());
+	trip.mutable_server_rx()->CopyFrom(reply.header().request_received_timestamp());
+	return trip;
+}

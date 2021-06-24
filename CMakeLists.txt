@@ -142,8 +142,14 @@ add_executable(spot
   src/clients/directory.cpp
   src/clients/directory_registration.cpp
   src/clients/local_grid.cpp
+
+  src/core_layer.cpp
+  src/robot_layer.cpp
+
+  #src/frame.cpp
+  #src/math.cpp
   src/spot.cpp
-  src/robot.cpp
+  #src/robot.cpp
 
   # deps
   ${HEADER}

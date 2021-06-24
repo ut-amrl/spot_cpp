@@ -2,7 +2,7 @@
 
 const std::string ESTOP_CLIENT_NAME = "estop";
 
-Endpoint::Endpoint(std::shared_ptr<EstopClient> client, const std::string &name, const std::string &role, const std::string &targetConfigId, 
+SpotEstopEndpoint::SpotEstopEndpoint(std::shared_ptr<EstopClient> client, const std::string &name, const std::string &role, const std::string &configId, 
 		const std::string &uniqueId, int64_t estopTimeout, int64_t estopCutPowerTimeout) :
 		_name(name),
 		_client(client),
@@ -14,7 +14,9 @@ Endpoint::Endpoint(std::shared_ptr<EstopClient> client, const std::string &name,
 	// send the first check in request to retrieve the challenge
 	EstopCheckInResponse reply;
 	try {
-		reply = _client->checkIn(EstopStopLevel::ESTOP_LEVEL_CUT, toProto(), _challenge, ~_challenge, suppressIncorrect);
+		EstopStopLevel stopLevel = EstopStopLevel::ESTOP_LEVEL_CUT;
+		EstopEndpoint temp = toProto();
+		reply = _client->checkIn(stopLevel, temp, _challenge, ~_challenge, true);
 	} catch (Error &error) {
 		throw;
 	}
@@ -22,23 +24,24 @@ Endpoint::Endpoint(std::shared_ptr<EstopClient> client, const std::string &name,
 	setChallenge(reply.challenge());
 }
 
-void Endpoint::cut() {
-	checkIn(EstopStopLevel::ESTOP_LEVEL_CUT);
+void SpotEstopEndpoint::cut() {
+	checkIn(EstopStopLevel::ESTOP_LEVEL_CUT, false);
 }
 
-void Endpoint::settleThenCut() {
-	checkIn(EstopStopLevel::ESTOP_LEVEL_SETTLE_THEN_CUT);
+void SpotEstopEndpoint::settleThenCut() {
+	checkIn(EstopStopLevel::ESTOP_LEVEL_SETTLE_THEN_CUT, false);
 }
 
-void Endpoint::allow() {
-	checkIn(EstopStopLevel::ESTOP_LEVEL_NONE);
+void SpotEstopEndpoint::allow() {
+	checkIn(EstopStopLevel::ESTOP_LEVEL_NONE, false);
 }
 
 // todo: timeouts
-void Endpoint::checkIn(EstopStopLevel level, bool suppressIncorrect) {
+void SpotEstopEndpoint::checkIn(EstopStopLevel level, bool suppressIncorrect) {
 	EstopCheckInResponse reply;
 	try {
-		reply = _client->checkIn(level, toProto(), _challenge, ~_challenge, suppressIncorrect);
+		EstopEndpoint temp = toProto();
+		reply = _client->checkIn(level, temp, _challenge, ~_challenge, suppressIncorrect);
 	} catch (Error &error) {
 		throw;
 	}
@@ -57,18 +60,18 @@ void Endpoint::checkIn(EstopStopLevel level, bool suppressIncorrect) {
 	}
 }
 
-void Endpoint::setChallenge(uint64_t newChallenge) {
+void SpotEstopEndpoint::setChallenge(uint64_t newChallenge) {
 	std::lock_guard<std::mutex> locker(_mu);
 	_challenge = newChallenge;
 }
 
-EstopEndpoint Endpoint::toProto() {
+EstopEndpoint SpotEstopEndpoint::toProto() {
 	EstopEndpoint ret;
 	ret.set_role(_role);
 	ret.set_name(_name);
 	ret.set_unique_id(_uniqueId);
-	ret.mutable_timeout(TimeUtil::SecondsToDuration(_estopTimeout));
-	ret.mutable_cut_power_timeout(TimeUtil::SecondsToDuration(_estopCutPowerTimeout));
+	ret.mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(_estopTimeout));
+	ret.mutable_cut_power_timeout()->CopyFrom(TimeUtil::SecondsToDuration(_estopCutPowerTimeout));
 	return ret;
 }
  
@@ -90,22 +93,22 @@ RegisterEstopEndpointResponse EstopClient::registerEndpointAsync(const std::stri
     return callAsync<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::AsyncRegisterEstopEndpoint);
 }
 
-RegisterEstopEndpointResponse replaceEndpoint(const std::string &targetConfigId, const std::string &uniqueId, EstopEndpoint &endpoint) {
+RegisterEstopEndpointResponse EstopClient::replaceEndpoint(const std::string &targetConfigId, const std::string &uniqueId, EstopEndpoint &endpoint) {
 	RegisterEstopEndpointRequest request;
 	assembleRequestHeader<RegisterEstopEndpointRequest>(&request);
 	request.set_target_config_id(targetConfigId);
 	request.mutable_new_endpoint()->CopyFrom(endpoint);
-	request.mutable_target_endpoint()->unique_id(uniqueId);
+	request.mutable_target_endpoint()->set_unique_id(uniqueId);
 	return call<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::RegisterEstopEndpoint);
 }
 
-RegisterEstopEndpointResponse replaceEndpointAsync(const std::string &targetConfigId, const std::string &uniqueId, EstopEndpoint &endpoint) {
+RegisterEstopEndpointResponse EstopClient::replaceEndpointAsync(const std::string &targetConfigId, const std::string &uniqueId, EstopEndpoint &endpoint) {
 	RegisterEstopEndpointRequest request;
 	assembleRequestHeader<RegisterEstopEndpointRequest>(&request);
 	request.set_target_config_id(targetConfigId);
 	request.mutable_new_endpoint()->CopyFrom(endpoint);
-	request.mutable_target_endpoint()->unique_id(uniqueId);
-	return callAsync<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::RegisterEstopEndpoint);
+	request.mutable_target_endpoint()->set_unique_id(uniqueId);
+	return callAsync<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::AsyncRegisterEstopEndpoint);
 }
 
 DeregisterEstopEndpointResponse EstopClient::deregister(const std::string &targetConfigId, EstopEndpoint &endpoint) {
@@ -188,7 +191,9 @@ EstopCheckInResponse EstopClient::checkInAsync(EstopStopLevel &stopLevel, EstopE
     return callAsync<EstopCheckInRequest, EstopCheckInResponse>(request, &EstopService::Stub::AsyncEstopCheckIn);
 }
 
-EstopThread::EstopThread(std::shared_ptr<EstopClient> clientPtr, Endpoint endpoint) :
+int EstopThread::DEFAULT_TIME_SYNC_INTERVAL_SECS = 2;
+
+EstopThread::EstopThread(std::shared_ptr<EstopClient> clientPtr, std::shared_ptr<SpotEstopEndpoint> endpoint) :
 		_client(clientPtr),
 		_endpoint(endpoint) {}
 
@@ -196,14 +201,14 @@ EstopThread::~EstopThread() {
 	endEstop();
 }
 
-EstopThread::beginEstop() {
+void EstopThread::beginEstop() {
 	_keepRunning = true;
 
 	// endpoint passed in already has valid challenge / response pair
-	_thread = std::shared_ptr<std::thread>(new std::thread(EstopThread::periodicCheckIn, this));
+	_thread = std::shared_ptr<std::thread>(new std::thread(&EstopThread::periodicCheckIn, this));
 }
 
-EstopThread::endEstop() {
+void EstopThread::endEstop() {
 	_keepRunning = false;
 	_thread->join(); // should wait for thread to stop
 }
@@ -211,7 +216,7 @@ EstopThread::endEstop() {
 void EstopThread::periodicCheckIn() {
 	while (_keepRunning) {
 		// will update challenge / response within endpoint obj
-		_endpoint.allow();
+		_endpoint->allow();
 		std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECS));
 		// todo: timeouts, etc.
 	}

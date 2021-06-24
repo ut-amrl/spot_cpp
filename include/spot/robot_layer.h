@@ -1,6 +1,8 @@
 #ifndef ROBOT_LAYER_H
 #define ROBOT_LAYER_H
 
+#include <spot/core_layer.h>
+
 #include <spot/clients/image.h>
 #include <spot/clients/local_grid.h>
 #include <spot/clients/robot_state.h>
@@ -169,10 +171,10 @@ namespace RobotLayer {
     std::map<std::string, ServiceEntry> _services;
 
     /* endpoints: map of [endpoint name, endpoint] */
-    std::map<std::string, Endpoint> _endpoints;
+    std::map<std::string, SpotEstopEndpoint> _endpoints;
 
     /* estopThreads: map of [endpoint name, endpoint thread] */
-    std::map<std::string, std::shared_ptr<EstopThread> _estopThreads;
+    std::map<std::string, std::shared_ptr<EstopThread>> _estopThreads;
     
     /* estopConfigId: current estop config id of which endpoints are registered against */
     std::string _estopConfigId; 
