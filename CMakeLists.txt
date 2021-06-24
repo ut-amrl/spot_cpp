@@ -13,7 +13,6 @@ set(_GRPC_GRPCPP gRPC::grpc++)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED)
 
 ###########
 ## Build ##

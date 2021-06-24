@@ -13,6 +13,8 @@
 #include <spot/clients/robot_command.h>
 #include <spot/clients/spot_check.h>
 
+#include <set>
+
 namespace RobotLayer {
 
     /*
@@ -60,15 +62,15 @@ namespace RobotLayer {
 
         /*
             setEstopConfiguration(): set an estop configuration on Spot with the specified number of endpoints
-            Input: number of endpoints
+            Input: endpoints to set in the configuration
             Output: -
             Side effects: initializes member variables, deletes all registered endpoints if called again
         */
-        void setEstopConfiguration(size_t numEndpoints);
+        void setEstopConfiguration(const std::set<Endpoint> &endpoints, const std::string &targetConfigId);
 
         /*
             registerEstop(): registers in estop in the config with the given parameters
-            Input: name, role, config id, timeout in seconds, cut power timeout in seconds
+            Input: name, role, config id (instance config id if empty), timeout in seconds, cut power timeout in seconds
             Output: -
             Side effects: adds to endpoints map 
         */
@@ -76,12 +78,12 @@ namespace RobotLayer {
                 int64_t estopTimeout, int64_t estopCutPowerTimeout);
 
         /*
-            deregisterEstop(): deregisters and estop endpoint in the config with the given name
-            Input: name of endpoint to deregister
+            deregisterEstopEndpoint(): deregisters and estop endpoint in the config with the given name
+            Input: unique id of endpoint to deregister
             Output: -
             Side effects: removes kv pair from endpoints map
         */
-        void deregisterEstopEndpoint(const std::string &name);
+        void deregisterEstopEndpoint(const std::string &uniqueId, const std:string &targetConfigId);
 
         /*
             beginEstopping(): kicks off estop threads
@@ -89,7 +91,7 @@ namespace RobotLayer {
             Output: -
             Side effects: adds kv pairs to threads map
         */
-        void beginEstopping(const std::string &name);
+        void beginEstopping(const std::string &uniqueId);
         void beginEstopping();
 
         /*
@@ -98,7 +100,7 @@ namespace RobotLayer {
             Output: -
             Side effects: removes kv pairs from threads map
         */
-        void endEstopping(const std::string &name);
+        void endEstopping(const std::string &uniqueId);
         void endEstopping();
 
         /* Lease */ // TODO: ADD METHODS LATER (lease wallet or map w/ [resource, lease])
@@ -109,6 +111,24 @@ namespace RobotLayer {
             Side effects: adds to LeaseWallet (once implemented)
         */
         void acquireLease(const std::string &resource);
+
+        /*
+            beginLeasing(): kicks off lease thread(s)
+            Input: resource to kick off (if none, kicks off all threads)
+            Output: -
+            Side effects: -
+        */
+        void beginLeasing(const std::string &resource);
+        void beginLeasing();
+
+        /*
+            endLeasing(): destroys lease thread(s)
+            Input: resource to lease to stop (if none, kicks off all threads)
+            Output: -
+            Side effects: -
+        */
+       void endLeasing(const std::string &resource);
+       void endLeasing();
 
         /* Power */ // todo: payload power
         /*
@@ -152,12 +172,11 @@ namespace RobotLayer {
         */
         void stand();
 
-        // todo: clarify what kind of movement we need
-        //void move();
-
-
+        
         /* Spot check */
 
+        /* Accessors */
+        const std::string getEstopConfigId() const { return _estopConfigId; }
 
         /* Client accessor methods */
         const std::shared_ptr<EstopClient> getEstopClient() const { return _estopClient; }
@@ -170,14 +189,20 @@ namespace RobotLayer {
     /* services: map of [service name, service entry] */
     std::map<std::string, ServiceEntry> _services;
 
-    /* endpoints: map of [endpoint name, endpoint] */
+    /* endpoints: map of [endpoint unique id, endpoint] */
     std::map<std::string, SpotEstopEndpoint> _endpoints;
 
-    /* estopThreads: map of [endpoint name, endpoint thread] */
+    /* estopThreads: map of [endpoint unique id, endpoint thread] */
     std::map<std::string, std::shared_ptr<EstopThread>> _estopThreads;
     
     /* estopConfigId: current estop config id of which endpoints are registered against */
     std::string _estopConfigId; 
+
+    /* leases: map of [resource, lease obj] (temp for now) */
+    std::map<std::string, Lease> _leases;
+
+    /* leaseThreads: map of [resource, lease thread] */
+    std::map<std::string, std::shared_ptr<LeaseThread>> _leaseThreads;
     
     private:
         std::shared_ptr<EstopClient> _estopClient;

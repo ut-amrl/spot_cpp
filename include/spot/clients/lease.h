@@ -27,6 +27,18 @@ using bosdyn::api::LeaseService;
 
 const extern std::string LEASE_CLIENT_NAME;
 
+class LeaseClient;
+
+/* 
+  class SpotLease: wrapper around the protobuf Lease class
+*/
+class SpotLease {
+public:
+  SpotLease(Lease lease);
+private:
+  Lease _lease;
+};
+
 class LeaseClient : public BaseClient<LeaseService> {
 public:
   LeaseClient(const std::string &authority, const std::string &token);
@@ -41,6 +53,14 @@ public:
   RetainLeaseResponse retainLeaseAsync(Lease lease); 
   ListLeasesResponse listLeases(bool includeFullLeaseInfo);
   ListLeasesResponse listLeasesAsync(bool includeFullLeasesInfo);
+};
+
+/*
+  class LeaseWallet: thread-safe storage of leases, essentially a wrapper around stl map storing [resource, lease]
+*/
+class LeaseWallet {
+public:
+private:
 };
 
 /*

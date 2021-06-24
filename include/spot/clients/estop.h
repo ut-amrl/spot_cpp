@@ -83,6 +83,9 @@ public:
   */
   EstopEndpoint toProto();
 
+  /* Mutators */
+  void setUniqueId(const std::string newUniqueId) { _uniqueId = newUniqueId; }
+
   /* Accessors */
   const std::shared_ptr<EstopClient> getClient() const { return _client; }
   const std::string getName() const { return _name; }
