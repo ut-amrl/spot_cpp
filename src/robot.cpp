@@ -219,8 +219,8 @@ bool Robot::getImages(){
 
 	GetImageResponse imageResp = _imageClientPtr->getImage(vector);
 
-    std::cout << "status: " << imageResp.image_responses(0).status() << std::endl;
-    std::cout << "pixel format: " << imageResp.image_responses(0).shot().image().pixel_format() << std::endl;
+    // std::cout << "status: " << imageResp.image_responses(0).status() << std::endl;
+    // std::cout << "pixel format: " << imageResp.image_responses(0).shot().image().pixel_format() << std::endl;
 
     std::ofstream myfile ("data.jpg");
     myfile << imageResp.image_responses(0).shot().image().data();

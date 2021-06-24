@@ -30,12 +30,15 @@ public:
                         gpointer        data);
     static void close_window(void);
     static void activate (GtkApplication *app, gpointer user_data);
+    void refresh();
     // static gboolean on_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data);
     // void do_drawing(cairo_t *cr);
     // void runDisplay(int argc, char *argv[]);
 private:
-    int _argc; 
-    char *_argv[];
+    // static GtkWidget *window;
+    // static GtkWidget *frame;
+    // static GtkWidget *drawing_area;
+    // static bool _initialized;
 };
 
 #endif

@@ -1,6 +1,10 @@
 #include <spot/display.h>
 
-static cairo_surface_t *surface = NULL;
+static cairo_surface_t *surface = nullptr;
+static GtkWidget *window = nullptr;
+static GtkWidget *frame = nullptr;
+static GtkWidget *drawing_area = nullptr;
+static bool _initialized = FALSE;
 
 void Display::clear_surface (void)
 {
@@ -18,14 +22,10 @@ void Display::clear_surface (void)
 }
 
 gboolean Display::configure_event_cb (GtkWidget *widget, GdkEventConfigure *event, gpointer data) {
-  if (surface)
-    cairo_surface_destroy (surface);
-
-  surface = gdk_window_create_similar_surface (gtk_widget_get_window (widget),
-                                               CAIRO_CONTENT_COLOR,
-                                               gtk_widget_get_allocated_width (widget),
-                                               gtk_widget_get_allocated_height (widget));
-
+//   if (surface){
+//     cairo_surface_destroy (surface);
+// 	surface = cairo_image_surface_create_from_png ("data.png");
+//   }
   /* Initialize the surface to white */
   clear_surface ();
 
@@ -37,7 +37,15 @@ gboolean Display::draw_cb (GtkWidget *widget, cairo_t   *cr, gpointer data) {
   cairo_set_source_surface (cr, surface, 0, 0);
   cairo_paint (cr);
 
-  return FALSE;
+// //   if (surface){
+// //     cairo_surface_destroy (surface);
+// // 	surface = cairo_image_surface_create_from_png ("data.png");
+// //   }
+//   /* Initialize the surface to white */
+//   clear_surface ();
+	// gtk_widget_queue_draw();
+
+  return TRUE;
 }
 
 void Display::draw_brush (GtkWidget *widget, gdouble x, gdouble y) {
@@ -51,10 +59,10 @@ void Display::draw_brush (GtkWidget *widget, gdouble x, gdouble y) {
   cairo_paint (cr);
 
 //   cairo_destroy (cr);
-	std::cout << "1" << std::endl;
-  cairo_rectangle (cr, x - 3, y - 3, 6, 6);
-  std::cout << "2" << std::endl;
-  cairo_fill (cr);
+// 	std::cout << "1" << std::endl;
+//   cairo_rectangle (cr, x - 3, y - 3, 6, 6);
+//   std::cout << "2" << std::endl;
+//   cairo_fill (cr);
 
   cairo_destroy (cr);
 
@@ -99,48 +107,53 @@ void Display::close_window (void) {
 }
 
 void Display::activate (GtkApplication *app, gpointer user_data) {
-  GtkWidget *window;
-  GtkWidget *frame;
-  GtkWidget *drawing_area;
+	//   GtkWidget *window;
+	//   GtkWidget *frame;
+	//   GtkWidget *drawing_area;
+	window = gtk_application_window_new (app);
+	drawing_area = gtk_drawing_area_new ();
+		
+		_initialized = true;
+	gtk_window_set_title (GTK_WINDOW (window), "Drawing Area");
+	g_signal_connect (window, "destroy", G_CALLBACK (close_window), NULL);
 
-  window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (window), "Drawing Area");
+	/* set a minimum size */
+	gtk_widget_set_size_request (drawing_area, 640, 480);
 
-  g_signal_connect (window, "destroy", G_CALLBACK (close_window), NULL);
+		gtk_container_add (GTK_CONTAINER(window), drawing_area);
 
-  gtk_container_set_border_width (GTK_CONTAINER (window), 8);
+	/* Signals used to handle the backing surface */
+	g_signal_connect (drawing_area, "draw",
+						G_CALLBACK (draw_cb), NULL);
+	g_signal_connect (drawing_area,"configure-event", //configure-event
+						G_CALLBACK (configure_event_cb), NULL);
 
-  frame = gtk_frame_new (NULL);
-  gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_IN);
-  gtk_container_add (GTK_CONTAINER (window), frame);
+	/* Event signals */
+	//   g_signal_connect (drawing_area, "motion-notify-event",
+	//                     G_CALLBACK (motion_notify_event_cb), NULL);
+	//   g_signal_connect (drawing_area, "button-press-event",
+	//                     G_CALLBACK (button_press_event_cb), NULL);
 
-  drawing_area = gtk_drawing_area_new ();
-  /* set a minimum size */
-  gtk_widget_set_size_request (drawing_area, 100, 100);
+	/* Ask to receive events the drawing area doesn't normally
+	* subscribe to. In particular, we need to ask for the
+	* button press and motion notify events that want to handle.
+	*/
+	//   gtk_widget_set_events (drawing_area, gtk_widget_get_events (drawing_area)
+	//                                      | GDK_BUTTON_PRESS_MASK
+	//                                      | GDK_POINTER_MOTION_MASK);
 
-  gtk_container_add (GTK_CONTAINER (frame), drawing_area);
+	gtk_widget_show_all (window);
+}
 
-  /* Signals used to handle the backing surface */
-  g_signal_connect (drawing_area, "draw",
-                    G_CALLBACK (draw_cb), NULL);
-  g_signal_connect (drawing_area,"configure-event",
-                    G_CALLBACK (configure_event_cb), NULL);
-
-  /* Event signals */
-  g_signal_connect (drawing_area, "motion-notify-event",
-                    G_CALLBACK (motion_notify_event_cb), NULL);
-  g_signal_connect (drawing_area, "button-press-event",
-                    G_CALLBACK (button_press_event_cb), NULL);
-
-  /* Ask to receive events the drawing area doesn't normally
-   * subscribe to. In particular, we need to ask for the
-   * button press and motion notify events that want to handle.
-   */
-  gtk_widget_set_events (drawing_area, gtk_widget_get_events (drawing_area)
-                                     | GDK_BUTTON_PRESS_MASK
-                                     | GDK_POINTER_MOTION_MASK);
-
-  gtk_widget_show_all (window);
+void Display::refresh(){
+	if(_initialized) {
+		cairo_t *cr;
+		surface = cairo_image_surface_create_from_png ("data.png");
+		cairo_set_source_surface (cr, surface, 0, 0);
+  		cairo_paint (cr);
+		gtk_widget_queue_draw(drawing_area);
+		// gtk_widget_queue_draw (widget);
+    }
 }
 
 // struct {
