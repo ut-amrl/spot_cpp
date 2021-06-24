@@ -198,6 +198,7 @@ bool Robot::velocityMove(double x, double y, double rot, double time, gravAligne
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
     
     RobotCommandResponse robCommResp = _robotCommandClientPtr->robotCommand(*_leasePtr, command, _timeSyncClockId);
+    std::cout << "Velocity Move Status: " << robCommResp.status() << std::endl;
     return (robCommResp.status() == 1);
 } // allows the robot to translate left/right and/or forward/backward and/or rotate left/right 
 
