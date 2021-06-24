@@ -159,6 +159,16 @@ int main(int argc, char *argv[]) {
 	std::cout << "standing" << std::endl;
 	sleep(3);
 
+	Trajectory3D lookPose;
+	
+	lookPose.addPointRPY(0, 0, 0, 0, 0.173261, 0.39726, 1);
+	//Pitch: -0.173261 rad, -9.9271 deg
+	//Yaw: 0.39726 rad, 22.7613 deg
+	robot.setBodyPose(lookPose, true);
+	robot.stand();
+	sleep(10);
+	std::cout << "Starting terminal control"<< std::endl;
+
 	// Trajectory2D trajTest;
 	// trajTest.addPoint(0.5, 0, 0, 2);
 	// //trajTest.addPoint(1, 0, 0, 2);

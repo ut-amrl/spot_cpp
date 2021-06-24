@@ -36,6 +36,53 @@ const std::string HAND_FRAME_NAME = "hand";
 const std::string UNKNOWN_FRAME_NAME = "unknown";
 const std::string RAYCAST_FRAME_NAME = "walkto_raycast_intersection";
 
+class Vector3{
+public:
+    Vector3(double x, double y, double z);
+    double x;
+    double y;
+    double z;
+};
+
+class Quaternion{
+public:
+    Quaternion(double x, double y, double z, double w);
+
+    Quaternion inverse();
+    Quaternion mult(Quaternion otherQuat);
+    Vector3 transformPoint(double x, double y, double z);
+
+    double w();
+    double x();
+    double y();
+    double z();
+
+private:
+    double _w; 
+    double _x;
+    double _y;
+    double _z;
+};
+
+class Pose3{
+public:
+    Pose3(double x, double y, double z, Quaternion quat);
+    Pose3(SE3Pose pose);
+
+    Pose3 mult(Pose3 otherPose);
+
+    double x();
+    double y();
+    double z();
+    Quaternion quat();
+
+private:
+    double _x;
+    double _y;
+    double _z;
+    Quaternion _q;
+};
+
 std::string frameNameGravAligned(gravAlignedFrame frame);
 
 #endif
