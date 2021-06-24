@@ -6,9 +6,12 @@ void Display::clear_surface (void)
 {
   cairo_t *cr;
 
+	surface = cairo_image_surface_create_from_png ("data.png");
   cr = cairo_create (surface);
+  cairo_set_source_surface (cr, surface, 0, 0);
 
-  cairo_set_source_rgb (cr, 1, 1, 1);
+
+//   cairo_set_source_rgb (cr, 1, 1, 1);
   cairo_paint (cr);
 
   cairo_destroy (cr);
@@ -41,9 +44,16 @@ void Display::draw_brush (GtkWidget *widget, gdouble x, gdouble y) {
   cairo_t *cr;
 
   /* Paint to the surface, where we store our state */
+  surface = cairo_image_surface_create_from_png ("data.png");
   cr = cairo_create (surface);
 
+//   cairo_set_source_surface (cr, surface, 0, 0);
+  cairo_paint (cr);
+
+//   cairo_destroy (cr);
+	std::cout << "1" << std::endl;
   cairo_rectangle (cr, x - 3, y - 3, 6, 6);
+  std::cout << "2" << std::endl;
   cairo_fill (cr);
 
   cairo_destroy (cr);

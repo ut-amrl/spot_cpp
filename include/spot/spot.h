@@ -8,6 +8,8 @@
 
 class Spot {
 public:
+    static void startDisplay();
+    static void mainThread(int argc, char *argv[]);
 private:
 };
 

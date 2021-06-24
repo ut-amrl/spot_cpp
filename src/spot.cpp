@@ -11,10 +11,9 @@
 #include <functional>
 #include <sys/ioctl.h> //For FIONREAD.
 #include <termios.h>
+#include <thread>
 
-// main function for running Spot clients
-int main(int argc, char *argv[]){
-	
+void Spot::startDisplay(){
 	GtkApplication *app;
 	int status;
 
@@ -22,9 +21,9 @@ int main(int argc, char *argv[]){
 	g_signal_connect (app, "activate", G_CALLBACK (Display::activate), NULL);
 	status = g_application_run (G_APPLICATION (app), NULL, NULL);
 	g_object_unref (app);
+}
 
-	return status;
-
+void Spot::mainThread(int argc, char *argv[]){
 	std::cout<<"in main"<< std::endl;
 	assert(argc == 3);
 
@@ -47,13 +46,31 @@ int main(int argc, char *argv[]){
 	// setup robot (initialize clients)
 	robot.setup(); 
 
+	// GtkApplication *app;
+	// int status;
+
+	// app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+	// g_signal_connect (app, "activate", G_CALLBACK (Display::activate), NULL);
+	// status = g_application_run (G_APPLICATION (app), NULL, NULL);
+	// g_object_unref (app);
+
+	// robot.getImages();
 	int i = 0;
-	while (i < 100){
+	while (i < 1000){
 		i += 1;
 		// sleep(0.1);
 		robot.getImages();
 		// display.runDisplay(argc, argv);
 	}
+}
 
+// main function for running Spot clients
+int main(int argc, char *argv[]){
+	std::thread first (Spot::startDisplay);     
+  	std::thread second (Spot::mainThread, argc, argv);
+
+	first.join();                
+	second.join(); 
+	
 	return 0;
 }
