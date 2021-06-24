@@ -71,11 +71,12 @@ int main(int argc, char **argv) {
 			google::protobuf::Map<std::string, bosdyn::api::FrameTreeSnapshot::ParentEdge> frameMap = imgResp.shot().transforms_snapshot().child_to_parent_edge_map();
 
 			if(imgResp.source().name().compare("frontleft_fisheye_image") == 0){
-				Pose3 frontleft_fisheye_tform_vision_obj(0, 0.2, 0, Quaternion(0, 0, 0, 1));
-				Pose3 frontleft_tform_frontleft_fisheye = Pose3(frameMap.at("frontleft_fisheye").parent_tform_child());
-				Pose3 head_tform_frontleft = Pose3(frameMap.at("frontleft").parent_tform_child());
-				Pose3 body_tform_head = Pose3(frameMap.at("head").parent_tform_child());
-				Pose3 body_tform_vision_obj = body_tform_head.mult(head_tform_frontleft).mult(frontleft_tform_frontleft_fisheye).mult(frontleft_fisheye_tform_vision_obj);
+				FrameTree ft(imgResp.shot().transforms_snapshot());
+				
+				Pose3 frontleft_fisheye_tform_vision_obj(0, 0, 0.3, Quaternion(0, 0, 0, 1));
+				ft.addEdge(frontleft_fisheye_tform_vision_obj, "frontleft_fisheye", "vision_obj");
+				Pose3 body_tf_vision_obj = ft.a_tf_b("body", "vision_obj");
+
 				TFBroadcastPR tfbr;
 				tfbr.setFrames("frontleft_fisheye", "vision_obj");
 				geometry_msgs::Pose pose;
@@ -90,17 +91,17 @@ int main(int argc, char **argv) {
 
 				TFBroadcastPR tfbr2;
 				tfbr2.setFrames("body", "vision_obj_test");
-				pose.position.x = body_tform_vision_obj.x();
-				pose.position.y = body_tform_vision_obj.y();
-				pose.position.z = body_tform_vision_obj.z();
-				pose.orientation.w = body_tform_vision_obj.quat().w();
-				pose.orientation.x = body_tform_vision_obj.quat().x();
-				pose.orientation.y = body_tform_vision_obj.quat().y();
-				pose.orientation.z = body_tform_vision_obj.quat().z();
+				pose.position.x = body_tf_vision_obj.x();
+				pose.position.y = body_tf_vision_obj.y();
+				pose.position.z = body_tf_vision_obj.z();
+				pose.orientation.w = body_tf_vision_obj.quat().w();
+				pose.orientation.x = body_tf_vision_obj.quat().x();
+				pose.orientation.y = body_tf_vision_obj.quat().y();
+				pose.orientation.z = body_tf_vision_obj.quat().z();
 				tfbr2.receivePose(pose);
 
-				double pitch = atan2(body_tform_vision_obj.z(), body_tform_vision_obj.x()); // (x,y) is (tform.x, tform.z)
-				double yaw = atan2(body_tform_vision_obj.y(), body_tform_vision_obj.x()); // (x,y) is (tform.x, tform.y)
+				double pitch = atan2(body_tf_vision_obj.z(), body_tf_vision_obj.x()); // (x,y) is (tform.x, tform.z)
+				double yaw = atan2(body_tf_vision_obj.y(), body_tf_vision_obj.x()); // (x,y) is (tform.x, tform.y)
 				std::cout << "Pitch: " << pitch << " rad, " << (pitch * 57.2958) << " deg" << std::endl;
 				std::cout << "Yaw: " << yaw << " rad, " << (yaw * 57.2958) << " deg" << std::endl << std::endl;
 			}

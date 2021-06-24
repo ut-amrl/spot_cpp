@@ -70,6 +70,7 @@ public:
     Pose3(SE3Pose pose);
 
     Pose3 mult(Pose3 otherPose);
+    Pose3 inverse();
 
     double x();
     double y();
@@ -81,6 +82,35 @@ private:
     double _y;
     double _z;
     Quaternion _q;
+};
+
+
+class FrameTree {
+public:
+    FrameTree(bosdyn::api::FrameTreeSnapshot snapshot);
+
+    class Parent {
+    public: 
+        Parent(Pose3 parent_tf_child, std::string parentFrameName);
+
+        Pose3 parent_tf_child();
+        std::string parentFrameName();
+    private:
+        Pose3 _parent_tf_child;
+        std::string _parentFrameName;
+    };
+
+    std::map<std::string, Parent> childToParentEdges();
+
+    void addEdge(Pose3 parent_tf_child, std::string parentFrame, std::string childFrame);
+
+    Pose3 a_tf_b(std::string frameA, std::string frameB);
+
+private:
+    std::vector<Parent> listParentEdges(std::string leafFrame);
+    Pose3 accumulateTransforms(std::vector<Parent> parents);
+
+    std::map<std::string, Parent> _childToParentEdges;
 };
 
 std::string frameNameGravAligned(gravAlignedFrame frame);
