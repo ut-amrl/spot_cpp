@@ -12,19 +12,19 @@
 #include <sys/ioctl.h> //For FIONREAD.
 #include <termios.h>
 
-void Spot::activate (GtkApplication *app, gpointer user_data) {
-	// _window = gtk_application_window_new (app);
-    // gtk_window_set_title (GTK_WINDOW (_window), "SPOT");
-    // gtk_window_set_default_size (GTK_WINDOW (_window), 400, 400);
-
-    // ((Display *)user_data)->buildWidgets(_window);
-
-    // g_signal_connect(_window, "destroy", G_CALLBACK(gtk_widget_destroy), NULL);
-    // gtk_widget_show_all (_window);
-}
-
 // main function for running Spot clients
 int main(int argc, char *argv[]){
+	
+	GtkApplication *app;
+	int status;
+
+	app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+	g_signal_connect (app, "activate", G_CALLBACK (Display::activate), NULL);
+	status = g_application_run (G_APPLICATION (app), NULL, NULL);
+	g_object_unref (app);
+
+	return status;
+
 	std::cout<<"in main"<< std::endl;
 	assert(argc == 3);
 
@@ -36,6 +36,7 @@ int main(int argc, char *argv[]){
 	Robot robot("spot");
 
 	// create a display
+	Display display;
 
 	// print id information
 	std::cout << robot.getId() << std::endl;
@@ -47,35 +48,11 @@ int main(int argc, char *argv[]){
 	robot.setup(); 
 
 	int i = 0;
-	Display ds();
-	// KFRDisplay kd(mkc._rowsC, mkc._colsC, 4, aprilTags, &atp);
-	GtkApplication _app = gtk_application_new ("SPOT", G_APPLICATION_FLAGS_NONE);
-	
-	static GtkWidget *_window = gtk_application_window_new (_app);
-	
-	gtk_window_set_title (GTK_WINDOW (_window), "SPOT");
-    gtk_window_set_default_size (GTK_WINDOW (_window), 400, 400);
-
-    ((Display *)this)->buildWidgets(_window);
-
-    g_signal_connect(_window, "destroy", G_CALLBACK(gtk_widget_destroy), NULL);
-    gtk_widget_show_all (_window);
-
-	// g_signal_connect (_app, "activate", G_CALLBACK (Spot::activate), NULL);
-	int status = g_application_run (G_APPLICATION (_app), argc, argv);
-	g_object_unref (_app);
-
 	while (i < 100){
 		i += 1;
+		// sleep(0.1);
 		robot.getImages();
-		// std::cout << "sleeping" << std::endl;
-		// sleep(1);
-		// std::cout << "done sleeping" << std::endl;
-		// {
-		// 	// Display display;
-		// 	Display::runDisplay(argc, argv);
-		// }
-		// std::cout << "start loop again" << std::endl;
+		// display.runDisplay(argc, argv);
 	}
 
 	return 0;
