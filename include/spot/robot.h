@@ -27,14 +27,6 @@
 #include <iostream>
 #include <fstream>
 
-// #include <gtkmm/drawingarea.h>
-// #include <gdkmm/pixbuf.h>
-// #include <cairomm/context.h>
-// #include <giomm/resource.h>
-// #include <gdkmm/general.h> // set_source_pixbuf()
-// #include <glibmm/fileutils.h>
-// #include <iostream>
-
 enum movementType {sit, stand, travel}; // move to robot_command
 
 // // class that encapsulates robot state
