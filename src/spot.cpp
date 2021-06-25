@@ -75,22 +75,23 @@ int main(int argc, char *argv[]) {
 	spotbase.endTimesync();
 
 	// spotcontrol testing code
-	// RobotLayer::SpotControl spotcontrol(std::shared_ptr<CoreLayer::SpotBase>(&spotbase));
-	// SpotEstopEndpoint endpoint(spotcontrol.getEstopClient(), "pdb_root", "PDB_rooted", "", "", 4, 3);
-	// std::set<SpotEstopEndpoint> endpoints;
-	// endpoints.insert(endpoint);
-	// spotcontrol.setEstopConfiguration(endpoints, "");
-	// spotcontrol.registerEstopEndpoint("pdb_root", "PDB_root", "", spotcontrol.getEstopConfigId(), 4, 3);
+	std::shared_ptr<CoreLayer::SpotBase> baseptr = std::shared_ptr<CoreLayer::SpotBase>(&spotbase);
+	RobotLayer::SpotControl spotcontrol(baseptr);
+	std::shared_ptr<SpotEstopEndpoint> endpoint = std::shared_ptr<SpotEstopEndpoint>(new SpotEstopEndpoint(spotcontrol.getEstopClient(), "pdb_root", "PDB_rooted", "", "", 4, 3));
+	std::set<std::shared_ptr<SpotEstopEndpoint>> endpoints;
+	endpoints.insert(endpoint);
+	spotcontrol.setEstopConfiguration(endpoints, "");
+	spotcontrol.registerEstopEndpoint("pdb_root", "PDB_root", spotcontrol.getEstopConfigId(), 4, 3);
 	
-	// spotcontrol.beginEstopping();
-	// spotcontrol.acquireLease("body");
-	// spotcontrol.beginLeasing();
+	spotcontrol.beginEstopping();
+	spotcontrol.acquireLease("body");
+	spotcontrol.beginLeasing();
 	
-	// spotcontrol.powerOnMotors();
-	// spotcontrol.powerOffMotors();
+	spotcontrol.powerOnMotors();
+	spotcontrol.powerOffMotors();
 	
-	// spotcontrol.endEstopping();
-	// spotcontrol.endLeasing();
+	spotcontrol.endEstopping();
+	spotcontrol.endLeasing();
 
 
 
