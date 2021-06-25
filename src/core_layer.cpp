@@ -20,6 +20,8 @@ namespace CoreLayer {
             std::cout << e.what() << std::endl;
             return;
         }
+
+        _directoryClient = std::shared_ptr<DirectoryClient>(new DirectoryClient(_authToken));
     }
 
     /* Robot Id */
@@ -80,6 +82,9 @@ namespace CoreLayer {
 
 
     void SpotBase::beginTimesync() {
+        // create time sync client
+        _timeSyncClient = std::shared_ptr<TimeSyncClient>(new TimeSyncClient(_directoryClient->getEntry(TIMESYNC_CLIENT_NAME).service_entry().authority(), _authToken));
+
         // do initial rpc
         bosdyn::api::TimeSyncUpdateResponse reply;
         try {

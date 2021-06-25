@@ -64,32 +64,56 @@ int main(int argc, char *argv[]) {
 	// spotbase testing code
 	CoreLayer::SpotBase spotbase;
 	spotbase.authenticate(username, password);
-	spotbase.getRobotId();
+	std::cout << spotbase.getRobotId() << std::endl;
 	std::map<std::string, CoreLayer::ServiceEntry> services = spotbase.listAllServices();
 	for (const auto &service : services) {
 		std::cout << "name: " << service.first << std::endl;
 		std::cout << "serv name: " << service.second.getName() << std::endl;
 		std::cout << "auth: " << service.second.getAuthority() << std::endl;
 	}
-	spotbase.beginTimesync();
-	spotbase.endTimesync();
+
+	std::cout << "beginTimesync()" << std::endl;
+	// spotbase.beginTimesync();
+	std::cout << "endTimesync()" << std::endl;
+	// spotbase.endTimesync();
 
 	// spotcontrol testing code
+	std::cout << "baseptr" << std::endl;
 	std::shared_ptr<CoreLayer::SpotBase> baseptr = std::shared_ptr<CoreLayer::SpotBase>(&spotbase);
-	RobotLayer::SpotControl spotcontrol(baseptr);
-	std::shared_ptr<SpotEstopEndpoint> endpoint = std::shared_ptr<SpotEstopEndpoint>(new SpotEstopEndpoint(spotcontrol.getEstopClient(), "pdb_root", "PDB_rooted", "", "", 4, 3));
-	std::set<std::shared_ptr<SpotEstopEndpoint>> endpoints;
-	endpoints.insert(endpoint);
-	spotcontrol.setEstopConfiguration(endpoints, "");
-	spotcontrol.registerEstopEndpoint("pdb_root", "PDB_root", spotcontrol.getEstopConfigId(), 4, 3);
 	
-	spotcontrol.beginEstopping();
+	std::cout << "spotcontrol" << std::endl;
+	RobotLayer::SpotControl spotcontrol(baseptr);
+
+	std::cout << "endpoint" << std::endl;
+	std::shared_ptr<SpotEstopEndpoint> endpoint = std::shared_ptr<SpotEstopEndpoint>(new SpotEstopEndpoint(spotcontrol.getEstopClient(), "pdb_root", "PDB_rooted", "", "", 30, 3));
+	
+	std::cout << "spotestopendpoint" << std::endl;
+	std::set<std::shared_ptr<SpotEstopEndpoint>> endpoints;
+	
+	std::cout << "endpoints.insert()" << std::endl;
+	endpoints.insert(endpoint);
+	
+	std::cout << "setestopconfiguration()" << std::endl;
+	spotcontrol.setEstopConfiguration(endpoints, "");
+
+	std::cout << "configId: " << spotcontrol.getEstopConfigId() << std::endl;
+
+	std::cout << "registerestopendpoint()" << std::endl;
+	std::string unique_id = spotcontrol.registerEstopEndpoint("pdb_root", "PDB_rooted", spotcontrol.getEstopConfigId(), 30, 3);
+	
+	std::cout << "beignEstoppin()" << std::endl;
+	spotcontrol.beginEstopping(unique_id); // needs unique id
+
+	std::cout << "acquireLease()" << std::endl;
 	spotcontrol.acquireLease("body");
+
+	std::cout << "beginLeasing()" << std::endl;
 	spotcontrol.beginLeasing();
 	
 	spotcontrol.powerOnMotors();
 	spotcontrol.powerOffMotors();
 	
+	std::cout << "endEstopping()" << std::endl;
 	spotcontrol.endEstopping();
 	spotcontrol.endLeasing();
 

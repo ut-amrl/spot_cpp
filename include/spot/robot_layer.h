@@ -71,10 +71,10 @@ namespace RobotLayer {
         /*
             registerEstop(): registers in estop in the config with the given parameters
             Input: name, role, config id (instance config id if empty), timeout in seconds, cut power timeout in seconds
-            Output: -
+            Output: unique id of registered endpoint
             Side effects: adds to endpoints map 
         */
-        void registerEstopEndpoint(const std::string &name, const std::string &role, const std::string &configId, 
+        std::string registerEstopEndpoint(const std::string &name, const std::string &role, const std::string &configId, 
                 int64_t estopTimeout, int64_t estopCutPowerTimeout);
 
         /*
@@ -177,6 +177,7 @@ namespace RobotLayer {
 
         /* Accessors */
         const std::string getEstopConfigId() const { return _estopConfigId; }
+        const std::map<std::string, std::shared_ptr<SpotEstopEndpoint>> getEndpoints() const { return _endpoints; }
 
         /* Client accessor methods */
         const std::shared_ptr<EstopClient> getEstopClient() const { return _estopClient; }
@@ -190,7 +191,7 @@ namespace RobotLayer {
     std::map<std::string, CoreLayer::ServiceEntry> _services;
 
     /* endpoints: map of [endpoint unique id, endpoint] */
-    std::map<std::string, SpotEstopEndpoint&> _endpoints;
+    std::map<std::string, std::shared_ptr<SpotEstopEndpoint>> _endpoints;
 
     /* estopThreads: map of [endpoint unique id, endpoint thread] */
     std::map<std::string, std::shared_ptr<EstopThread>> _estopThreads;

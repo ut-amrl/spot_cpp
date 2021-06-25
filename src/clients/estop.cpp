@@ -71,7 +71,7 @@ EstopEndpoint SpotEstopEndpoint::toProto() {
 	ret.set_name(_name);
 	ret.set_unique_id(_uniqueId);
 	ret.mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(_estopTimeout));
-	ret.mutable_cut_power_timeout()->CopyFrom(TimeUtil::SecondsToDuration(_estopCutPowerTimeout));
+	// ret.mutable_cut_power	_timeout()->CopyFrom(TimeUtil::SecondsToDuration(_estopCutPowerTimeout));
 	return ret;
 }
  
@@ -93,12 +93,12 @@ RegisterEstopEndpointResponse EstopClient::registerEndpointAsync(const std::stri
     return callAsync<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::AsyncRegisterEstopEndpoint);
 }
 
-RegisterEstopEndpointResponse EstopClient::replaceEndpoint(const std::string &targetConfigId, const std::string &uniqueId, EstopEndpoint &endpoint) {
+RegisterEstopEndpointResponse EstopClient::replaceEndpoint(const std::string &targetConfigId, EstopEndpoint &replaced, EstopEndpoint &endpoint) {
 	RegisterEstopEndpointRequest request;
 	assembleRequestHeader<RegisterEstopEndpointRequest>(&request);
 	request.set_target_config_id(targetConfigId);
 	request.mutable_new_endpoint()->CopyFrom(endpoint);
-	request.mutable_target_endpoint()->set_unique_id(uniqueId);
+	request.mutable_target_endpoint()->CopyFrom(replaced);
 	return call<RegisterEstopEndpointRequest, RegisterEstopEndpointResponse>(request, &EstopService::Stub::RegisterEstopEndpoint);
 }
 
@@ -139,6 +139,13 @@ GetEstopConfigResponse EstopClient::getConfigAsync(const std::string &targetConf
     assembleRequestHeader<GetEstopConfigRequest>(&request);
 	request.set_target_config_id(targetConfigId);
     return callAsync<GetEstopConfigRequest, GetEstopConfigResponse>(request, &EstopService::Stub::AsyncGetEstopConfig);
+}
+
+SetEstopConfigResponse EstopClient::setConfig(EstopConfig &config) {
+	SetEstopConfigRequest request;
+    assembleRequestHeader<SetEstopConfigRequest>(&request);
+	request.mutable_config()->CopyFrom(config);
+    return call<SetEstopConfigRequest, SetEstopConfigResponse>(request, &EstopService::Stub::SetEstopConfig);
 }
 
 SetEstopConfigResponse EstopClient::setConfig(EstopConfig &config, std::string targetConfigId) {

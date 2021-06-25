@@ -44,11 +44,14 @@ void TimeSyncThread::beginTimeSync() {
 }
 
 void TimeSyncThread::endTimeSync() {
+
+	std::cout << "setKeepRunning()" << std::endl;
 	// turn off keep running
 	setKeepRunning(false);
 
+	std::cout << "_thread->join()" << std::endl;
 	// join thread
-	_thread->join();
+	// _thread->join();
 }
 
 void TimeSyncThread::periodicCheckIn() {

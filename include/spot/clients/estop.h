@@ -92,6 +92,7 @@ public:
   const std::string getRole() const { return _role; }
   const std::string getConfigId() const { return _configId; }
   const std::string getUniqueId() const { return _uniqueId; }
+  const int64_t getEstopTimeout() const { return _estopTimeout; }
 
 private:
   std::shared_ptr<EstopClient> _client;
@@ -115,7 +116,7 @@ public:
   RegisterEstopEndpointResponse registerEndpointAsync(const std::string &targetConfigId, EstopEndpoint &endpoint);
  
   // change
-  RegisterEstopEndpointResponse replaceEndpoint(const std::string &targetConfigId, const std::string &uniqueId, EstopEndpoint &endpoint);
+  RegisterEstopEndpointResponse replaceEndpoint(const std::string &targetConfigId, EstopEndpoint &replaced, EstopEndpoint &endpoint);
   RegisterEstopEndpointResponse replaceEndpointAsync(const std::string &targetConfigId, const std::string &uniqueId, EstopEndpoint &endpoint);
   
   // change
@@ -125,6 +126,7 @@ public:
   GetEstopConfigResponse getConfig(const std::string &targetConfigId);
   GetEstopConfigResponse getConfigAsync(const std::string &targetConfigId); 
   
+  SetEstopConfigResponse setConfig(EstopConfig &config);
   SetEstopConfigResponse setConfig(EstopConfig &config, std::string targetConfigId);
   SetEstopConfigResponse setConfigAsync(EstopConfig &config, std::string targetConfigId);
   

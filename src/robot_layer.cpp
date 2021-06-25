@@ -3,7 +3,12 @@
 namespace RobotLayer {
     SpotState::SpotState() {}
 
-    SpotControl::SpotControl(std::shared_ptr<CoreLayer::SpotBase> spotBase) {
+    SpotControl::SpotControl(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
+            _services(),
+            _endpoints(),
+            _estopThreads(),
+            _leases(),
+            _leaseThreads() {
         // initialize pointers
         std::string authToken = spotBase->getAuthToken();
         if (authToken.empty()) {
@@ -45,23 +50,29 @@ namespace RobotLayer {
 
             // only set role and name (will get replaced by actual endpoint)
             endpoint->set_role(estopEndpoint->getRole());
-            endpoint->set_name(estopEndpoint->getName());
+            // endpoint->set_name(estopEndpoint->getName());
+            endpoint->mutable_timeout()->CopyFrom(TimeUtil::SecondsToDuration(estopEndpoint->getEstopTimeout()));
         }
 
         // set config
         SetEstopConfigResponse reply;
         try {
-            _estopClient->setConfig(config, targetConfigId); // configId blank if no replace
+            reply = _estopClient->setConfig(config); 
+
+            if (reply.status() == 2) {
+                reply = _estopClient->setConfig(config, reply.active_config().unique_id());
+            }
         } catch (Error &e) {
             std::cout << e.what() << std::endl;
             return;
         }
 
         // get config id
+        std::cout << "setestopconfig status: " << reply.status() << std::endl;
         _estopConfigId = reply.active_config().unique_id();
     }
 
-    void SpotControl::registerEstopEndpoint(const std::string &name, const std::string &role, const std::string &configId, 
+    std::string SpotControl::registerEstopEndpoint(const std::string &name, const std::string &role, const std::string &configId, 
             int64_t estopTimeout, int64_t estopCutPowerTimeout) {
         // check if we are registering to instance config or another config
         std::string temp = configId.empty() ? _estopConfigId : configId;
@@ -69,14 +80,26 @@ namespace RobotLayer {
         EstopEndpoint fromEndpoint;
         // create new endpoint obj w/ blank unique id (assigned by server)
         try {
-            SpotEstopEndpoint endpoint(_estopClient, name, role, temp, "", estopTimeout, estopCutPowerTimeout);
-            EstopEndpoint fromEndpoint = endpoint.toProto();
-            RegisterEstopEndpointResponse reply = _estopClient->registerEndpoint(temp, fromEndpoint);
-            endpoint.setUniqueId(reply.new_endpoint().unique_id());
-            _endpoints.insert(std::pair<std::string, SpotEstopEndpoint&>(endpoint.getUniqueId(), endpoint));
+            // create new endpoint
+            std::shared_ptr<SpotEstopEndpoint> ptr(new SpotEstopEndpoint(_estopClient, name, role, temp, "", estopTimeout, estopCutPowerTimeout));
+
+            // convert to proto representation
+            EstopEndpoint fromEndpoint = ptr->toProto();
+            
+            // create temp endpoint to replace
+            EstopEndpoint endpointToReplace;
+            endpointToReplace.set_role(role);
+
+            // rpc and set new unique id
+            RegisterEstopEndpointResponse reply = _estopClient->replaceEndpoint(temp, endpointToReplace, fromEndpoint);
+            ptr->setUniqueId(reply.new_endpoint().unique_id());
+            
+            // insert into map
+            _endpoints.insert(std::pair<std::string, std::shared_ptr<SpotEstopEndpoint>>(ptr->getUniqueId(), ptr));
+            return ptr->getUniqueId();
         } catch (Error &e) {
             std::cout << e.what() << std::endl;
-            return;
+            return "";
         }
     }
 
@@ -92,7 +115,7 @@ namespace RobotLayer {
         }
 
         // deregister from spot
-        EstopEndpoint endpointToDeregister = it->second.toProto();
+        EstopEndpoint endpointToDeregister = it->second->toProto();
         DeregisterEstopEndpointResponse reply;
         try {
             reply = _estopClient->deregister(temp, endpointToDeregister);
@@ -109,27 +132,32 @@ namespace RobotLayer {
         auto it = _endpoints.find(uniqueId);
         if (it == _endpoints.end()) {
            // todo: exception classes 
+           std::cout << "it.end()" << std::endl;
         }
 
         // create estop thread
-        std::shared_ptr<EstopThread> ptr = std::shared_ptr<EstopThread>(new EstopThread(_estopClient, std::shared_ptr<SpotEstopEndpoint>(&(it->second))));
+        std::shared_ptr<EstopThread> ptr = std::shared_ptr<EstopThread>(new EstopThread(_estopClient, it->second));
 
+        std::cout << "getUniqueId(): " << it->second->getUniqueId();
         // add thread to map
-        _estopThreads.insert(std::pair<std::string, std::shared_ptr<EstopThread>>(it->second.getUniqueId(), ptr));
+        _estopThreads.insert(std::pair<std::string, std::shared_ptr<EstopThread>>(it->second->getUniqueId(), ptr));
 
         // kick off estop
         ptr->beginEstop();
     }
 
     void SpotControl::beginEstopping() {
+        std::cout << "in beginEstopping()" << std::endl;
         for (const auto &endpoint : _endpoints) {
             // create estop thread
-            std::shared_ptr<EstopThread> ptr = std::shared_ptr<EstopThread>(new EstopThread(_estopClient, std::shared_ptr<SpotEstopEndpoint>(&(endpoint.second))));
+            std::shared_ptr<EstopThread> ptr = std::shared_ptr<EstopThread>(new EstopThread(_estopClient, endpoint.second));
 
             // add thread to map
-            _estopThreads.insert(std::pair<std::string, std::shared_ptr<EstopThread>>(endpoint.second.getName(), ptr));
+            std::cout << "_estopThreads.insert()" << std::endl;
+            _estopThreads.insert(std::pair<std::string, std::shared_ptr<EstopThread>>(endpoint.second->getName(), ptr));
 
             // kick off estop
+            std::cout << "ptr->beginEstop()" << std::endl;
             ptr->beginEstop();
         }
     }
@@ -162,6 +190,7 @@ namespace RobotLayer {
 
         // acquire lease for given resource
         try {
+            std::cout << "lease acquire rpc sent" << std::endl;
             reply = _leaseClient->acquire(resource);
         } catch (Error &error) {
             std::cout << error.what() << std::endl;
@@ -170,6 +199,7 @@ namespace RobotLayer {
 
         // check if already claimed
         Lease acquiredLease;
+        std::cout << "acquiredLease" << std::endl;
         switch (reply.status()) {
             case 0: 
                 break;
@@ -186,6 +216,7 @@ namespace RobotLayer {
         }
 
         // add to lease map
+        std::cout << "_leases.insert()" << std::endl;
         _leases.insert(std::pair<std::string, Lease>(resource, acquiredLease));
     }
 
@@ -254,6 +285,13 @@ namespace RobotLayer {
         // get lease
         Lease bodyLease = _leases.find("body")->second;
         PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r); 
+        uint32_t pcID = powerCommResp.power_command_id();
+
+        PowerCommandFeedbackResponse pcfr = _powerClient->PowerCommandFeedback(pcID);
+	    while(pcfr.status() != 2){
+		    pcfr = _powerClient->PowerCommandFeedback(pcID);
+		    sleep(1);
+	    }
     }
 
     void SpotControl::powerOffMotors() {
@@ -265,6 +303,13 @@ namespace RobotLayer {
         // get lease
         Lease bodyLease = _leases.find("body")->second;
         PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
+        uint32_t pcID = powerCommResp.power_command_id();
+
+        PowerCommandFeedbackResponse pcfr = _powerClient->PowerCommandFeedback(pcID);
+	    while(pcfr.status() != 2){
+		    pcfr = _powerClient->PowerCommandFeedback(pcID);
+		    sleep(1);
+	    }
     }
 
     void SpotControl::sit() {
