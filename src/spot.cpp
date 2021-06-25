@@ -55,6 +55,7 @@ void Spot::mainThread(int argc, char *argv[]){
 	// g_object_unref (app);
 
 	// robot.getImages();
+	robot.getWorldObject();
 	while (true){
 		robot.getImages();
 		display.refresh();

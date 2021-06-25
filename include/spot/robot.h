@@ -19,6 +19,7 @@
 #include <spot/clients/robot_state.h>
 #include <spot/clients/spot_check.h>
 #include <spot/clients/timesync.h>
+#include <spot/clients/world_objects.h>
 
 #include <map>
 #include <vector>
@@ -88,6 +89,9 @@ public:
     // image 
     bool getImages();
 
+    // world object
+    void getWorldObject();
+
     std::shared_ptr<AuthClient> getAuthClientPtr() const { return _authClientPtr; }
     std::shared_ptr<DirectoryClient> getDirectoryClientPtr() const { return _directoryClientPtr; }
     std::shared_ptr<EstopClient> getEstopClientPtr() const { return _estopClientPtr; }
@@ -99,6 +103,7 @@ public:
     std::shared_ptr<RobotStateClient> getRobotStateClientPtr() const { return _robotStateClientPtr; }
     std::shared_ptr<SpotCheckClient> getSpotCheckClientPtr() const { return _spotCheckClientPtr; }
     std::shared_ptr<TimeSyncClient> getTimeSyncClientPtr() const { return _timeSyncClientPtr; }
+    std::shared_ptr<WorldObjectsClient> getWorldObjectsClientPtr() const { return _worldObjectsClientPtr; }
 
 private:
     // power
@@ -135,6 +140,7 @@ private:
     std::shared_ptr<RobotStateClient> _robotStateClientPtr = nullptr;
     std::shared_ptr<SpotCheckClient> _spotCheckClientPtr = nullptr;
     std::shared_ptr<TimeSyncClient> _timeSyncClientPtr = nullptr;
+    std::shared_ptr<WorldObjectsClient> _worldObjectsClientPtr = nullptr;
 private:
     template <class client_T>
     std::shared_ptr<client_T> getPtr(CLIENT_TYPES type);
