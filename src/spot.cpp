@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
 			spotcontrol.stand();
 		}
 		else {
-			spotcontrol.velocityMove(velX, velY, rot, 1, FLAT_BODY);
+			spotcontrol.velocityMove(velX, velY, rot, 5, FLAT_BODY);
 		}
 	
 	}

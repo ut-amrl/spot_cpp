@@ -3,7 +3,7 @@
 namespace CoreLayer {
 
     int SpotBase::DEFAULT_TIME_SYNC_INTERVAL_SECS = 60;
-    int SpotBase::DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECS = 5;
+    int SpotBase::DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECS = 3;
 
     SpotBase::SpotBase() {
         // initialize pointers
@@ -95,7 +95,7 @@ namespace CoreLayer {
         }
 
         std::string clockIdentifier = reply.clock_identifier();
-        
+
         int64_t clockSkew;
 
         // send rpcs until synchronized

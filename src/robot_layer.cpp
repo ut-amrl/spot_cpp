@@ -343,8 +343,8 @@ namespace RobotLayer {
         RobotCommand command;
         SE2VelocityCommand_Request se2VelocityCommand_Request;
         std::cout << TimeUtil::GetCurrentTime() << std::endl;
-        std::cout << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + time*1000000000)) << std::endl;
-        se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + time*1000000000)));
+        std::cout << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + time*75000000000)) << std::endl;
+        se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + time*75000000000)));
         se2VelocityCommand_Request.set_se2_frame_name(frameNameGravAligned(frame));
         se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
         se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
@@ -373,7 +373,7 @@ namespace RobotLayer {
         }
         
         bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
-        trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + (time)*1000000000)));
+        trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + (time)*75000000000)));
         trajectoryCommandReq.set_se2_frame_name(frameName);
         trajectoryCommandReq.mutable_trajectory()->CopyFrom(trajectory.getTrajectory());
         
