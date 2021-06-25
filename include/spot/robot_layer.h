@@ -172,6 +172,22 @@ namespace RobotLayer {
         */
         void stand();
 
+        /*
+            velocityMove(): 
+            Input: -
+            Output: -
+            Side effects: -
+        */
+        void velocityMove(double, double, double ,double, gravAlignedFrame);
+
+        /*
+            trajectoryMove(): 
+            Input: -
+            Output: -
+            Side effects: -
+        */
+        void trajectoryMove(Trajectory2D, gravAlignedFrame, double);
+
         
         /* Spot check */
 
@@ -185,7 +201,10 @@ namespace RobotLayer {
         const std::shared_ptr<PowerClient> getPowerClient() const { return _powerClient; }
         const std::shared_ptr<RobotCommandClient> getRobotCommandClient() const { return _robotCommandClient; }
         const std::shared_ptr<SpotCheckClient> getSpotCheckClient() const { return _spotCheckClient; }
-    
+    private:
+    std::string getClockIdentifier();
+    int64_t getClockSkew();
+
     private:
     /* services: map of [service name, service entry] */
     std::map<std::string, CoreLayer::ServiceEntry> _services;
@@ -206,6 +225,7 @@ namespace RobotLayer {
     std::map<std::string, std::shared_ptr<LeaseThread>> _leaseThreads;
     
     private:
+        std::shared_ptr<CoreLayer::SpotBase> _spotBase;
         std::shared_ptr<EstopClient> _estopClient;
         std::shared_ptr<LeaseClient> _leaseClient;
         std::shared_ptr<PowerClient> _powerClient;

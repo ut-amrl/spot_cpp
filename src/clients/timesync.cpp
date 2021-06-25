@@ -26,10 +26,11 @@ TimeSyncUpdateResponse TimeSyncClient::getTimeSyncUpdateAsync(const TimeSyncRoun
 	return callAsync<TimeSyncUpdateRequest, TimeSyncUpdateResponse>(request, &TimeSyncService::Stub::AsyncTimeSyncUpdate);
 }
 
-TimeSyncThread::TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier, int64_t initClockSkew) :
+TimeSyncThread::TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier, int64_t initClockSkew, TimeSyncUpdateResponse response) :
 		_client(clientPtr),
 		_clockIdentifier(clockIdentifier),
-		_clockSkew(initClockSkew) {}
+		_clockSkew(initClockSkew),
+		_response(response) {}
 		
 TimeSyncThread::~TimeSyncThread() {
 	endTimeSync();
@@ -45,17 +46,17 @@ void TimeSyncThread::beginTimeSync() {
 
 void TimeSyncThread::endTimeSync() {
 
-	std::cout << "setKeepRunning()" << std::endl;
 	// turn off keep running
 	setKeepRunning(false);
 
-	std::cout << "_thread->join()" << std::endl;
 	// join thread
-	// _thread->join();
+	if (_thread->joinable()){
+		_thread->join();
+	}
 }
 
 void TimeSyncThread::periodicCheckIn() {
-	TimeSyncUpdateResponse reply;
+	TimeSyncUpdateResponse reply = _response;
 	while (_keepRunning) {
 		// send new rpc and set clockskew
 		reply = _client->getTimeSyncUpdate(createTrip(reply), _clockIdentifier);

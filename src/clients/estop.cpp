@@ -198,7 +198,7 @@ EstopCheckInResponse EstopClient::checkInAsync(EstopStopLevel &stopLevel, EstopE
     return callAsync<EstopCheckInRequest, EstopCheckInResponse>(request, &EstopService::Stub::AsyncEstopCheckIn);
 }
 
-int EstopThread::DEFAULT_TIME_SYNC_INTERVAL_SECS = 2;
+int EstopThread::DEFAULT_TIME_SYNC_INTERVAL_SECS = 1;
 
 EstopThread::EstopThread(std::shared_ptr<EstopClient> clientPtr, std::shared_ptr<SpotEstopEndpoint> endpoint) :
 		_client(clientPtr),
@@ -217,7 +217,9 @@ void EstopThread::beginEstop() {
 
 void EstopThread::endEstop() {
 	_keepRunning = false;
-	_thread->join(); // should wait for thread to stop
+	if (_thread->joinable()){
+		_thread->join(); // should wait for thread to stop
+	}
 }
 
 void EstopThread::periodicCheckIn() {
@@ -227,5 +229,4 @@ void EstopThread::periodicCheckIn() {
 		std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECS));
 		// todo: timeouts, etc.
 	}
-	return;
 }

@@ -32,7 +32,7 @@ class TimeSyncThread {
 public:
   static int DEFAULT_TIME_SYNC_INTERVAL_SECONDS;
 
-  TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier, int64_t initClockSkew);
+  TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier, int64_t initClockSkew, TimeSyncUpdateResponse response);
   ~TimeSyncThread();
   
   /* beginTimeSync(): does intitial RPC to timesync service and kicks off thread for constant check-ins
@@ -72,6 +72,7 @@ private:
   std::string _clockIdentifier;
   int64_t _clockSkew;
   bool _keepRunning;
+  TimeSyncUpdateResponse _response;
 };
 
 /* createTrip(): helper method to create a new round trup from a previous response

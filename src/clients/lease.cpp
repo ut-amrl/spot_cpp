@@ -75,7 +75,7 @@ ListLeasesResponse LeaseClient::listLeasesAsync(bool includeFullLeasesInfo){
   return callAsync<ListLeasesRequest, ListLeasesResponse>(request, &LeaseService::Stub::AsyncListLeases);
 }
 
-int LeaseThread::DEFAULT_RPC_INTERVAL_SECS = 2;
+int LeaseThread::DEFAULT_RPC_INTERVAL_SECS = 1;
 
 LeaseThread::LeaseThread(std::shared_ptr<LeaseClient> clientPtr, Lease lease) :
     _client(clientPtr),
@@ -94,7 +94,9 @@ void LeaseThread::beginLease() {
 
 void LeaseThread::endLease() {
   _keepRunning = false;
-  _thread->join(); // waits until end
+  if (_thread->joinable()) {
+    _thread->join();
+  }
 }
 
 void LeaseThread::periodicCheckIn() {

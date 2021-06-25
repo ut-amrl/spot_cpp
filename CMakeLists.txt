@@ -145,7 +145,8 @@ add_executable(spot
   src/core_layer.cpp
   src/robot_layer.cpp
 
-  #src/frame.cpp
+  src/trajectory.cpp
+  src/frame.cpp
   #src/math.cpp
   src/spot.cpp
   #src/robot.cpp
@@ -207,6 +208,7 @@ set(LINK_LIBRARIES
   ${Protobuf_LIBRARIES}
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}
+  Eigen3::Eigen
 )
 
 target_link_libraries(spot ${LINK_LIBRARIES})

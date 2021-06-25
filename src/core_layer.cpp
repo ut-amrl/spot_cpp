@@ -95,6 +95,7 @@ namespace CoreLayer {
         }
 
         std::string clockIdentifier = reply.clock_identifier();
+        
         int64_t clockSkew;
 
         // send rpcs until synchronized
@@ -106,7 +107,7 @@ namespace CoreLayer {
         }
 
         // create time sync thread object and kick off thread
-        _timeSyncThread = std::shared_ptr<TimeSyncThread>(new TimeSyncThread(_timeSyncClient, clockIdentifier, clockSkew));
+        _timeSyncThread = std::shared_ptr<TimeSyncThread>(new TimeSyncThread(_timeSyncClient, clockIdentifier, clockSkew, reply));
         _timeSyncThread->beginTimeSync();
     }
 

@@ -9,6 +9,8 @@
 #include "bosdyn/api/geometry.grpc.pb.h"
 #include "bosdyn/api/lease_service.grpc.pb.h"
 #include <spot/clients/base.h>
+#include <spot/trajectory.h>
+#include <spot/frame.h>
 
 using bosdyn::api::RobotCommandService;
 using bosdyn::api::RobotCommandRequest;

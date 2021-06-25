@@ -8,7 +8,8 @@ namespace RobotLayer {
             _endpoints(),
             _estopThreads(),
             _leases(),
-            _leaseThreads() {
+            _leaseThreads(),
+            _spotBase(spotBase) {
         // initialize pointers
         std::string authToken = spotBase->getAuthToken();
         if (authToken.empty()) {
@@ -68,7 +69,6 @@ namespace RobotLayer {
         }
 
         // get config id
-        std::cout << "setestopconfig status: " << reply.status() << std::endl;
         _estopConfigId = reply.active_config().unique_id();
     }
 
@@ -138,7 +138,6 @@ namespace RobotLayer {
         // create estop thread
         std::shared_ptr<EstopThread> ptr = std::shared_ptr<EstopThread>(new EstopThread(_estopClient, it->second));
 
-        std::cout << "getUniqueId(): " << it->second->getUniqueId();
         // add thread to map
         _estopThreads.insert(std::pair<std::string, std::shared_ptr<EstopThread>>(it->second->getUniqueId(), ptr));
 
@@ -147,17 +146,14 @@ namespace RobotLayer {
     }
 
     void SpotControl::beginEstopping() {
-        std::cout << "in beginEstopping()" << std::endl;
         for (const auto &endpoint : _endpoints) {
             // create estop thread
             std::shared_ptr<EstopThread> ptr = std::shared_ptr<EstopThread>(new EstopThread(_estopClient, endpoint.second));
 
             // add thread to map
-            std::cout << "_estopThreads.insert()" << std::endl;
             _estopThreads.insert(std::pair<std::string, std::shared_ptr<EstopThread>>(endpoint.second->getName(), ptr));
 
             // kick off estop
-            std::cout << "ptr->beginEstop()" << std::endl;
             ptr->beginEstop();
         }
     }
@@ -190,7 +186,6 @@ namespace RobotLayer {
 
         // acquire lease for given resource
         try {
-            std::cout << "lease acquire rpc sent" << std::endl;
             reply = _leaseClient->acquire(resource);
         } catch (Error &error) {
             std::cout << error.what() << std::endl;
@@ -199,7 +194,6 @@ namespace RobotLayer {
 
         // check if already claimed
         Lease acquiredLease;
-        std::cout << "acquiredLease" << std::endl;
         switch (reply.status()) {
             case 0: 
                 break;
@@ -216,7 +210,6 @@ namespace RobotLayer {
         }
 
         // add to lease map
-        std::cout << "_leases.insert()" << std::endl;
         _leases.insert(std::pair<std::string, Lease>(resource, acquiredLease));
     }
 
@@ -312,12 +305,89 @@ namespace RobotLayer {
 	    }
     }
 
-    void SpotControl::sit() {
+    std::string SpotControl::getClockIdentifier(){
+        return _spotBase->getTimeSyncThread()->getClockIdentifier();
+    }
 
+    int64_t SpotControl::getClockSkew(){
+        return _spotBase->getTimeSyncThread()->getClockSkew();
+    } 
+
+    void SpotControl::sit() {
+        RobotCommand command;
+        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();  
+        Lease bodyLease = _leases.find("body")->second;    
+        try{  
+            std::string clockIdentifier = getClockIdentifier();
+            RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
+        } catch (Error &e){
+            std::cout << e.what() << std::endl;
+            return;
+        }
     }
 
     void SpotControl::stand() {
+        RobotCommand command;
+        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+        Lease bodyLease = _leases.find("body")->second;
+        try{  
+            std::string clockIdentifier = getClockIdentifier();
+            RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
+        } catch (Error &e){
+            std::cout << e.what() << std::endl;
+            return;
+        }
+    }
 
+    void SpotControl::velocityMove(double x, double y, double rot, double time, gravAlignedFrame frame){
+        RobotCommand command;
+        SE2VelocityCommand_Request se2VelocityCommand_Request;
+        std::cout << TimeUtil::GetCurrentTime() << std::endl;
+        std::cout << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + time*1000000000)) << std::endl;
+        se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + time*1000000000)));
+        se2VelocityCommand_Request.set_se2_frame_name(frameNameGravAligned(frame));
+        se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
+        se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
+        se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
+        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
+       
+        Lease bodyLease = _leases.find("body")->second;
+        try{  
+            std::string clockIdentifier = getClockIdentifier();
+            RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
+            std::cout << robCommResp.status() << std::endl;
+        } catch (Error &e){
+            std::cout << e.what() << std::endl;
+            return;
+        }        
+    }
+
+    void SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, double time){
+        std::string frameName;
+        // TODO: Make it so that flat body works as a frame 
+        if(frame == FLAT_BODY){
+            frameName = frameNameGravAligned(ODOM);
+        }
+        else{
+            frameName = frameNameGravAligned(frame);
+        }
+        
+        bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
+        trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + (time)*1000000000)));
+        trajectoryCommandReq.set_se2_frame_name(frameName);
+        trajectoryCommandReq.mutable_trajectory()->CopyFrom(trajectory.getTrajectory());
+        
+        RobotCommand command;
+        command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->CopyFrom(trajectoryCommandReq);
+        
+        Lease bodyLease = _leases.find("body")->second;
+        try{  
+            std::string clockIdentifier = getClockIdentifier();
+            RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
+        } catch (Error &e){
+            std::cout << e.what() << std::endl;
+            return;
+        }  
     }
 
 }
