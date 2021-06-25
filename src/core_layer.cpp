@@ -42,22 +42,22 @@ namespace CoreLayer {
     }
 
     /* Directory */
-    ServiceEntry SpotBase::listService(const std::string &serviceName) const {
+    CoreLayer::ServiceEntry SpotBase::listService(const std::string &serviceName) const {
         GetServiceEntryResponse reply;
         try {
             reply = _directoryClient->getEntry(serviceName);
         } catch (Error &e) {
             std::cout << e.what() << std::endl;
-            ServiceEntry badEntry("", "", "");
+            CoreLayer::ServiceEntry badEntry("", "", "");
             return badEntry;
         }
 
-        ServiceEntry entry(reply.service_entry().name(), reply.service_entry().type(), reply.service_entry().authority());
+        CoreLayer::ServiceEntry entry(reply.service_entry().name(), reply.service_entry().type(), reply.service_entry().authority());
         return entry;
     }
 
-    std::map<std::string, ServiceEntry> SpotBase::listAllServices() const {
-        std::map<std::string, ServiceEntry> ret;
+    std::map<std::string, CoreLayer::ServiceEntry> SpotBase::listAllServices() const {
+        std::map<std::string, CoreLayer::ServiceEntry> ret;
         ListServiceEntriesResponse reply;
         
         // do rpc
@@ -71,8 +71,8 @@ namespace CoreLayer {
         // populate map from rpc
         for (int i = 0; i < reply.service_entries_size(); i++) {
             const bosdyn::api::ServiceEntry replEntry = reply.service_entries(i);
-            ServiceEntry newEntry(replEntry.name(), replEntry.type(), replEntry.authority());
-            ret.insert(std::pair<std::string, ServiceEntry>(replEntry.name(), newEntry));
+            CoreLayer::ServiceEntry newEntry(replEntry.name(), replEntry.type(), replEntry.authority());
+            ret.insert(std::pair<std::string, CoreLayer::ServiceEntry>(replEntry.name(), newEntry));
         }
 
         return ret;

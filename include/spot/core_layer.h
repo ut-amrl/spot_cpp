@@ -64,14 +64,14 @@ namespace CoreLayer {
            Output: ServiceEntry object representing the info from the response
            Side effects: -
         */
-        ServiceEntry listService(const std::string &serviceName) const;
+        CoreLayer::ServiceEntry listService(const std::string &serviceName) const;
         
         /* listAllServices(): lists all services that are registered on Spot
            Input: -
            Output: Map of [service name, ServiceEntry]
            Side effects: -
         */
-        std::map<std::string, ServiceEntry> listAllServices() const;
+        std::map<std::string, CoreLayer::ServiceEntry> listAllServices() const;
 
         /* Timesync */
         /* beginTimesync(): starts a timesync thread for periodic checkins with Spot

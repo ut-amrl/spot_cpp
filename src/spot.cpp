@@ -62,10 +62,10 @@ int main(int argc, char *argv[]) {
 	const std::string password = argv[2];
 
 	// spotbase testing code
-	CoreLayer::SpotBase spotbase();
+	CoreLayer::SpotBase spotbase;
 	spotbase.authenticate(username, password);
 	spotbase.getRobotId();
-	std::map<std::string, ServiceEntry> services = spotbase.listAllServices();
+	std::map<std::string, CoreLayer::ServiceEntry> services = spotbase.listAllServices();
 	for (const auto &service : services) {
 		std::cout << "name: " << service.first << std::endl;
 		std::cout << "serv name: " << service.second.getName() << std::endl;

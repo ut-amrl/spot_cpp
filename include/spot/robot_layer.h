@@ -66,7 +66,7 @@ namespace RobotLayer {
             Output: -
             Side effects: initializes member variables, deletes all registered endpoints if called again
         */
-        void setEstopConfiguration(const std::set<Endpoint> &endpoints, const std::string &targetConfigId);
+        void setEstopConfiguration(const std::set<std::shared_ptr<SpotEstopEndpoint>> &endpoints, const std::string &targetConfigId);
 
         /*
             registerEstop(): registers in estop in the config with the given parameters
@@ -83,7 +83,7 @@ namespace RobotLayer {
             Output: -
             Side effects: removes kv pair from endpoints map
         */
-        void deregisterEstopEndpoint(const std::string &uniqueId, const std:string &targetConfigId);
+        void deregisterEstopEndpoint(const std::string &uniqueId, const std::string &targetConfigId);
 
         /*
             beginEstopping(): kicks off estop threads
@@ -187,10 +187,10 @@ namespace RobotLayer {
     
     private:
     /* services: map of [service name, service entry] */
-    std::map<std::string, ServiceEntry> _services;
+    std::map<std::string, CoreLayer::ServiceEntry> _services;
 
     /* endpoints: map of [endpoint unique id, endpoint] */
-    std::map<std::string, SpotEstopEndpoint> _endpoints;
+    std::map<std::string, SpotEstopEndpoint&> _endpoints;
 
     /* estopThreads: map of [endpoint unique id, endpoint thread] */
     std::map<std::string, std::shared_ptr<EstopThread>> _estopThreads;
