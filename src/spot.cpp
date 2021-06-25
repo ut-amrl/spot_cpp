@@ -13,7 +13,7 @@
 #include <termios.h>
 #include <thread>
 
-void Spot::displayThread(){
+void Spot::startDisplay(){
 	GtkApplication *app;
 	int status;
 
@@ -46,30 +46,25 @@ void Spot::mainThread(int argc, char *argv[]){
 	// setup robot (initialize clients)
 	robot.setup(); 
 
-	// create estop and lease threads
-	robot.initBasicEstop();
-	std::cout << "Estop initialized" << std::endl;
-	robot.initBasicLease();
-	std::cout << "Lease initialized" << std::endl;
-	robot.initBasicTimesync();
-	std::cout << "Timesync initialized" << std::endl;
-	
-	// power on
-	robot.powerOn();
-	std::cout << "Powered on" << std::endl;
+	// GtkApplication *app;
+	// int status;
 
-	robot.move(stand);
-	std::cout << "Standing" << std::endl;
+	// app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+	// g_signal_connect (app, "activate", G_CALLBACK (Display::activate), NULL);
+	// status = g_application_run (G_APPLICATION (app), NULL, NULL);
+	// g_object_unref (app);
 
+	// robot.getImages();
 	while (true){
 		robot.getImages();
 		display.refresh();
+		// display.runDisplay(argc, argv);
 	}
 }
 
 // main function for running Spot clients
 int main(int argc, char *argv[]){
-	std::thread first (Spot::displayThread);     
+	std::thread first (Spot::startDisplay);     
   	std::thread second (Spot::mainThread, argc, argv);
 
 	first.join();                

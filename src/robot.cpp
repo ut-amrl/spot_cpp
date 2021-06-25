@@ -211,7 +211,7 @@ bool Robot::getImages(){
     //     std::cout << source.name() << std::endl;
     // }
 
-    request.set_image_source_name("frontright_fisheye_image"); // 18 by 38 far 
+    request.set_image_source_name("frontright_fisheye_image");
     request.set_quality_percent(50.0);
     request.set_image_format(bosdyn::api::Image_Format_FORMAT_JPEG);
 	std::vector<bosdyn::api::ImageRequest> vector;
@@ -219,8 +219,13 @@ bool Robot::getImages(){
 
 	GetImageResponse imageResp = _imageClientPtr->getImage(vector);
 
+    // std::cout << "status: " << imageResp.image_responses(0).status() << std::endl;
+    // std::cout << "pixel format: " << imageResp.image_responses(0).shot().image().pixel_format() << std::endl;
+
     std::ofstream myfile ("data.jpg");
     myfile << imageResp.image_responses(0).shot().image().data();
+    // GBytes *g_bytes_new (*imageResp.image_responses(0).shot().image().data(), );
+    // GBytes temp = imageResp.image_responses(0).shot().image().data();
     myfile.close();
 
     cv::Mat img = cv::imread("data.jpg", cv::IMREAD_ANYCOLOR);
