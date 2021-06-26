@@ -17,13 +17,17 @@ using bosdyn::api::ServiceEntry;
 
 const extern std::string DIRECTORY_REGISTRATION_CLIENT_NAME;
 
-class DirectoryRegistrationClient : public BaseClient<DirectoryRegistrationService> {
-public:
-  DirectoryRegistrationClient(const std::string &authority, const std::string &token);
+namespace ClientLayer {
 
-  RegisterServiceResponse registerService(Endpoint endpoint, ServiceEntry serviceEntry);
-  UpdateServiceResponse updateService(Endpoint endpoint, ServiceEntry serviceEntry);
-  UnregisterServiceResponse unregisterService(std::string serviceName);
+  class DirectoryRegistrationClient : public BaseClient<DirectoryRegistrationService> {
+  public:
+    DirectoryRegistrationClient(const std::string &authority, const std::string &token);
+
+    RegisterServiceResponse registerService(Endpoint endpoint, ServiceEntry serviceEntry);
+    UpdateServiceResponse updateService(Endpoint endpoint, ServiceEntry serviceEntry);
+    UnregisterServiceResponse unregisterService(std::string serviceName);
+  };
+
 };
 
 #endif

@@ -20,11 +20,11 @@ namespace RobotLayer {
         _services = spotBase->listAllServices();
 
         // initialize clients
-        _estopClient = std::shared_ptr<EstopClient>(new EstopClient(_services.find(ESTOP_CLIENT_NAME)->second.getAuthority(), authToken));  
-        _leaseClient = std::shared_ptr<LeaseClient>(new LeaseClient(_services.find(LEASE_CLIENT_NAME)->second.getAuthority(), authToken));        
-        _powerClient = std::shared_ptr<PowerClient>(new PowerClient(_services.find(POWER_CLIENT_NAME)->second.getAuthority(), authToken));  
-        _robotCommandClient = std::shared_ptr<RobotCommandClient>(new RobotCommandClient(_services.find(ROBOT_COMMAND_CLIENT_NAME)->second.getAuthority(), authToken)); 
-        _spotCheckClient = std::shared_ptr<SpotCheckClient>(new SpotCheckClient(_services.find(SPOT_CHECK_CLIENT_NAME)->second.getAuthority(), authToken));  
+        _estopClient = std::shared_ptr<ClientLayer::EstopClient>(new ClientLayer::EstopClient(_services.find(ESTOP_CLIENT_NAME)->second.getAuthority(), authToken));  
+        _leaseClient = std::shared_ptr<ClientLayer::LeaseClient>(new ClientLayer::LeaseClient(_services.find(LEASE_CLIENT_NAME)->second.getAuthority(), authToken));        
+        _powerClient = std::shared_ptr<ClientLayer::PowerClient>(new ClientLayer::PowerClient(_services.find(POWER_CLIENT_NAME)->second.getAuthority(), authToken));  
+        _robotCommandClient = std::shared_ptr<ClientLayer::RobotCommandClient>(new ClientLayer::RobotCommandClient(_services.find(ROBOT_COMMAND_CLIENT_NAME)->second.getAuthority(), authToken)); 
+        _spotCheckClient = std::shared_ptr<ClientLayer::SpotCheckClient>(new ClientLayer::SpotCheckClient(_services.find(SPOT_CHECK_CLIENT_NAME)->second.getAuthority(), authToken));  
     }
 
     bool SpotControl::estopped() {
@@ -40,7 +40,7 @@ namespace RobotLayer {
         return reply.status().stop_level() != bosdyn::api::ESTOP_LEVEL_NONE;
     }
 
-    void SpotControl::setEstopConfiguration(const std::set<std::shared_ptr<SpotEstopEndpoint>> &endpoints, const std::string &targetConfigId) {
+    void SpotControl::setEstopConfiguration(const std::set<std::shared_ptr<ClientLayer::EstopEndpoint>> &endpoints, const std::string &targetConfigId) {
         // create config
         EstopConfig config; 
 
@@ -81,13 +81,13 @@ namespace RobotLayer {
         // create new endpoint obj w/ blank unique id (assigned by server)
         try {
             // create new endpoint
-            std::shared_ptr<SpotEstopEndpoint> ptr(new SpotEstopEndpoint(_estopClient, name, role, temp, "", estopTimeout, estopCutPowerTimeout));
+            std::shared_ptr<ClientLayer::EstopEndpoint> ptr(new ClientLayer::EstopEndpoint(_estopClient, name, role, temp, "", estopTimeout, estopCutPowerTimeout));
 
             // convert to proto representation
-            EstopEndpoint fromEndpoint = ptr->toProto();
+            bosdyn::api::EstopEndpoint fromEndpoint = ptr->toProto();
             
             // create temp endpoint to replace
-            EstopEndpoint endpointToReplace;
+            bosdyn::api::EstopEndpoint endpointToReplace;
             endpointToReplace.set_role(role);
 
             // rpc and set new unique id
@@ -95,7 +95,7 @@ namespace RobotLayer {
             ptr->setUniqueId(reply.new_endpoint().unique_id());
             
             // insert into map
-            _endpoints.insert(std::pair<std::string, std::shared_ptr<SpotEstopEndpoint>>(ptr->getUniqueId(), ptr));
+            _endpoints.insert(std::pair<std::string, std::shared_ptr<ClientLayer::EstopEndpoint>>(ptr->getUniqueId(), ptr));
             return ptr->getUniqueId();
         } catch (Error &e) {
             std::cout << e.what() << std::endl;
@@ -136,22 +136,23 @@ namespace RobotLayer {
         }
 
         // create estop thread
-        std::shared_ptr<EstopThread> ptr = std::shared_ptr<EstopThread>(new EstopThread(_estopClient, it->second));
+        std::shared_ptr<ClientLayer::EstopThread> ptr = std::shared_ptr<ClientLayer::EstopThread>(new ClientLayer::EstopThread(_estopClient, it->second));
 
         // add thread to map
-        _estopThreads.insert(std::pair<std::string, std::shared_ptr<EstopThread>>(it->second->getUniqueId(), ptr));
+        _estopThreads.insert(std::pair<std::string, std::shared_ptr<ClientLayer::EstopThread>>(it->second->getUniqueId(), ptr));
 
         // kick off estop
         ptr->beginEstop();
     }
 
+    // todo: fix
     void SpotControl::beginEstopping() {
         for (const auto &endpoint : _endpoints) {
             // create estop thread
-            std::shared_ptr<EstopThread> ptr = std::shared_ptr<EstopThread>(new EstopThread(_estopClient, endpoint.second));
+            std::shared_ptr<ClientLayer::EstopThread> ptr = std::shared_ptr<ClientLayer::EstopThread>(new ClientLayer::EstopThread(_estopClient, endpoint.second));
 
             // add thread to map
-            _estopThreads.insert(std::pair<std::string, std::shared_ptr<EstopThread>>(endpoint.second->getName(), ptr));
+            _estopThreads.insert(std::pair<std::string, std::shared_ptr<ClientLayer::EstopThread>>(endpoint.second->getName(), ptr));
 
             // kick off estop
             ptr->beginEstop();
@@ -220,22 +221,23 @@ namespace RobotLayer {
         }
 
         // create thread
-        std::shared_ptr<LeaseThread> thread = std::shared_ptr<LeaseThread>(new LeaseThread(_leaseClient, it->second));
+        std::shared_ptr<ClientLayer::LeaseThread> thread = std::shared_ptr<ClientLayer::LeaseThread>(new ClientLayer::LeaseThread(_leaseClient, it->second));
 
         // add thread to thread map
-        _leaseThreads.insert(std::pair<std::string, std::shared_ptr<LeaseThread>>(resource, thread));
+        _leaseThreads.insert(std::pair<std::string, std::shared_ptr<ClientLayer::LeaseThread>>(resource, thread));
 
         // kick off thread
         thread->beginLease();
     }
 
+    // todo: fix
     void SpotControl::beginLeasing() {
         for (const auto &lease : _leases) {
             // create thread
-            std::shared_ptr<LeaseThread> thread = std::shared_ptr<LeaseThread>(new LeaseThread(_leaseClient, lease.second));
+            std::shared_ptr<ClientLayer::LeaseThread> thread = std::shared_ptr<ClientLayer::LeaseThread>(new ClientLayer::LeaseThread(_leaseClient, lease.second));
 
             // add to thread map
-            _leaseThreads.insert(std::pair<std::string, std::shared_ptr<LeaseThread>>(lease.first, thread));
+            _leaseThreads.insert(std::pair<std::string, std::shared_ptr<ClientLayer::LeaseThread>>(lease.first, thread));
 
             // kick off thread
             thread->beginLease();
@@ -276,7 +278,7 @@ namespace RobotLayer {
         pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
 
         // get lease
-        Lease bodyLease = _leases.find("body")->second;
+        bosdyn::api::Lease bodyLease = _leases.find("body")->second;
         PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r); 
         uint32_t pcID = powerCommResp.power_command_id();
 
@@ -294,7 +296,7 @@ namespace RobotLayer {
         pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_OFF;
 
         // get lease
-        Lease bodyLease = _leases.find("body")->second;
+        bosdyn::api::Lease bodyLease = _leases.find("body")->second;
         PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
         uint32_t pcID = powerCommResp.power_command_id();
 
@@ -316,7 +318,7 @@ namespace RobotLayer {
     void SpotControl::sit() {
         RobotCommand command;
         command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();  
-        Lease bodyLease = _leases.find("body")->second;    
+        bosdyn::api::Lease bodyLease = _leases.find("body")->second;    
         try{  
             std::string clockIdentifier = getClockIdentifier();
             RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -329,7 +331,7 @@ namespace RobotLayer {
     void SpotControl::stand() {
         RobotCommand command;
         command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-        Lease bodyLease = _leases.find("body")->second;
+        bosdyn::api::Lease bodyLease = _leases.find("body")->second;
         try{  
             std::string clockIdentifier = getClockIdentifier();
             RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -351,7 +353,7 @@ namespace RobotLayer {
         se2VelocityCommand_Request.mutable_velocity()->set_angular(rot);
         command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_velocity_request()->CopyFrom(se2VelocityCommand_Request);
        
-        Lease bodyLease = _leases.find("body")->second;
+        bosdyn::api::Lease bodyLease = _leases.find("body")->second;
         try{  
             std::string clockIdentifier = getClockIdentifier();
             RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -380,7 +382,7 @@ namespace RobotLayer {
         RobotCommand command;
         command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->CopyFrom(trajectoryCommandReq);
         
-        Lease bodyLease = _leases.find("body")->second;
+        bosdyn::api::Lease bodyLease = _leases.find("body")->second;
         try{  
             std::string clockIdentifier = getClockIdentifier();
             RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);

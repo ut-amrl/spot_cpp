@@ -15,12 +15,16 @@ using bosdyn::api::RobotIdResponse;
 
 const extern std::string ROBOT_ID_CLIENT_NAME;
 
-class RobotIdClient : public BaseClient<RobotIdService> {
-public:
-	RobotIdClient();
+namespace ClientLayer {
 
-	RobotIdResponse getId();
-	RobotIdResponse getIdAsync();
+	class RobotIdClient : public BaseClient<RobotIdService> {
+	public:
+		RobotIdClient();
+
+		RobotIdResponse getId();
+		RobotIdResponse getIdAsync();
+	};
+
 };
 
 #endif

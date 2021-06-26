@@ -24,14 +24,18 @@ using bosdyn::api::LicenseInfo;
 
 const extern std::string POWER_CLIENT_NAME;
 
-class PowerClient : public BaseClient<PowerService> {
-public:
-  PowerClient(const std::string &authority, const std::string &token);
+namespace ClientLayer {
 
-  PowerCommandResponse PowerCommand(Lease lease, const PowerCommandRequest_Request& request);
-  PowerCommandResponse PowerCommandAsync(Lease lease, const PowerCommandRequest_Request& powerRequest);
-  PowerCommandFeedbackResponse PowerCommandFeedback(uint32_t powerCommandId);
-  PowerCommandFeedbackResponse PowerCommandFeedbackAsync(uint32_t powerCommandId);
+  class PowerClient : public BaseClient<PowerService> {
+  public:
+    PowerClient(const std::string &authority, const std::string &token);
+
+    PowerCommandResponse PowerCommand(bosdyn::api::Lease lease, const PowerCommandRequest_Request& request);
+    PowerCommandResponse PowerCommandAsync(bosdyn::api::Lease lease, const PowerCommandRequest_Request& powerRequest);
+    PowerCommandFeedbackResponse PowerCommandFeedback(uint32_t powerCommandId);
+    PowerCommandFeedbackResponse PowerCommandFeedbackAsync(uint32_t powerCommandId);
+  };
+
 };
 
 #endif

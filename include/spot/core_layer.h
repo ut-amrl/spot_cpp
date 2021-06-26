@@ -11,25 +11,6 @@
 #include <map>
 
 namespace CoreLayer {
-    /*
-        class ServiceEntry: holds service entries returned from the directory service
-    */
-    class ServiceEntry {
-    public:
-        ServiceEntry(const std::string &name, const std::string &type, const std::string &authority) :
-                _name(name),
-                _type(type),
-                _authority(authority) {}
-
-        /* Accessors */
-        const std::string getName() const { return _name; }
-        const std::string getType() const { return _type; }
-        const std::string getAuthority() const { return _authority; }
-    private:
-        const std::string _name;
-        const std::string _type;
-        const std::string _authority;
-    };
 
     /*
         class SpotBase: Holds auth, directory, robot-id, timesync client functionality
@@ -64,14 +45,14 @@ namespace CoreLayer {
            Output: ServiceEntry object representing the info from the response
            Side effects: -
         */
-        CoreLayer::ServiceEntry listService(const std::string &serviceName) const;
+        ClientLayer::ServiceEntry listService(const std::string &serviceName) const;
         
         /* listAllServices(): lists all services that are registered on Spot
            Input: -
            Output: Map of [service name, ServiceEntry]
            Side effects: -
         */
-        std::map<std::string, CoreLayer::ServiceEntry> listAllServices() const;
+        std::map<std::string, ClientLayer::ServiceEntry> listAllServices() const;
 
         /* Timesync */
         /* beginTimesync(): starts a timesync thread for periodic checkins with Spot
@@ -89,25 +70,25 @@ namespace CoreLayer {
         void endTimesync();
 
         /* Client accessor methods (if user needs direct access to client) */
-        const std::shared_ptr<AuthClient> getAuthClient() const { return _authClient; }
-        const std::shared_ptr<DirectoryClient> getDirectoryClient() const { return _directoryClient; }
-        const std::shared_ptr<RobotIdClient> getRobotIdClient() const { return _robotIdClient; }
-        const std::shared_ptr<TimeSyncClient> getTimeSyncClient() const { return _timeSyncClient; }
+        const std::shared_ptr<ClientLayer::AuthClient> getAuthClient() const { return _authClient; }
+        const std::shared_ptr<ClientLayer::DirectoryClient> getDirectoryClient() const { return _directoryClient; }
+        const std::shared_ptr<ClientLayer::RobotIdClient> getRobotIdClient() const { return _robotIdClient; }
+        const std::shared_ptr<ClientLayer::TimeSyncClient> getTimeSyncClient() const { return _timeSyncClient; }
 
         /* Other accessor methods */
         const std::string getAuthToken() const { return _authToken; }
-        const std::shared_ptr<TimeSyncThread> getTimeSyncThread() const { return _timeSyncThread; }
+        const std::shared_ptr<ClientLayer::TimeSyncThread> getTimeSyncThread() const { return _timeSyncThread; }
     private:
         /* authToken: stored authorization token */
         std::string _authToken;
 
         /* timeSyncThread: stored pointer to time sync thread */
-        std::shared_ptr<TimeSyncThread> _timeSyncThread;
+        std::shared_ptr<ClientLayer::TimeSyncThread> _timeSyncThread;
     private:
-        std::shared_ptr<AuthClient> _authClient;
-        std::shared_ptr<DirectoryClient> _directoryClient;
-        std::shared_ptr<RobotIdClient> _robotIdClient;
-        std::shared_ptr<TimeSyncClient> _timeSyncClient;
+        std::shared_ptr<ClientLayer::AuthClient> _authClient;
+        std::shared_ptr<ClientLayer::DirectoryClient> _directoryClient;
+        std::shared_ptr<ClientLayer::RobotIdClient> _robotIdClient;
+        std::shared_ptr<ClientLayer::TimeSyncClient> _timeSyncClient;
     };
 
     /*
@@ -117,7 +98,7 @@ namespace CoreLayer {
     public:
         SpotPayloads();
     private:
-        std::shared_ptr<DirectoryRegistrationClient> _directoryRegistrationClient; 
+        std::shared_ptr<ClientLayer::DirectoryRegistrationClient> _directoryRegistrationClient; 
     };
 };
 

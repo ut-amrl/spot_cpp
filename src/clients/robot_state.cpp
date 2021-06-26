@@ -2,71 +2,75 @@
 
 const std::string ROBOT_STATE_CLIENT_NAME = "robot-state";
 
-RobotStateClient::RobotStateClient(const std::string &authority, const std::string &token) : BaseClient(ROBOT_STATE_CLIENT_NAME, authority, token) {}
+namespace ClientLayer {
 
-RobotStateResponse RobotStateClient::getRobotState(){
-  // Data we are sending to the server.
-  RobotStateRequest request;
-  assembleRequestHeader<RobotStateRequest>(&request);
+  RobotStateClient::RobotStateClient(const std::string &authority, const std::string &token) : BaseClient(ROBOT_STATE_CLIENT_NAME, authority, token) {}
 
-  return call<RobotStateRequest, RobotStateResponse>(request, &RobotStateService::Stub::GetRobotState);
-}
+  RobotStateResponse RobotStateClient::getRobotState(){
+    // Data we are sending to the server.
+    RobotStateRequest request;
+    assembleRequestHeader<RobotStateRequest>(&request);
 
-RobotStateResponse RobotStateClient::getRobotStateAsync(){
-  // Data we are sending to the server.
-  RobotStateRequest request;
-  assembleRequestHeader<RobotStateRequest>(&request);
+    return call<RobotStateRequest, RobotStateResponse>(request, &RobotStateService::Stub::GetRobotState);
+  }
 
-  return callAsync<RobotStateRequest, RobotStateResponse>(request, &RobotStateService::Stub::AsyncGetRobotState);
-}
+  RobotStateResponse RobotStateClient::getRobotStateAsync(){
+    // Data we are sending to the server.
+    RobotStateRequest request;
+    assembleRequestHeader<RobotStateRequest>(&request);
 
-RobotMetricsResponse RobotStateClient::getRobotMetrics(){
-  // Data we are sending to the server.
-  RobotMetricsRequest request;
-  assembleRequestHeader<RobotMetricsRequest>(&request);
+    return callAsync<RobotStateRequest, RobotStateResponse>(request, &RobotStateService::Stub::AsyncGetRobotState);
+  }
 
-  return call<RobotMetricsRequest, RobotMetricsResponse>(request, &RobotStateService::Stub::GetRobotMetrics);
-}
+  RobotMetricsResponse RobotStateClient::getRobotMetrics(){
+    // Data we are sending to the server.
+    RobotMetricsRequest request;
+    assembleRequestHeader<RobotMetricsRequest>(&request);
 
-RobotMetricsResponse RobotStateClient::getRobotMetricsAsync(){
-  // Data we are sending to the server.
-  RobotMetricsRequest request;
-  assembleRequestHeader<RobotMetricsRequest>(&request);
+    return call<RobotMetricsRequest, RobotMetricsResponse>(request, &RobotStateService::Stub::GetRobotMetrics);
+  }
 
-  return callAsync<RobotMetricsRequest, RobotMetricsResponse>(request, &RobotStateService::Stub::AsyncGetRobotMetrics);
-}
+  RobotMetricsResponse RobotStateClient::getRobotMetricsAsync(){
+    // Data we are sending to the server.
+    RobotMetricsRequest request;
+    assembleRequestHeader<RobotMetricsRequest>(&request);
 
-RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfiguration(){
-  // Data we are sending to the server.
-  RobotHardwareConfigurationRequest request;
-  assembleRequestHeader<RobotHardwareConfigurationRequest>(&request);
+    return callAsync<RobotMetricsRequest, RobotMetricsResponse>(request, &RobotStateService::Stub::AsyncGetRobotMetrics);
+  }
 
-  return call<RobotHardwareConfigurationRequest, RobotHardwareConfigurationResponse>(request, &RobotStateService::Stub::GetRobotHardwareConfiguration);
-}
+  RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfiguration(){
+    // Data we are sending to the server.
+    RobotHardwareConfigurationRequest request;
+    assembleRequestHeader<RobotHardwareConfigurationRequest>(&request);
 
-RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfigurationAsync(){
-  // Data we are sending to the server.
-  RobotHardwareConfigurationRequest request;
-  assembleRequestHeader<RobotHardwareConfigurationRequest>(&request);
+    return call<RobotHardwareConfigurationRequest, RobotHardwareConfigurationResponse>(request, &RobotStateService::Stub::GetRobotHardwareConfiguration);
+  }
 
-  return callAsync<RobotHardwareConfigurationRequest, RobotHardwareConfigurationResponse>(request, &RobotStateService::Stub::AsyncGetRobotHardwareConfiguration);
-}
+  RobotHardwareConfigurationResponse RobotStateClient::getRobotHardwareConfigurationAsync(){
+    // Data we are sending to the server.
+    RobotHardwareConfigurationRequest request;
+    assembleRequestHeader<RobotHardwareConfigurationRequest>(&request);
 
-RobotLinkModelResponse RobotStateClient::getRobotLinkModel(const std::string &linkName){
-  // Data we are sending to the server.
-  RobotLinkModelRequest request;
-  assembleRequestHeader<RobotLinkModelRequest>(&request);
-  request.set_link_name(linkName);
-  
+    return callAsync<RobotHardwareConfigurationRequest, RobotHardwareConfigurationResponse>(request, &RobotStateService::Stub::AsyncGetRobotHardwareConfiguration);
+  }
 
-  return call<RobotLinkModelRequest, RobotLinkModelResponse>(request, &RobotStateService::Stub::GetRobotLinkModel);
-}
+  RobotLinkModelResponse RobotStateClient::getRobotLinkModel(const std::string &linkName){
+    // Data we are sending to the server.
+    RobotLinkModelRequest request;
+    assembleRequestHeader<RobotLinkModelRequest>(&request);
+    request.set_link_name(linkName);
+    
 
-RobotLinkModelResponse RobotStateClient::getRobotLinkModelAsync(const std::string &linkName){
-  // Data we are sending to the server.
-  RobotLinkModelRequest request;
-  assembleRequestHeader<RobotLinkModelRequest>(&request);
-  request.set_link_name(linkName);
+    return call<RobotLinkModelRequest, RobotLinkModelResponse>(request, &RobotStateService::Stub::GetRobotLinkModel);
+  }
 
-  return callAsync<RobotLinkModelRequest, RobotLinkModelResponse>(request, &RobotStateService::Stub::AsyncGetRobotLinkModel);
-}
+  RobotLinkModelResponse RobotStateClient::getRobotLinkModelAsync(const std::string &linkName){
+    // Data we are sending to the server.
+    RobotLinkModelRequest request;
+    assembleRequestHeader<RobotLinkModelRequest>(&request);
+    request.set_link_name(linkName);
+
+    return callAsync<RobotLinkModelRequest, RobotLinkModelResponse>(request, &RobotStateService::Stub::AsyncGetRobotLinkModel);
+  }
+
+};

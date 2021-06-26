@@ -18,14 +18,18 @@ using bosdyn::api::GetImageRequest;
 
 const extern std::string IMAGE_CLIENT_NAME;
 
-class ImageClient : public BaseClient<ImageService> {
-public:
-	ImageClient(const std::string &authority, const std::string &token);
+namespace ClientLayer {
 
-	GetImageResponse getImage(const std::vector<ImageRequest> imageRequests);
-	GetImageResponse getImageAsync(const std::vector<ImageRequest> imageRequests);
-	ListImageSourcesResponse listImageSources();
-	ListImageSourcesResponse listImageSourcesAsync();
+	class ImageClient : public BaseClient<ImageService> {
+	public:
+		ImageClient(const std::string &authority, const std::string &token);
+
+		GetImageResponse getImage(const std::vector<ImageRequest> imageRequests);
+		GetImageResponse getImageAsync(const std::vector<ImageRequest> imageRequests);
+		ListImageSourcesResponse listImageSources();
+		ListImageSourcesResponse listImageSourcesAsync();
+	};
+
 };
 
 

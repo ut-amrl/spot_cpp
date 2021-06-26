@@ -51,22 +51,26 @@ using bosdyn::api::LeaseUseResult;
 
 const extern std::string ROBOT_COMMAND_CLIENT_NAME;
 
-class RobotCommandClient : public BaseClient<RobotCommandService> {
-public:
-  RobotCommandClient(const std::string &authority, const std::string &token);
+namespace ClientLayer {
 
-  RobotCommandResponse robotCommand(Lease lease, RobotCommand command, std::string &clockIdentifier);
-  RobotCommandResponse robotCommandAsync(Lease lease, RobotCommand command, std::string &clockIdentifier);
-  RobotCommandFeedbackResponse robotCommandFeedback(uint32_t robotCommandId);
-  RobotCommandFeedbackResponse robotCommandFeedbackAsync(uint32_t robotCommandId);
-  ClearBehaviorFaultResponse clearBehaviorFault(Lease lease, uint32_t behaviorFaultId);
-  ClearBehaviorFaultResponse clearBehaviorFaultAsync(Lease lease, uint32_t behaviorFaultId);
+  class RobotCommandClient : public BaseClient<RobotCommandService> {
+  public:
+    RobotCommandClient(const std::string &authority, const std::string &token);
 
-private:
-  //new
-  RobotCommandRequest getRobotCommandRequest(Lease lease, RobotCommand command);
-  RobotCommandFeedbackRequest getRobotCommandFeedbackRequest(uint32_t robotCommandId);
-  ClearBehaviorFaultRequest getClearBehaviorFaultRequest(Lease lease, uint32_t behaviorFaultId);
+    RobotCommandResponse robotCommand(bosdyn::api::Lease lease, RobotCommand command, std::string &clockIdentifier);
+    RobotCommandResponse robotCommandAsync(bosdyn::api::Lease lease, RobotCommand command, std::string &clockIdentifier);
+    RobotCommandFeedbackResponse robotCommandFeedback(uint32_t robotCommandId);
+    RobotCommandFeedbackResponse robotCommandFeedbackAsync(uint32_t robotCommandId);
+    ClearBehaviorFaultResponse clearBehaviorFault(bosdyn::api::Lease lease, uint32_t behaviorFaultId);
+    ClearBehaviorFaultResponse clearBehaviorFaultAsync(bosdyn::api::Lease lease, uint32_t behaviorFaultId);
+
+  private:
+    //new
+    RobotCommandRequest getRobotCommandRequest(bosdyn::api::Lease lease, RobotCommand command);
+    RobotCommandFeedbackRequest getRobotCommandFeedbackRequest(uint32_t robotCommandId);
+    ClearBehaviorFaultRequest getClearBehaviorFaultRequest(bosdyn::api::Lease lease, uint32_t behaviorFaultId);
+  };
+
 };
 
 #endif

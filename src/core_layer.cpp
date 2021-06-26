@@ -7,8 +7,8 @@ namespace CoreLayer {
 
     SpotBase::SpotBase() {
         // initialize pointers
-        _authClient = std::shared_ptr<AuthClient>(new AuthClient());
-        _robotIdClient = std::shared_ptr<RobotIdClient>(new RobotIdClient());
+        _authClient = std::shared_ptr<ClientLayer::AuthClient>(new ClientLayer::AuthClient());
+        _robotIdClient = std::shared_ptr<ClientLayer::RobotIdClient>(new ClientLayer::RobotIdClient());
     }
 
     /* Common SpotBase functionality implementations */
@@ -21,7 +21,7 @@ namespace CoreLayer {
             return;
         }
 
-        _directoryClient = std::shared_ptr<DirectoryClient>(new DirectoryClient(_authToken));
+        _directoryClient = std::shared_ptr<ClientLayer::DirectoryClient>(new ClientLayer::DirectoryClient(_authToken));
     }
 
     /* Robot Id */
@@ -44,22 +44,22 @@ namespace CoreLayer {
     }
 
     /* Directory */
-    CoreLayer::ServiceEntry SpotBase::listService(const std::string &serviceName) const {
+    ClientLayer::ServiceEntry SpotBase::listService(const std::string &serviceName) const {
         GetServiceEntryResponse reply;
         try {
             reply = _directoryClient->getEntry(serviceName);
         } catch (Error &e) {
             std::cout << e.what() << std::endl;
-            CoreLayer::ServiceEntry badEntry("", "", "");
+            ClientLayer::ServiceEntry badEntry("", "", "");
             return badEntry;
         }
 
-        CoreLayer::ServiceEntry entry(reply.service_entry().name(), reply.service_entry().type(), reply.service_entry().authority());
+        ClientLayer::ServiceEntry entry(reply.service_entry().name(), reply.service_entry().type(), reply.service_entry().authority());
         return entry;
     }
 
-    std::map<std::string, CoreLayer::ServiceEntry> SpotBase::listAllServices() const {
-        std::map<std::string, CoreLayer::ServiceEntry> ret;
+    std::map<std::string, ClientLayer::ServiceEntry> SpotBase::listAllServices() const {
+        std::map<std::string, ClientLayer::ServiceEntry> ret;
         ListServiceEntriesResponse reply;
         
         // do rpc
@@ -73,8 +73,8 @@ namespace CoreLayer {
         // populate map from rpc
         for (int i = 0; i < reply.service_entries_size(); i++) {
             const bosdyn::api::ServiceEntry replEntry = reply.service_entries(i);
-            CoreLayer::ServiceEntry newEntry(replEntry.name(), replEntry.type(), replEntry.authority());
-            ret.insert(std::pair<std::string, CoreLayer::ServiceEntry>(replEntry.name(), newEntry));
+            ClientLayer::ServiceEntry newEntry(replEntry.name(), replEntry.type(), replEntry.authority());
+            ret.insert(std::pair<std::string, ClientLayer::ServiceEntry>(replEntry.name(), newEntry));
         }
 
         return ret;
@@ -83,7 +83,7 @@ namespace CoreLayer {
 
     void SpotBase::beginTimesync() {
         // create time sync client
-        _timeSyncClient = std::shared_ptr<TimeSyncClient>(new TimeSyncClient(_directoryClient->getEntry(TIMESYNC_CLIENT_NAME).service_entry().authority(), _authToken));
+        _timeSyncClient = std::shared_ptr<ClientLayer::TimeSyncClient>(new ClientLayer::TimeSyncClient(_directoryClient->getEntry(TIMESYNC_CLIENT_NAME).service_entry().authority(), _authToken));
 
         // do initial rpc
         bosdyn::api::TimeSyncUpdateResponse reply;
@@ -101,13 +101,13 @@ namespace CoreLayer {
         // send rpcs until synchronized
         while (reply.state().status() == 2 || reply.state().status() == 3) {
             // send new rpc and set clockskew
-            reply = _timeSyncClient->getTimeSyncUpdate(createTrip(reply), clockIdentifier);
+            reply = _timeSyncClient->getTimeSyncUpdate(ClientLayer::createTrip(reply), clockIdentifier);
             clockSkew  = TimeUtil::DurationToSeconds(reply.state().best_estimate().clock_skew());
             std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECS));
         }
 
         // create time sync thread object and kick off thread
-        _timeSyncThread = std::shared_ptr<TimeSyncThread>(new TimeSyncThread(_timeSyncClient, clockIdentifier, clockSkew, reply));
+        _timeSyncThread = std::shared_ptr<ClientLayer::TimeSyncThread>(new ClientLayer::TimeSyncThread(_timeSyncClient, clockIdentifier, clockSkew, reply));
         _timeSyncThread->beginTimeSync();
     }
 

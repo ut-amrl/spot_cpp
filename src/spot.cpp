@@ -69,9 +69,9 @@ int main(int argc, char *argv[]) {
 	// spotcontrol testing code	
 	RobotLayer::SpotControl spotcontrol(spotbase);
 
-	std::shared_ptr<SpotEstopEndpoint> endpoint = std::shared_ptr<SpotEstopEndpoint>(new SpotEstopEndpoint(spotcontrol.getEstopClient(), "pdb_root", "PDB_rooted", "", "", 30, 3));
+	std::shared_ptr<ClientLayer::EstopEndpoint> endpoint = std::shared_ptr<ClientLayer::EstopEndpoint>(new ClientLayer::EstopEndpoint(spotcontrol.getEstopClient(), "pdb_root", "PDB_rooted", "", "", 30, 3));
 	
-	std::set<std::shared_ptr<SpotEstopEndpoint>> endpoints;
+	std::set<std::shared_ptr<ClientLayer::EstopEndpoint>> endpoints;
 	
 	endpoints.insert(endpoint);
 	

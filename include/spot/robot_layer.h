@@ -31,15 +31,15 @@ namespace RobotLayer {
         /* Robot state */
 
         /* Client accessors */
-        const std::shared_ptr<ImageClient> getImageClient() const { return _imageClient; }
-        const std::shared_ptr<LocalGridClient> getLocalGridClient() const { return _localGridClient; }
-        const std::shared_ptr<RobotStateClient> getRobotStateClient() const { return _robotStateClient; }
+        const std::shared_ptr<ClientLayer::ImageClient> getImageClient() const { return _imageClient; }
+        const std::shared_ptr<ClientLayer::LocalGridClient> getLocalGridClient() const { return _localGridClient; }
+        const std::shared_ptr<ClientLayer::RobotStateClient> getRobotStateClient() const { return _robotStateClient; }
 
         /* Accessors */
     private:
-        std::shared_ptr<ImageClient> _imageClient;
-        std::shared_ptr<LocalGridClient> _localGridClient;
-        std::shared_ptr<RobotStateClient> _robotStateClient;
+        std::shared_ptr<ClientLayer::ImageClient> _imageClient;
+        std::shared_ptr<ClientLayer::LocalGridClient> _localGridClient;
+        std::shared_ptr<ClientLayer::RobotStateClient> _robotStateClient;
         // todo: world objects client
     };
 
@@ -66,7 +66,7 @@ namespace RobotLayer {
             Output: -
             Side effects: initializes member variables, deletes all registered endpoints if called again
         */
-        void setEstopConfiguration(const std::set<std::shared_ptr<SpotEstopEndpoint>> &endpoints, const std::string &targetConfigId);
+        void setEstopConfiguration(const std::set<std::shared_ptr<ClientLayer::EstopEndpoint>> &endpoints, const std::string &targetConfigId);
 
         /*
             registerEstop(): registers in estop in the config with the given parameters
@@ -193,27 +193,27 @@ namespace RobotLayer {
 
         /* Accessors */
         const std::string getEstopConfigId() const { return _estopConfigId; }
-        const std::map<std::string, std::shared_ptr<SpotEstopEndpoint>> getEndpoints() const { return _endpoints; }
+        const std::map<std::string, std::shared_ptr<ClientLayer::EstopEndpoint>> getEndpoints() const { return _endpoints; }
 
         /* Client accessor methods */
-        const std::shared_ptr<EstopClient> getEstopClient() const { return _estopClient; }
-        const std::shared_ptr<LeaseClient> getLeaseClient() const { return _leaseClient; }
-        const std::shared_ptr<PowerClient> getPowerClient() const { return _powerClient; }
-        const std::shared_ptr<RobotCommandClient> getRobotCommandClient() const { return _robotCommandClient; }
-        const std::shared_ptr<SpotCheckClient> getSpotCheckClient() const { return _spotCheckClient; }
+        const std::shared_ptr<ClientLayer::EstopClient> getEstopClient() const { return _estopClient; }
+        const std::shared_ptr<ClientLayer::LeaseClient> getLeaseClient() const { return _leaseClient; }
+        const std::shared_ptr<ClientLayer::PowerClient> getPowerClient() const { return _powerClient; }
+        const std::shared_ptr<ClientLayer::RobotCommandClient> getRobotCommandClient() const { return _robotCommandClient; }
+        const std::shared_ptr<ClientLayer::SpotCheckClient> getSpotCheckClient() const { return _spotCheckClient; }
     private:
     std::string getClockIdentifier();
     int64_t getClockSkew();
 
     private:
     /* services: map of [service name, service entry] */
-    std::map<std::string, CoreLayer::ServiceEntry> _services;
+    std::map<std::string, ClientLayer::ServiceEntry> _services;
 
     /* endpoints: map of [endpoint unique id, endpoint] */
-    std::map<std::string, std::shared_ptr<SpotEstopEndpoint>> _endpoints;
+    std::map<std::string, std::shared_ptr<ClientLayer::EstopEndpoint>> _endpoints;
 
     /* estopThreads: map of [endpoint unique id, endpoint thread] */
-    std::map<std::string, std::shared_ptr<EstopThread>> _estopThreads;
+    std::map<std::string, std::shared_ptr<ClientLayer::EstopThread>> _estopThreads;
     
     /* estopConfigId: current estop config id of which endpoints are registered against */
     std::string _estopConfigId; 
@@ -222,15 +222,15 @@ namespace RobotLayer {
     std::map<std::string, Lease> _leases;
 
     /* leaseThreads: map of [resource, lease thread] */
-    std::map<std::string, std::shared_ptr<LeaseThread>> _leaseThreads;
+    std::map<std::string, std::shared_ptr<ClientLayer::LeaseThread>> _leaseThreads;
     
     private:
         std::shared_ptr<CoreLayer::SpotBase> _spotBase;
-        std::shared_ptr<EstopClient> _estopClient;
-        std::shared_ptr<LeaseClient> _leaseClient;
-        std::shared_ptr<PowerClient> _powerClient;
-        std::shared_ptr<RobotCommandClient> _robotCommandClient;
-        std::shared_ptr<SpotCheckClient> _spotCheckClient;
+        std::shared_ptr<ClientLayer::EstopClient> _estopClient;
+        std::shared_ptr<ClientLayer::LeaseClient> _leaseClient;
+        std::shared_ptr<ClientLayer::PowerClient> _powerClient;
+        std::shared_ptr<ClientLayer::RobotCommandClient> _robotCommandClient;
+        std::shared_ptr<ClientLayer::SpotCheckClient> _spotCheckClient;
     };
 
     /*

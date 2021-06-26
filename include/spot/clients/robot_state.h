@@ -33,18 +33,22 @@ using bosdyn::api::RobotLinkModelResponse;
 
 const extern std::string ROBOT_STATE_CLIENT_NAME;
 
-class RobotStateClient : public BaseClient<RobotStateService> { 
-public:
-  RobotStateClient(const std::string &authority, const std::string &token);
-  
-  RobotStateResponse getRobotState();
-  RobotStateResponse getRobotStateAsync();
-  RobotMetricsResponse getRobotMetrics();
-  RobotMetricsResponse getRobotMetricsAsync();
-  RobotHardwareConfigurationResponse getRobotHardwareConfiguration();
-  RobotHardwareConfigurationResponse getRobotHardwareConfigurationAsync();
-  RobotLinkModelResponse getRobotLinkModel(const std::string &linkName);
-  RobotLinkModelResponse getRobotLinkModelAsync(const std::string &linkName);
+namespace ClientLayer {
+
+  class RobotStateClient : public BaseClient<RobotStateService> { 
+  public:
+    RobotStateClient(const std::string &authority, const std::string &token);
+    
+    RobotStateResponse getRobotState();
+    RobotStateResponse getRobotStateAsync();
+    RobotMetricsResponse getRobotMetrics();
+    RobotMetricsResponse getRobotMetricsAsync();
+    RobotHardwareConfigurationResponse getRobotHardwareConfiguration();
+    RobotHardwareConfigurationResponse getRobotHardwareConfigurationAsync();
+    RobotLinkModelResponse getRobotLinkModel(const std::string &linkName);
+    RobotLinkModelResponse getRobotLinkModelAsync(const std::string &linkName);
+  };
+
 };
 
 #endif

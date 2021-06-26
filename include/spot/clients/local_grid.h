@@ -13,12 +13,16 @@ using bosdyn::api::LocalGridRequest;
 
 const extern std::string LOCAL_GRID_CLIENT_NAME;
 
-class LocalGridClient : public BaseClient<LocalGridService> {
-public:
-  LocalGridClient(const std::string &authority, const std::string &token);
+namespace ClientLayer {
 
-  GetLocalGridTypesResponse getLocalGridTypes();
-  GetLocalGridsResponse getLocalGrids(std::vector<LocalGridRequest> localGridRequests);
+  class LocalGridClient : public BaseClient<LocalGridService> {
+  public:
+    LocalGridClient(const std::string &authority, const std::string &token);
+
+    GetLocalGridTypesResponse getLocalGridTypes();
+    GetLocalGridsResponse getLocalGrids(std::vector<LocalGridRequest> localGridRequests);
+  };
+
 };
 
 #endif
