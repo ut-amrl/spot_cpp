@@ -107,12 +107,12 @@ namespace CoreLayer {
         }
 
         // create time sync thread object and kick off thread
-        _timeSyncThread = std::shared_ptr<ClientLayer::TimeSyncThread>(new ClientLayer::TimeSyncThread(_timeSyncClient, clockIdentifier, clockSkew, reply));
-        _timeSyncThread->beginTimeSync();
+        _timeSyncThread = std::shared_ptr<ClientLayer::TimeSyncThread>(new ClientLayer::TimeSyncThread(_timeSyncClient));
+        _timeSyncThread->start();
     }
 
     void SpotBase::endTimesync() {
         // todo: other stuff, for now just kill thread
-        _timeSyncThread->endTimeSync();
+        _timeSyncThread->start();
     }
 };

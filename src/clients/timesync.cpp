@@ -85,20 +85,12 @@ namespace ClientLayer {
 		_lockedPreviousRoundTrip.reset(std::addressof(trip));
 		_lockedPreviousResponse.reset(std::addressof(reply));
 		_lockedClockIdentifier = reply.clock_identifier();
+
+		return hasEstablishedTimeSync();
 	}
 
 	google::protobuf::Timestamp TimeSyncEndpoint::robotTimestampFromLocalTimestamp(google::protobuf::Timestamp localTimestamp) {
-		// convert local timestamp to time_t
-		time_t localTime = google::protobuf::util::TimeUtil::TimestampToTimeT(localTimestamp);
-
-		// convert skew to seconds
-		int64_t secs = google::protobuf::util::TimeUtil::DurationToSeconds(clockSkew());
-
-		// add the two (assumes time_t in seconds)
-		time_t robotTime = localTime + seconds;
-
-		// return timestamp of robottime
-		return google::protobuf::util::TimeUtil::TimeTToTimestamp(robotTime);
+		return clockSkew() + localTimestamp;
 	}
 
 	const TimeSyncRoundTrip TimeSyncEndpoint::getPreviousRoundTrip() {
@@ -130,28 +122,37 @@ namespace ClientLayer {
 		}
 
 		// send rpc
-		_client->getTimeSyncUpdate(trip, clockid);
-	}
-
-	TimeSyncThread::TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier, int64_t initClockSkew, TimeSyncUpdateResponse response) :
-			_client(clientPtr),
-			_clockIdentifier(clockIdentifier),
-			_clockSkew(initClockSkew),
-			_response(response) {}
-			
-	TimeSyncThread::~TimeSyncThread() {
-		endTimeSync();
+		return _client->getTimeSyncUpdate(trip, clockid);
 	}
 
 	int TimeSyncThread::DEFAULT_TIME_SYNC_INTERVAL_SECONDS = 60;
+	int TimeSyncThread::DEFAULT_TIME_SYNC_NOT_AVAILABLE_SECONDS = 5;
 
-	void TimeSyncThread::beginTimeSync() {
-		// clock skew available, thread is ready to be kicked off
-		_keepRunning = true;
-		_thread = std::shared_ptr<std::thread>(new std::thread(&TimeSyncThread::periodicCheckIn, this));
+	TimeSyncThread::TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr) :
+			_client(clientPtr),
+			_endpoint(new TimeSyncEndpoint(_client)) {}
+			
+	TimeSyncThread::~TimeSyncThread() {
+		stop();
 	}
 
-	void TimeSyncThread::endTimeSync() {
+	void TimeSyncThread::start() {
+		// clock skew available, thread is ready to be kicked off
+		setKeepRunning(true);
+		_thread = std::shared_ptr<std::thread>(new std::thread(&TimeSyncThread::_timeSyncThread, this));
+	}
+
+	void TimeSyncThread::setKeepRunning(bool keepRunning) {
+		std::lock_guard<std::mutex> locker(_mu);
+		_lockedKeepRunning = keepRunning;
+	}
+
+	bool TimeSyncThread::getKeepRunning() {
+		std::lock_guard<std::mutex> locker(_mu);
+		return _lockedKeepRunning;
+	}
+
+	void TimeSyncThread::stop() {
 
 		// turn off keep running
 		setKeepRunning(false);
@@ -162,15 +163,28 @@ namespace ClientLayer {
 		}
 	}
 
-	void TimeSyncThread::periodicCheckIn() {
-		TimeSyncUpdateResponse reply = _response;
-		while (_keepRunning) {
-			// send new rpc and set clockskew
-			reply = _client->getTimeSyncUpdate(createTrip(reply), _clockIdentifier);
-			_clockSkew = TimeUtil::DurationToSeconds(reply.state().best_estimate().clock_skew());
-			std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECONDS));
+	void TimeSyncThread::_timeSyncThread() {
+		try {	
+			while (getKeepRunning()) {
+				TimeSyncUpdateResponse reply = _endpoint->getPreviousResponse();
+				if (!_endpoint->hasEstablishedTimeSync() || reply.state().status() == 2) { // not established or more samples needed
+					; // skip to new estimate
+				} else if (reply.state().status() == 3) { // not ready, wait a little
+					std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_NOT_AVAILABLE_SECONDS));
+				} else if (reply.state().status() == 1) { // established already
+					std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECONDS));
+				} else {
+					// exception
+					std::cout << "unknown status in time sync thread" << std::endl;
+				}
+
+				// do rpc
+				_endpoint->getNewEstimate();
+			}
+		} catch (std::exception &e) { // catch any possible excpt
+			std::cout << e.what() << std::endl;
+			return;
 		}
-		return;
 	}
 
 	TimeSyncRoundTrip createTrip(TimeSyncUpdateResponse &reply) {

@@ -308,11 +308,11 @@ namespace RobotLayer {
     }
 
     std::string SpotControl::getClockIdentifier(){
-        return _spotBase->getTimeSyncThread()->getClockIdentifier();
+        return _spotBase->getTimeSyncThread()->getEndpoint()->getClockIdentifier();
     }
 
-    int64_t SpotControl::getClockSkew(){
-        return _spotBase->getTimeSyncThread()->getClockSkew();
+    google::protobuf::Duration SpotControl::getClockSkew(){
+        return _spotBase->getTimeSyncThread()->getEndpoint()->clockSkew();
     } 
 
     void SpotControl::sit() {
@@ -341,12 +341,17 @@ namespace RobotLayer {
         }
     }
 
-    void SpotControl::velocityMove(double x, double y, double rot, double time, gravAlignedFrame frame){
+    void SpotControl::velocityMove(double x, double y, double rot, int64_t time, gravAlignedFrame frame){
         RobotCommand command;
         SE2VelocityCommand_Request se2VelocityCommand_Request;
-        std::cout << TimeUtil::GetCurrentTime() << std::endl;
-        std::cout << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + time*75000000000)) << std::endl;
-        se2VelocityCommand_Request.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + time*75000000000)));
+
+        // get robot clock from local timestamp
+        google::protobuf::Timestamp endTime = _spotBase->getTimeSyncThread()->getEndpoint()->robotTimestampFromLocalTimestamp(TimeUtil::GetCurrentTime());
+        
+        // add the user-specified time
+        endTime = endTime += TimeUtil::MillisecondsToDuration(time);
+
+        se2VelocityCommand_Request.mutable_end_time()->CopyFrom(endTime);
         se2VelocityCommand_Request.set_se2_frame_name(frameNameGravAligned(frame));
         se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_x(x);
         se2VelocityCommand_Request.mutable_velocity()->mutable_linear()->set_y(y);
@@ -357,25 +362,29 @@ namespace RobotLayer {
         try{  
             std::string clockIdentifier = getClockIdentifier();
             RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
-            std::cout << robCommResp.status() << std::endl;
+            std::cout << "robot command status: " << robCommResp.status() << std::endl;
         } catch (Error &e){
             std::cout << e.what() << std::endl;
             return;
         }        
     }
 
-    void SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, double time){
+    void SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, int64_t time){
         std::string frameName;
         // TODO: Make it so that flat body works as a frame 
-        if(frame == FLAT_BODY){
+        if (frame == FLAT_BODY) {
             frameName = frameNameGravAligned(ODOM);
         }
-        else{
+        else {
             frameName = frameNameGravAligned(frame);
         }
         
+        // get robot clock from local timestamp
+        google::protobuf::Timestamp endTime = _spotBase->getTimeSyncThread()->getEndpoint()->robotTimestampFromLocalTimestamp(TimeUtil::GetCurrentTime());
+        endTime = endTime += TimeUtil::MillisecondsToDuration(time);
+        
         bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
-        trajectoryCommandReq.mutable_end_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + getClockSkew()) + (time)*75000000000)));
+        trajectoryCommandReq.mutable_end_time()->CopyFrom(endTime);
         trajectoryCommandReq.set_se2_frame_name(frameName);
         trajectoryCommandReq.mutable_trajectory()->CopyFrom(trajectory.getTrajectory());
         

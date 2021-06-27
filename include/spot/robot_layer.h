@@ -173,20 +173,20 @@ namespace RobotLayer {
         void stand();
 
         /*
-            velocityMove(): 
-            Input: -
+            velocityMove(): Issues a velocitycommand to the robot
+            Input: - x, y, rot, duration (in milliseconds), frame
             Output: -
             Side effects: -
         */
-        void velocityMove(double, double, double ,double, gravAlignedFrame);
+        void velocityMove(double, double, double, int64_t, gravAlignedFrame);
 
         /*
-            trajectoryMove(): 
-            Input: -
+            trajectoryMove(): Issues a trajectorycommand to the robot
+            Input: - traj2d, frame, duration (in milliseconds)
             Output: -
             Side effects: -
         */
-        void trajectoryMove(Trajectory2D, gravAlignedFrame, double);
+        void trajectoryMove(Trajectory2D, gravAlignedFrame, int64_t);
 
         
         /* Spot check */
@@ -203,7 +203,7 @@ namespace RobotLayer {
         const std::shared_ptr<ClientLayer::SpotCheckClient> getSpotCheckClient() const { return _spotCheckClient; }
     private:
     std::string getClockIdentifier();
-    int64_t getClockSkew();
+    google::protobuf::Duration getClockSkew();
 
     private:
     /* services: map of [service name, service entry] */

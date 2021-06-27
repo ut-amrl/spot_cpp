@@ -8,7 +8,7 @@
 #include <spot/clients/base.h>
 #include "bosdyn/api/time_sync_service.grpc.pb.h"
 
-#include <time>
+#include "time.h"
 
 using bosdyn::api::TimeSyncUpdateRequest;
 using bosdyn::api::TimeSyncUpdateResponse;
@@ -115,53 +115,55 @@ namespace ClientLayer {
   };
 
   /*
-    class TimeSyncThread: Background thread for maintaining and achieving time-sync to the robot
+    class TimeSyncThread: Background thread for maintaining and achieving time-sync to the robot, essentially a wrapper around the TimeSyncEndpoint class
   */
   class TimeSyncThread {
   public:
     static int DEFAULT_TIME_SYNC_INTERVAL_SECONDS;
+    static int DEFAULT_TIME_SYNC_NOT_AVAILABLE_SECONDS;
 
-    TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr, const std::string &clockIdentifier, int64_t initClockSkew, TimeSyncUpdateResponse response);
+    TimeSyncThread(std::shared_ptr<TimeSyncClient> clientPtr);
     ~TimeSyncThread();
     
-    /* beginTimeSync(): does intitial RPC to timesync service and kicks off thread for constant check-ins
-      Input: -
-      Output: -
-      Side effects: creates thread
+    /* start(): kicks off the thread
+       Input: -
+       Output: -
+       Side effects: kicks off thread
     */
-    void beginTimeSync();
+    void start();
 
-    /* endTimeSync(): kills the thread running the timesync checkins
+    /* stop(): kills the thread running the timesync checkins
       Input: -
       Output: -
       Side effects: kill thread
     */
-  void endTimeSync();
+    void stop();
 
-    /* Mutators */
-    void setKeepRunning(bool keepRunning) { _keepRunning = keepRunning; }
+    /* Thread-safe mutators */
+    void setKeepRunning(bool keepRunning);
+
+    /* Thread-safe accessors */
+    bool getKeepRunning();
 
     /* Accessors */
     const std::shared_ptr<std::thread> getThread() const { return _thread; }
-    const std::string getClockIdentifier() const { return _clockIdentifier; }
-    int64_t getClockSkew() const { return _clockSkew; }
+    const std::shared_ptr<TimeSyncEndpoint> getEndpoint() const { return _endpoint; }
 
   private:
-    /* periodicCheckIn(): function that thread runs, loop depends on boolean set by main thread
+    /* _timeSyncThread(): function that thread runs, loop depends on boolean set by main thread
       Input: -
       Output: -
       Side effects: issues RPCs to timesync service
     */
-    void periodicCheckIn();
+    void _timeSyncThread();
 
   private:
     std::shared_ptr<TimeSyncClient> _client;
     std::shared_ptr<std::thread> _thread;
-    
-    std::string _clockIdentifier;
-    int64_t _clockSkew;
-    bool _keepRunning;
-    TimeSyncUpdateResponse _response;
+    std::shared_ptr<TimeSyncEndpoint> _endpoint;
+    std::mutex _mu;
+
+    bool _lockedKeepRunning;
   };
 
   /* createTrip(): helper method to create a new round trip from a previous response
