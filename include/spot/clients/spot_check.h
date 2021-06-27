@@ -27,8 +27,6 @@ using bosdyn::api::spot::CameraCalibrationCommandResponse;
 using bosdyn::api::spot::CameraCalibrationFeedbackRequest;
 using bosdyn::api::spot::CameraCalibrationFeedbackResponse;
 
-const extern std::string SPOT_CHECK_CLIENT_NAME;
-
 namespace ClientLayer {
 
   class SpotCheckClient : public BaseClient<SpotCheckService> {

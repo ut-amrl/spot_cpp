@@ -49,8 +49,6 @@ using bosdyn::api::StandCommand_Feedback;
 using bosdyn::api::Lease;
 using bosdyn::api::LeaseUseResult;
 
-const extern std::string ROBOT_COMMAND_CLIENT_NAME;
-
 namespace ClientLayer {
 
   class RobotCommandClient : public BaseClient<RobotCommandService> {

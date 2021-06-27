@@ -26,7 +26,6 @@ using bosdyn::api::EstopConfig;
 using bosdyn::api::EstopSystemStatus;
 using bosdyn::api::EstopStopLevel;
 
-const extern std::string ESTOP_CLIENT_NAME;
 static const std::string REQUIRED_ROLE = "PDB_rooted";
 
 namespace ClientLayer {

@@ -1,7 +1,5 @@
 #include <spot/clients/local_grid.h>
 
-const std::string LOCAL_GRID_CLIENT_NAME = "local-grid";
-
 namespace ClientLayer {
 
 	LocalGridClient::LocalGridClient(const std::string &authority, const std::string &token) : BaseClient(LOCAL_GRID_CLIENT_NAME, authority, token) {}

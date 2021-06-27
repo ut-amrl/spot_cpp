@@ -1,7 +1,5 @@
 #include <spot/clients/power.h>
 
-const std::string POWER_CLIENT_NAME = "power";
-
 namespace ClientLayer {
 
   PowerClient::PowerClient(const std::string &authority, const std::string &token) : BaseClient(POWER_CLIENT_NAME, authority, token) {}

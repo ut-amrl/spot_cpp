@@ -22,8 +22,6 @@ using bosdyn::api::Lease;
 using bosdyn::api::LeaseUseResult;
 using bosdyn::api::LicenseInfo;
 
-const extern std::string POWER_CLIENT_NAME;
-
 namespace ClientLayer {
 
   class PowerClient : public BaseClient<PowerService> {

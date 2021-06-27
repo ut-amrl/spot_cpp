@@ -31,8 +31,6 @@ using bosdyn::api::RobotHardwareConfigurationResponse;
 using bosdyn::api::RobotLinkModelRequest;
 using bosdyn::api::RobotLinkModelResponse;
 
-const extern std::string ROBOT_STATE_CLIENT_NAME;
-
 namespace ClientLayer {
 
   class RobotStateClient : public BaseClient<RobotStateService> { 

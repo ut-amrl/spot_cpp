@@ -25,8 +25,6 @@ using bosdyn::api::TakeLeaseRequest;
 using bosdyn::api::TakeLeaseResponse;
 using bosdyn::api::LeaseService;
 
-const extern std::string LEASE_CLIENT_NAME;
-
 namespace ClientLayer {
 
 class LeaseClient;

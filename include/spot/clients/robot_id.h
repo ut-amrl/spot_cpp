@@ -13,8 +13,6 @@ using bosdyn::api::RobotIdService;
 using bosdyn::api::RobotIdRequest;
 using bosdyn::api::RobotIdResponse;
 
-const extern std::string ROBOT_ID_CLIENT_NAME;
-
 namespace ClientLayer {
 
 	class RobotIdClient : public BaseClient<RobotIdService> {

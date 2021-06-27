@@ -1,7 +1,5 @@
 #include <spot/clients/estop.h>
 
-const std::string ESTOP_CLIENT_NAME = "estop";
-
 namespace ClientLayer {
 
 	EstopEndpoint::EstopEndpoint(std::shared_ptr<EstopClient> client, const std::string &name, const std::string &role, const std::string &configId, 

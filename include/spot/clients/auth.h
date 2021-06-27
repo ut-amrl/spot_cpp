@@ -12,8 +12,6 @@ using bosdyn::api::GetAuthTokenRequest;
 using bosdyn::api::GetAuthTokenResponse;
 using bosdyn::api::AuthService;
 
-const extern std::string AUTH_CLIENT_NAME;
-
 namespace ClientLayer {
 
   class InvalidCredentialsError : ResponseError<GetAuthTokenResponse> {

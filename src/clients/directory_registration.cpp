@@ -1,7 +1,5 @@
 #include <spot/clients/directory_registration.h>
 
-const std::string DIRECTORY_REGISTRATION_CLIENT_NAME = "directory-registration";
-
 namespace ClientLayer {
 	
 	DirectoryRegistrationClient::DirectoryRegistrationClient(const std::string &authority, const std::string &token) : BaseClient(DIRECTORY_REGISTRATION_CLIENT_NAME, authority, token) {}

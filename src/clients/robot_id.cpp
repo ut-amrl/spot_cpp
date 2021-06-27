@@ -1,6 +1,5 @@
 #include <spot/clients/robot_id.h>
 
-const std::string ROBOT_ID_CLIENT_NAME = "robot-id";
 const static std::string AUTHORITY = "id.spot.robot";
 const static std::string TOKEN = "";
 

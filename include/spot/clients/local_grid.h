@@ -11,8 +11,6 @@ using bosdyn::api::GetLocalGridsResponse;
 using bosdyn::api::GetLocalGridsRequest;
 using bosdyn::api::LocalGridRequest;
 
-const extern std::string LOCAL_GRID_CLIENT_NAME;
-
 namespace ClientLayer {
 
   class LocalGridClient : public BaseClient<LocalGridService> {

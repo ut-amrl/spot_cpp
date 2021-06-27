@@ -1,7 +1,5 @@
 #include <spot/clients/robot_command.h>
 
-const std::string ROBOT_COMMAND_CLIENT_NAME = "robot-command";
-
 namespace ClientLayer {
 
   RobotCommandClient::RobotCommandClient(const std::string &authority, const std::string &token) : BaseClient(ROBOT_COMMAND_CLIENT_NAME, authority, token) {}

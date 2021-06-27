@@ -1,7 +1,5 @@
 #include <spot/clients/robot_state.h>
 
-const std::string ROBOT_STATE_CLIENT_NAME = "robot-state";
-
 namespace ClientLayer {
 
   RobotStateClient::RobotStateClient(const std::string &authority, const std::string &token) : BaseClient(ROBOT_STATE_CLIENT_NAME, authority, token) {}

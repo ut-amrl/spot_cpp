@@ -1,7 +1,5 @@
 #include <spot/clients/image.h>
 
-const std::string IMAGE_CLIENT_NAME = "image";
-
 namespace ClientLayer {
 
   /* get_image_request(): helper function to generate an image request given the list of image requests

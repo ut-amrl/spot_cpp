@@ -16,8 +16,6 @@ using bosdyn::api::ListImageSourcesResponse;
 using bosdyn::api::GetImageResponse;
 using bosdyn::api::GetImageRequest;
 
-const extern std::string IMAGE_CLIENT_NAME;
-
 namespace ClientLayer {
 
 	class ImageClient : public BaseClient<ImageService> {

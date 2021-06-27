@@ -14,8 +14,6 @@ using bosdyn::api::ListServiceEntriesRequest;
 using bosdyn::api::GetServiceEntryRequest;
 using bosdyn::api::GetServiceEntryResponse;
 
-const extern std::string DIRECTORY_CLIENT_NAME;
-
 namespace ClientLayer {
     /*
         class ServiceEntry: holds service entries returned from the directory service

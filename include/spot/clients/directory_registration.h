@@ -14,9 +14,6 @@ using bosdyn::api::UnregisterServiceRequest;
 using bosdyn::api::Endpoint;
 using bosdyn::api::ServiceEntry;
 
-
-const extern std::string DIRECTORY_REGISTRATION_CLIENT_NAME;
-
 namespace ClientLayer {
 
   class DirectoryRegistrationClient : public BaseClient<DirectoryRegistrationService> {

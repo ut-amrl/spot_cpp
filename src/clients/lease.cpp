@@ -1,7 +1,5 @@
 #include <spot/clients/lease.h>
 
-const std::string LEASE_CLIENT_NAME = "lease";
-
 namespace ClientLayer {
 
 LeaseClient::LeaseClient(const std::string &authority, const std::string &token) : BaseClient(LEASE_CLIENT_NAME, authority, token) {}
