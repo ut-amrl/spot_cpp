@@ -151,6 +151,7 @@ add_executable(spot
   src/clients/directory_registration.cpp
   src/clients/local_grid.cpp
   src/clients/spot_check.cpp
+  src/clients/world_objects.cpp
 
   # layers
   src/core_layer.cpp

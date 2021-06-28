@@ -31,5 +31,7 @@ const std::string ROBOT_ID_CLIENT_NAME = "robot-id";
 const std::string ROBOT_STATE_CLIENT_NAME = "robot-state";
 const std::string SPOT_CHECK_CLIENT_NAME = "spot-check";
 const std::string TIMESYNC_CLIENT_NAME = "time-sync";
+const std::string WORLD_OBJECTS_CLIENT_NAME = "world-objects";
+
 
 #endif
