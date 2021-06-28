@@ -8,7 +8,6 @@ message(STATUS "Using protobuf ${protobuf_VERSION}")
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
 find_package(gRPC CONFIG REQUIRED)
-set(_REFLECTION gRPC::grpc++_reflection)
 set(_GRPC_GRPCPP gRPC::grpc++)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
@@ -141,15 +140,15 @@ add_executable(spot
   src/clients/directory.cpp
   src/clients/directory_registration.cpp
   src/clients/local_grid.cpp
+  src/clients/spot_check.cpp
 
   src/core_layer.cpp
   src/robot_layer.cpp
 
   src/trajectory.cpp
   src/frame.cpp
-  #src/math.cpp
+  src/math.cpp
   src/spot.cpp
-  #src/robot.cpp
 
   # deps
   ${HEADER}
@@ -211,4 +210,5 @@ set(LINK_LIBRARIES
   Eigen3::Eigen
 )
 
+# link libraries to executable
 target_link_libraries(spot ${LINK_LIBRARIES})
