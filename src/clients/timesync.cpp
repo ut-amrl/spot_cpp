@@ -71,19 +71,27 @@ namespace ClientLayer {
 	}
 
 	bool TimeSyncEndpoint::getNewEstimate() {
+		// get reply
 		TimeSyncUpdateResponse reply = _getUpdate();
 		google::protobuf::Timestamp now = google::protobuf::util::TimeUtil::GetCurrentTime();
 
-		// record round trip info
-		TimeSyncRoundTrip trip;
-		trip.mutable_client_tx()->CopyFrom(reply.header().request_header().request_timestamp());
-		trip.mutable_server_rx()->CopyFrom(reply.header().request_received_timestamp());
-		trip.mutable_server_tx()->CopyFrom(reply.header().response_timestamp());
-		trip.mutable_client_rx()->CopyFrom(now);
-
 		std::lock_guard<std::mutex> locker(_mu);
-		_lockedPreviousRoundTrip.reset(std::addressof(trip));
-		_lockedPreviousResponse.reset(std::addressof(reply));
+
+		// set trip
+		_lockedPreviousRoundTrip.reset(new TimeSyncRoundTrip);
+		_lockedPreviousRoundTrip->mutable_client_tx()->CopyFrom(reply.header().request_header().request_timestamp());
+		_lockedPreviousRoundTrip->mutable_server_rx()->CopyFrom(reply.header().request_received_timestamp());
+		_lockedPreviousRoundTrip->mutable_server_tx()->CopyFrom(reply.header().response_timestamp());
+		_lockedPreviousRoundTrip->mutable_client_rx()->CopyFrom(now);
+
+		// set response
+		_lockedPreviousResponse.reset(new TimeSyncUpdateResponse);
+		_lockedPreviousResponse->set_clock_identifier(reply.clock_identifier());
+		_lockedPreviousResponse->mutable_header()->CopyFrom(reply.header());
+		_lockedPreviousResponse->mutable_previous_estimate()->CopyFrom(reply.previous_estimate());
+		_lockedPreviousResponse->mutable_state()->CopyFrom(reply.state());
+
+		// set clock id
 		_lockedClockIdentifier = reply.clock_identifier();
 
 		return hasEstablishedTimeSync();
@@ -166,16 +174,18 @@ namespace ClientLayer {
 	void TimeSyncThread::_timeSyncThread() {
 		try {	
 			while (getKeepRunning()) {
-				TimeSyncUpdateResponse reply = _endpoint->getPreviousResponse();
-				if (!_endpoint->hasEstablishedTimeSync() || reply.state().status() == 2) { // not established or more samples needed
+				if (!_endpoint->hasEstablishedTimeSync() || _endpoint->getPreviousResponse().state().status() == 2) { // not established or more samples needed. should short-circuit
 					; // skip to new estimate
-				} else if (reply.state().status() == 3) { // not ready, wait a little
-					std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_NOT_AVAILABLE_SECONDS));
-				} else if (reply.state().status() == 1) { // established already
-					std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECONDS));
 				} else {
-					// exception
-					std::cout << "unknown status in time sync thread" << std::endl;
+					TimeSyncUpdateResponse reply = _endpoint->getPreviousResponse();
+					if (reply.state().status() == 3) { // not ready, wait a little
+						std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_NOT_AVAILABLE_SECONDS));
+					} else if (reply.state().status() == 1) { // established already
+						std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECONDS));
+					} else {
+						// exception
+						std::cout << "unknown status in time sync thread" << std::endl;
+					}
 				}
 
 				// do rpc

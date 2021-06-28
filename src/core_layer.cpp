@@ -85,27 +85,6 @@ namespace CoreLayer {
         // create time sync client
         _timeSyncClient = std::shared_ptr<ClientLayer::TimeSyncClient>(new ClientLayer::TimeSyncClient(_directoryClient->getEntry(TIMESYNC_CLIENT_NAME).service_entry().authority(), _authToken));
 
-        // do initial rpc
-        bosdyn::api::TimeSyncUpdateResponse reply;
-        try {
-            reply = _timeSyncClient->getTimeSyncUpdate();
-        } catch (Error &error) {
-            std::cout << error.what() << std::endl;
-            return;
-        }
-
-        std::string clockIdentifier = reply.clock_identifier();
-
-        int64_t clockSkew;
-
-        // send rpcs until synchronized
-        while (reply.state().status() == 2 || reply.state().status() == 3) {
-            // send new rpc and set clockskew
-            reply = _timeSyncClient->getTimeSyncUpdate(ClientLayer::createTrip(reply), clockIdentifier);
-            clockSkew  = TimeUtil::DurationToSeconds(reply.state().best_estimate().clock_skew());
-            std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_NOT_READY_INTERVAL_SECS));
-        }
-
         // create time sync thread object and kick off thread
         _timeSyncThread = std::shared_ptr<ClientLayer::TimeSyncThread>(new ClientLayer::TimeSyncThread(_timeSyncClient));
         _timeSyncThread->start();
@@ -113,6 +92,6 @@ namespace CoreLayer {
 
     void SpotBase::endTimesync() {
         // todo: other stuff, for now just kill thread
-        _timeSyncThread->start();
+        _timeSyncThread->stop();
     }
 };
