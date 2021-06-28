@@ -6,10 +6,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(Eigen3 REQUIRED)
-find_package(OpenCV REQUIRED)
-find_package(Cairo REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${protobuf_VERSION}")
 
@@ -28,8 +25,7 @@ include_directories(
   include
   ${Eigen_INCLUDE_DIRS}
   ${Protobuf_INCLUDE_DIRS}
-  ${GTK3_INCLUDE_DIRS}
-  ${CAIRO_INCLUDE_DIRS}
+  
 )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -164,7 +160,6 @@ add_executable(spot
   src/spot.cpp
 
   # uses other libraries (besides grpc, eigen, protobuf)
-  src/display.cpp
 
   # deps
   ${HEADER}
@@ -250,7 +245,6 @@ add_library(utspot SHARED
   src/spot.cpp
 
   # uses other libraries (besides grpc, eigen, protobuf)
-  src/display.cpp
 
   # deps
   ${HEADER}
@@ -311,9 +305,6 @@ set(LINK_LIBRARIES
   ${Protobuf_LIBRARIES}
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}
-  ${OpenCV_LIBRARIES}
-  ${GTK3_LIBRARIES}
-  ${CAIRO_LIBRARIES}
   Eigen3::Eigen
 )
 
