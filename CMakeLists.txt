@@ -2,18 +2,23 @@ cmake_minimum_required(VERSION 3.0.2)
 project(spot_comm)
 add_compile_options(-std=c++17)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 find_package(Eigen3 REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(Cairo REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${protobuf_VERSION}")
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
 find_package(gRPC CONFIG REQUIRED)
-set(_REFLECTION gRPC::grpc++_reflection)
 set(_GRPC_GRPCPP gRPC::grpc++)
 message(STATUS "Using gRPC ${gRPC_VERSION}")
 
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED)
 
 ###########
 ## Build ##
@@ -23,6 +28,8 @@ include_directories(
   include
   ${Eigen_INCLUDE_DIRS}
   ${Protobuf_INCLUDE_DIRS}
+  ${GTK3_INCLUDE_DIRS}
+  ${CAIRO_INCLUDE_DIRS}
 )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -129,24 +136,35 @@ include_files_service(data_buffer)
 include_files_docking_service(docking)
 
 add_executable(spot
-  src/auth.cpp
-  src/image.cpp
-  src/power.cpp
-  src/robot_id.cpp
-  src/spot_check.cpp
-  src/timesync.cpp
-  src/estop.cpp
-  src/lease.cpp
-  src/robot_command.cpp
-  src/robot_state.cpp
-  src/directory.cpp
-  src/directory_registration.cpp
-  src/local_grid.cpp
-  src/spot.cpp
-  src/robot.cpp
-  src/utils.cpp
+  # clients
+  src/clients/auth.cpp
+  src/clients/image.cpp
+  src/clients/power.cpp
+  src/clients/robot_id.cpp
+  src/clients/spot_check.cpp
+  src/clients/timesync.cpp
+  src/clients/estop.cpp
+  src/clients/lease.cpp
+  src/clients/robot_command.cpp
+  src/clients/robot_state.cpp
+  src/clients/directory.cpp
+  src/clients/directory_registration.cpp
+  src/clients/local_grid.cpp
+  src/clients/spot_check.cpp
+  src/clients/world_objects.cpp
+
+  # layers
+  src/core_layer.cpp
+  src/robot_layer.cpp
+
+  # misc
   src/trajectory.cpp
   src/frame.cpp
+  src/math.cpp
+  src/spot.cpp
+
+  # uses other libraries (besides grpc, eigen, protobuf)
+  src/display.cpp
 
   # deps
   ${HEADER}
@@ -204,23 +222,36 @@ add_executable(spot
   ${DATA_BUFFER})
 
 add_library(utspot SHARED
-  src/auth.cpp
-  src/image.cpp
-  src/power.cpp
-  src/robot_id.cpp
-  src/spot_check.cpp
-  src/timesync.cpp
-  src/estop.cpp
-  src/lease.cpp
-  src/robot_command.cpp
-  src/robot_state.cpp
-  src/directory.cpp
-  src/directory_registration.cpp
-  src/local_grid.cpp
-  src/utils.cpp  
-  src/robot.cpp
+  # clients
+  src/clients/auth.cpp
+  src/clients/image.cpp
+  src/clients/power.cpp
+  src/clients/robot_id.cpp
+  src/clients/spot_check.cpp
+  src/clients/timesync.cpp
+  src/clients/estop.cpp
+  src/clients/lease.cpp
+  src/clients/robot_command.cpp
+  src/clients/robot_state.cpp
+  src/clients/directory.cpp
+  src/clients/directory_registration.cpp
+  src/clients/local_grid.cpp
+  src/clients/spot_check.cpp
+  src/clients/world_objects.cpp
+
+  # layers
+  src/core_layer.cpp
+  src/robot_layer.cpp
+
+  # misc
   src/trajectory.cpp
   src/frame.cpp
+  src/math.cpp
+  src/spot.cpp
+
+  # uses other libraries (besides grpc, eigen, protobuf)
+  src/display.cpp
+
   # deps
   ${HEADER}
   ${FULL_BODY_COMMAND}
@@ -280,9 +311,13 @@ set(LINK_LIBRARIES
   ${Protobuf_LIBRARIES}
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}
+  ${OpenCV_LIBRARIES}
+  ${GTK3_LIBRARIES}
+  ${CAIRO_LIBRARIES}
   Eigen3::Eigen
 )
 
+# link libraries to executable
 target_link_libraries(spot ${LINK_LIBRARIES})
 target_link_libraries(utspot ${LINK_LIBRARIES})
 

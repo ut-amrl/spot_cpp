@@ -33,11 +33,10 @@ public:
 
     void addPointRPY(double x, double y, double z, double roll, double pitch, double yaw, double time);
 	void addPointRPYVel(double x, double y, double z, double roll, double pitch, double yaw, double time,
-		double velX, double velY, double velZ, double angVelX, double angVelY, double angVelZ);
+		    double velX, double velY, double velZ, double angVelX, double angVelY, double angVelZ);
 	void addPointQuat(double x, double y, double z, double qx, double qy, double qz, double qw, double time);
 	void addPointQuatVel(double x, double y, double z, double qx, double qy, double qz, double qw, double time,
-		double velX, double velY, double velZ, double angVelX, double angVelY, double angVelZ);
-
+		    double velX, double velY, double velZ, double angVelX, double angVelY, double angVelZ);
     void setPosInterp(bool cubic);
 	void setAngInterp(bool cubic);
 

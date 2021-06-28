@@ -11,17 +11,11 @@
 #include <string>
 #include <map>
 
-
-// DEFAULT_SPOT_SERVER(): default server hosted on Spot
-extern std::string DEFAULT_SPOT_SERVER;
-
-// DEFAULT_ROOT_CERT(): default root certificate found inside 'robot.pem' in resources
-extern std::string DEFAULT_ROOT_CERT;
-
-// DEFAULT_SECURE_PORT(): default port
-extern std::string DEFAULT_SECURE_PORT;
-
 // read_file(): reads the contents of a file and return as string
-std::string read_file(const std::string &filename);
+inline const std::string read_file(const std::string &filename) {
+    std::ifstream file(filename);
+    std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    return str;
+}
 
 #endif 
