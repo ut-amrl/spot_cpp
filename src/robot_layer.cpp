@@ -13,10 +13,10 @@ namespace RobotLayer {
         _services = spotBase->listAllServices();
 
         // initialize clients
-        _imageClient = std::shared_ptr<ClientLayer::ImageClient>(new ClientLayer::ImageClient(_services.find(IMAGE_CLIENT_NAME)->second.getAuthority(), authToken));  
-        _localGridClient = std::shared_ptr<ClientLayer::LocalGridClient>(new ClientLayer::LocalGridClient(_services.find(LOCAL_GRID_CLIENT_NAME)->second.getAuthority(), authToken));        
-        _robotStateClient = std::shared_ptr<ClientLayer::RobotStateClient>(new ClientLayer::RobotStateClient(_services.find(ROBOT_STATE_CLIENT_NAME)->second.getAuthority(), authToken));  
-        _worldObjectsClient = std::shared_ptr<ClientLayer::WorldObjectsClient>(new ClientLayer::WorldObjectsClient(_services.find(WORLD_OBJECTS_CLIENT_NAME)->second.getAuthority(), authToken)); 
+        _imageClient = std::shared_ptr<ClientLayer::ImageClient>(new ClientLayer::ImageClient(_services.find(IMAGE_CLIENT_NAME)->second.authority(), authToken));  
+        _localGridClient = std::shared_ptr<ClientLayer::LocalGridClient>(new ClientLayer::LocalGridClient(_services.find(LOCAL_GRID_CLIENT_NAME)->second.authority(), authToken));        
+        _robotStateClient = std::shared_ptr<ClientLayer::RobotStateClient>(new ClientLayer::RobotStateClient(_services.find(ROBOT_STATE_CLIENT_NAME)->second.authority(), authToken));  
+        _worldObjectsClient = std::shared_ptr<ClientLayer::WorldObjectsClient>(new ClientLayer::WorldObjectsClient(_services.find(WORLD_OBJECTS_CLIENT_NAME)->second.authority(), authToken)); 
     }
 
     bosdyn::api::Image SpotState::image(const std::string &sourceName, double qualityPercent, bosdyn::api::Image_Format format) {
@@ -157,11 +157,11 @@ namespace RobotLayer {
         _services = spotBase->listAllServices();
 
         // initialize clients
-        _estopClient = std::shared_ptr<ClientLayer::EstopClient>(new ClientLayer::EstopClient(_services.find(ESTOP_CLIENT_NAME)->second.getAuthority(), authToken));  
-        _leaseClient = std::shared_ptr<ClientLayer::LeaseClient>(new ClientLayer::LeaseClient(_services.find(LEASE_CLIENT_NAME)->second.getAuthority(), authToken));        
-        _powerClient = std::shared_ptr<ClientLayer::PowerClient>(new ClientLayer::PowerClient(_services.find(POWER_CLIENT_NAME)->second.getAuthority(), authToken));  
-        _robotCommandClient = std::shared_ptr<ClientLayer::RobotCommandClient>(new ClientLayer::RobotCommandClient(_services.find(ROBOT_COMMAND_CLIENT_NAME)->second.getAuthority(), authToken)); 
-        _spotCheckClient = std::shared_ptr<ClientLayer::SpotCheckClient>(new ClientLayer::SpotCheckClient(_services.find(SPOT_CHECK_CLIENT_NAME)->second.getAuthority(), authToken));  
+        _estopClient = std::shared_ptr<ClientLayer::EstopClient>(new ClientLayer::EstopClient(_services.find(ESTOP_CLIENT_NAME)->second.authority(), authToken));  
+        _leaseClient = std::shared_ptr<ClientLayer::LeaseClient>(new ClientLayer::LeaseClient(_services.find(LEASE_CLIENT_NAME)->second.authority(), authToken));        
+        _powerClient = std::shared_ptr<ClientLayer::PowerClient>(new ClientLayer::PowerClient(_services.find(POWER_CLIENT_NAME)->second.authority(), authToken));  
+        _robotCommandClient = std::shared_ptr<ClientLayer::RobotCommandClient>(new ClientLayer::RobotCommandClient(_services.find(ROBOT_COMMAND_CLIENT_NAME)->second.authority(), authToken)); 
+        _spotCheckClient = std::shared_ptr<ClientLayer::SpotCheckClient>(new ClientLayer::SpotCheckClient(_services.find(SPOT_CHECK_CLIENT_NAME)->second.authority(), authToken));  
     }
 
     bool SpotControl::estopped() {

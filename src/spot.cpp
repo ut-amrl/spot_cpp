@@ -13,6 +13,13 @@
 #include <sys/ioctl.h> //For FIONREAD.
 #include <termios.h>
 
+Spot::Spot() :
+		_spotbase(new CoreLayer::SpotBase), 
+		/*_spotpayloads(new CoreLayer::SpotPayloads), */
+		_spotcontrol(new RobotLayer::SpotControl(_spotbase)),
+		_spotstate(new RobotLayer::SpotState(_spotbase)) //,
+		/* _spotdata(new RobotLayer::SpotData) */ {}
+
 //Call this at program start to setup for kbhit.
 void initTerminalInput()
 {

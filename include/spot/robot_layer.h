@@ -7,7 +7,6 @@
 #include <spot/clients/local_grid.h>
 #include <spot/clients/robot_state.h>
 #include <spot/clients/world_objects.h>
-#include <spot/display.h>
 
 #include <spot/clients/estop.h>
 #include <spot/clients/lease.h>
@@ -80,10 +79,7 @@ namespace RobotLayer {
         
     private:
         /* services: map of [service name, service entry] */
-        std::map<std::string, ClientLayer::ServiceEntry> _services;
-
-        /* display: display member for displaying images */
-        std::shared_ptr<Display> _display;
+        std::map<std::string, bosdyn::api::ServiceEntry> _services;
 
         /* spotBase: reference to spotBase object */
         std::shared_ptr<CoreLayer::SpotBase> _spotBase;
@@ -259,7 +255,7 @@ namespace RobotLayer {
 
     private:
     /* services: map of [service name, service entry] */
-    std::map<std::string, ClientLayer::ServiceEntry> _services;
+    std::map<std::string, bosdyn::api::ServiceEntry> _services;
 
     /* endpoints: map of [endpoint unique id, endpoint] */
     std::map<std::string, std::shared_ptr<ClientLayer::EstopEndpoint>> _endpoints;
