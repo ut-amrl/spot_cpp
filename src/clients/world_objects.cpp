@@ -4,6 +4,12 @@ namespace ClientLayer {
     
     WorldObjectsClient::WorldObjectsClient(const std::string &authority, const std::string &token) : BaseClient(WORLD_OBJECTS_CLIENT_NAME, authority, token) {}
 
+    ListWorldObjectResponse WorldObjectsClient::listWorldObjects() {
+        ListWorldObjectRequest request;
+        assembleRequestHeader<ListWorldObjectRequest>(&request);
+        return call<ListWorldObjectRequest, ListWorldObjectResponse>(request, &WorldObjectService::Stub::ListWorldObjects);
+    }
+
     ListWorldObjectResponse WorldObjectsClient::listWorldObjects(Timestamp timeStampFilter){
         ListWorldObjectRequest request;
         assembleRequestHeader<ListWorldObjectRequest>(&request);

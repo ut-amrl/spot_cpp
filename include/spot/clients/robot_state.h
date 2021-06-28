@@ -33,6 +33,24 @@ using bosdyn::api::RobotLinkModelResponse;
 
 namespace ClientLayer {
 
+  class RobotState {
+  public:
+    RobotState();
+  private:
+  };
+
+  class RobotMetric {
+  public:
+    RobotMetric();
+  private:
+  };
+
+  class RobotHardwareConfiguration {
+  public:
+    RobotHardwareConfiguration();
+  private:
+  };
+
   class RobotStateClient : public BaseClient<RobotStateService> { 
   public:
     RobotStateClient(const std::string &authority, const std::string &token);

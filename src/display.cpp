@@ -9,13 +9,10 @@ static bool _initialized = FALSE;
 void Display::clear_surface (void)
 {
 	cairo_t *cr;
-
 	surface = cairo_image_surface_create_from_png ("data.png");
 	cr = cairo_create (surface);
 	cairo_set_source_surface (cr, surface, 0, 0);
-
 	cairo_paint (cr);
-
 	cairo_destroy (cr);
 }
 

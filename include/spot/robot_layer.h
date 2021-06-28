@@ -6,6 +6,8 @@
 #include <spot/clients/image.h>
 #include <spot/clients/local_grid.h>
 #include <spot/clients/robot_state.h>
+#include <spot/clients/world_objects.h>
+#include <spot/display.h>
 
 #include <spot/clients/estop.h>
 #include <spot/clients/lease.h>
@@ -22,25 +24,75 @@ namespace RobotLayer {
     */
     class SpotState {
     public:
-        SpotState();
+        SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase);
+        
         /* Common SpotState functionality */
-        /* Images */
+        /* Images  */
+        /*
+            image(): gets an image
+            Input: specified source, quality measurement, image format
+            Output: bosdyn image obj
+            Side effects: -
+        */
+        bosdyn::api::Image image(const std::string &sourceName, double qualityPercent, bosdyn::api::Image_Format format);
+
+        /*
+            imageSources(): gets all available image sources on robot
+            Input: -
+            Output: list of bosdyn image source objs
+            Side effects: -
+        */
+        std::list<bosdyn::api::ImageSource> imageSources();
 
         /* Local grid */
 
+
         /* Robot state */
+        bosdyn::api::RobotState robotState();
+        bosdyn::api::RobotMetrics robotMetrics();
+        bosdyn::api::HardwareConfiguration robotHardwareConfiguration();
+
+        /* World objects */
+        /*
+            worldObjects(): gets all known world objects
+            Input: -
+            Output: list of world objects
+            Side effects: -
+        */
+       std::list<bosdyn::api::WorldObject> worldObjects();
+
+        /*
+            mutateWorldObject(): mutates a specified world object
+            Input: -
+            Output: true if success, false if not
+            Side effects: -
+        */
+       bool mutateWorldObject(bosdyn::api::WorldObject object, bosdyn::api::MutateWorldObjectRequest_Action action);
+
 
         /* Client accessors */
         const std::shared_ptr<ClientLayer::ImageClient> getImageClient() const { return _imageClient; }
         const std::shared_ptr<ClientLayer::LocalGridClient> getLocalGridClient() const { return _localGridClient; }
         const std::shared_ptr<ClientLayer::RobotStateClient> getRobotStateClient() const { return _robotStateClient; }
+        const std::shared_ptr<ClientLayer::WorldObjectsClient> getWorldObjectsClient() const { return _worldObjectsClient; }
 
         /* Accessors */
+        
+    private:
+        /* services: map of [service name, service entry] */
+        std::map<std::string, ClientLayer::ServiceEntry> _services;
+
+        /* display: display member for displaying images */
+        std::shared_ptr<Display> _display;
+
+        /* spotBase: reference to spotBase object */
+        std::shared_ptr<CoreLayer::SpotBase> _spotBase;
+
     private:
         std::shared_ptr<ClientLayer::ImageClient> _imageClient;
         std::shared_ptr<ClientLayer::LocalGridClient> _localGridClient;
         std::shared_ptr<ClientLayer::RobotStateClient> _robotStateClient;
-        // todo: world objects client
+        std::shared_ptr<ClientLayer::WorldObjectsClient> _worldObjectsClient;
     };
 
     /*
@@ -223,9 +275,11 @@ namespace RobotLayer {
 
     /* leaseThreads: map of [resource, lease thread] */
     std::map<std::string, std::shared_ptr<ClientLayer::LeaseThread>> _leaseThreads;
+
+    /* spotBase: reference to spotBase obj */
+    std::shared_ptr<CoreLayer::SpotBase> _spotBase;
     
     private:
-        std::shared_ptr<CoreLayer::SpotBase> _spotBase;
         std::shared_ptr<ClientLayer::EstopClient> _estopClient;
         std::shared_ptr<ClientLayer::LeaseClient> _leaseClient;
         std::shared_ptr<ClientLayer::PowerClient> _powerClient;

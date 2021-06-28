@@ -17,12 +17,13 @@ namespace ClientLayer {
 
     class WorldObjectsClient : public BaseClient<WorldObjectService> {
     public:
-    WorldObjectsClient(const std::string &authority, const std::string &token);
+        WorldObjectsClient(const std::string &authority, const std::string &token);
 
-    ListWorldObjectResponse listWorldObjects(Timestamp timeStampFilter);
-    ListWorldObjectResponse listWorldObjects(std::vector<WorldObjectType> objectTypes, Timestamp timeStampFilter);
+        ListWorldObjectResponse listWorldObjects();
+        ListWorldObjectResponse listWorldObjects(Timestamp timeStampFilter);
+        ListWorldObjectResponse listWorldObjects(std::vector<WorldObjectType> objectTypes, Timestamp timeStampFilter);
 
-    MutateWorldObjectResponse mutateWorldObjects(MutateWorldObjectRequest_Mutation mutation);
+        MutateWorldObjectResponse mutateWorldObjects(MutateWorldObjectRequest_Mutation mutation);
     };
 
 };

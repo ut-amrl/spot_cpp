@@ -1,7 +1,144 @@
 #include <spot/robot_layer.h>
 
 namespace RobotLayer {
-    SpotState::SpotState() {}
+    SpotState::SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
+            _spotBase(spotBase) {
+        // initialize pointers
+        std::string authToken = spotBase->getAuthToken();
+        if (authToken.empty()) {
+            // todo: exception handling
+        }
+
+        // initalize services map
+        _services = spotBase->listAllServices();
+
+        // initialize clients
+        _imageClient = std::shared_ptr<ClientLayer::ImageClient>(new ClientLayer::ImageClient(_services.find(IMAGE_CLIENT_NAME)->second.getAuthority(), authToken));  
+        _localGridClient = std::shared_ptr<ClientLayer::LocalGridClient>(new ClientLayer::LocalGridClient(_services.find(LOCAL_GRID_CLIENT_NAME)->second.getAuthority(), authToken));        
+        _robotStateClient = std::shared_ptr<ClientLayer::RobotStateClient>(new ClientLayer::RobotStateClient(_services.find(ROBOT_STATE_CLIENT_NAME)->second.getAuthority(), authToken));  
+        _worldObjectsClient = std::shared_ptr<ClientLayer::WorldObjectsClient>(new ClientLayer::WorldObjectsClient(_services.find(WORLD_OBJECTS_CLIENT_NAME)->second.getAuthority(), authToken)); 
+    }
+
+    bosdyn::api::Image SpotState::image(const std::string &sourceName, double qualityPercent, bosdyn::api::Image_Format format) {
+        // build image request
+        ImageRequest request;
+        request.set_image_source_name(sourceName);
+        request.set_quality_percent(qualityPercent);
+        request.set_image_format(format);
+
+        // send image request
+        GetImageResponse reply;
+        try {
+            std::vector<ImageRequest> oneRequest;
+            oneRequest.push_back(request);
+            reply = _imageClient->getImage(oneRequest);
+        } catch (Error &e) {
+            std::cout << e.what() << std::endl;
+            bosdyn::api::Image empty;
+            return empty;
+        }
+
+        // return
+        return reply.image_responses(0).shot().image();
+    }
+
+    std::list<bosdyn::api::ImageSource> SpotState::imageSources() {
+        // send req
+        ListImageSourcesResponse reply;
+        try {
+            reply = _imageClient->listImageSources();
+        } catch (Error &e) {
+            std::cout << e.what() << std::endl;
+            std::list<bosdyn::api::ImageSource> empty;
+            return empty;
+        }
+
+        // create list
+        std::list<bosdyn::api::ImageSource> ret;
+        for (int i = 0; i < reply.image_sources_size(); i++) {
+            ret.push_back(reply.image_sources(i));
+        }
+
+        // return
+        return ret;
+    }
+
+    bosdyn::api::RobotState SpotState::robotState() {
+        // send req
+        RobotStateResponse reply;
+        try {
+            reply = _robotStateClient->getRobotState();
+        } catch (Error &e) {
+            std::cout << e.what() << std::endl;
+            bosdyn::api::RobotState empty;
+            return empty;
+        }
+
+        return reply.robot_state();
+    }
+
+    bosdyn::api::RobotMetrics SpotState::robotMetrics() {
+        RobotMetricsResponse reply;
+        try {
+            reply = _robotStateClient->getRobotMetrics();
+        } catch (Error &e) {
+            std::cout << e.what() << std::endl;
+            bosdyn::api::RobotMetrics empty;
+            return empty;
+        }
+
+        return reply.robot_metrics();
+    }
+
+    bosdyn::api::HardwareConfiguration SpotState::robotHardwareConfiguration() {
+        RobotHardwareConfigurationResponse reply;
+        try {
+
+        } catch (Error &e) {
+            std::cout << e.what() << std::endl;
+            bosdyn::api::HardwareConfiguration empty;
+            return empty;
+        }
+
+        return reply.hardware_configuration();
+    }
+
+    std::list<bosdyn::api::WorldObject> SpotState::worldObjects() {
+        ListWorldObjectResponse reply;
+        try {
+            reply = _worldObjectsClient->listWorldObjects();
+        } catch (Error &e) {
+            std::cout << e.what() << std::endl;
+            std::list<bosdyn::api::WorldObject> empty;
+            return empty;
+        }
+
+        // ret
+        std::list<bosdyn::api::WorldObject> ret;
+        for (int i = 0; i < reply.world_objects_size(); i++) {
+            ret.push_back(reply.world_objects(i));
+        }
+
+        return ret;
+    }
+
+    bool SpotState::mutateWorldObject(bosdyn::api::WorldObject object, bosdyn::api::MutateWorldObjectRequest_Action action) {
+        // create mutation
+        MutateWorldObjectRequest_Mutation mutation;
+        mutation.set_action(action);
+        mutation.mutable_object()->CopyFrom(object);
+
+        // send rpc
+        MutateWorldObjectResponse reply;
+        try {   
+            reply = _worldObjectsClient->mutateWorldObjects(mutation);
+        } catch (Error &e) {
+            std::cout << e.what() << std::endl;
+            return false;
+        }
+
+        return reply.status() == 1;
+    }
 
     SpotControl::SpotControl(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
             _services(),
