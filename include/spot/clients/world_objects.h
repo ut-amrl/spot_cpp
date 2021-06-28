@@ -4,6 +4,7 @@
 #include "bosdyn/api/world_object_service.grpc.pb.h"
 #include <spot/clients/base.h>
 
+using bosdyn::api::WorldObject;
 using bosdyn::api::WorldObjectService;
 using bosdyn::api::WorldObjectType;
 using bosdyn::api::ListWorldObjectResponse;

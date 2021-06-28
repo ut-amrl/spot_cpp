@@ -13,6 +13,10 @@
 
 using bosdyn::api::Vec2;
 using bosdyn::api::SE2Pose;
+using bosdyn::api::Vec3;
+using bosdyn::api::SE3Pose;
+using bosdyn::api::FrameTreeSnapshot;
+using bosdyn::api::FrameTreeSnapshot_ParentEdge;
 
 const std::string VISION_FRAME_NAME = "vision";
 const std::string BODY_FRAME_NAME = "body";
@@ -22,5 +26,11 @@ const std::string GROUND_PLANE_FRAME_NAME = "gpe";
 const std::string HAND_FRAME_NAME = "hand";
 const std::string UNKNOWN_FRAME_NAME = "unknown";
 const std::string RAYCAST_FRAME_NAME = "walkto_raycast_intersection";
+
+class Frame{
+public:
+   FrameTreeSnapshot getFrameTreeSnapshot(double, double, double, double, double, double);
+   SE3Pose getSE3Pose(double, double, double, double, double, double);
+};
 
 #endif
