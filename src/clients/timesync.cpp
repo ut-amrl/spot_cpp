@@ -32,7 +32,7 @@ namespace ClientLayer {
 			_client(client) {} 
 
 	bool TimeSyncEndpoint::hasEstablishedTimeSync() {
-		std::lock_guard<std::mutex> locker(_mu);
+		// std::lock_guard<std::mutex> locker(_mu); // find way to change later
 		// check if response exists and the status is ok
 		return _lockedPreviousResponse && _lockedPreviousResponse->state().status() == 1;
 	}
@@ -50,7 +50,7 @@ namespace ClientLayer {
 
 	google::protobuf::Duration TimeSyncEndpoint::clockSkew() {
 		std::lock_guard<std::mutex> locker(_mu);
-
+ 
 		// if no response
 		if (!_lockedPreviousResponse) {
 			std::cout << "timesync not established" << std::endl;
@@ -94,6 +94,7 @@ namespace ClientLayer {
 		// set clock id
 		_lockedClockIdentifier = reply.clock_identifier();
 
+
 		return hasEstablishedTimeSync();
 	}
 
@@ -124,7 +125,11 @@ namespace ClientLayer {
 		std::string clockid;
 
 		std::lock_guard<std::mutex> locker(_mu);
-		if (!_lockedClockIdentifier.empty()) {
+
+		// if no previous round trip, send without anything
+		if (!_lockedPreviousRoundTrip) {
+			return _client->getTimeSyncUpdate();
+		} else { // previous round trip already exists
 			trip = *_lockedPreviousRoundTrip;
 			clockid = _lockedClockIdentifier;
 		}
@@ -184,7 +189,6 @@ namespace ClientLayer {
 						std::this_thread::sleep_for(std::chrono::seconds(DEFAULT_TIME_SYNC_INTERVAL_SECONDS));
 					} else {
 						// exception
-						std::cout << "unknown status in time sync thread" << std::endl;
 					}
 				}
 
@@ -206,4 +210,4 @@ namespace ClientLayer {
 		return trip;
 	}
 
-};
+}; 
