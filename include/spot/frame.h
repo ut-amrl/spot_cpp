@@ -10,6 +10,8 @@
 #include "bosdyn/api/lease_service.grpc.pb.h"
 
 #include <string>
+#include <map>
+#include <Eigen/Geometry>
 
 using bosdyn::api::Vec2;
 using bosdyn::api::SE2Pose;
@@ -29,8 +31,9 @@ const std::string RAYCAST_FRAME_NAME = "walkto_raycast_intersection";
 
 class Frame{
 public:
-   FrameTreeSnapshot getFrameTreeSnapshot(double, double, double, double, double, double);
-   SE3Pose getSE3Pose(double, double, double, double, double, double);
+    // Frame();
+    FrameTreeSnapshot getFrameTreeSnapshot(double, double, double, double, double, double);
+    SE3Pose getSE3Pose(double, double, double, double, double, double);
 };
 
 #endif

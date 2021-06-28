@@ -236,96 +236,102 @@ bool Robot::getImages(){
 }
 
 void Robot::getWorldObject(){
-   if (_worldObjectsClientPtr == NULL){
-       std::cout << "Need to setup" << std::endl;
-       throw 1;
-   } // TODO: change later
- 
-   MutateWorldObjectRequest_Mutation mutation;
- 
-   WorldObject worldObject;
-   worldObject.set_name("bottle");
-   worldObject.mutable_acquisition_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew))));
-  
-   mutation.set_action(MutateWorldObjectRequest_Action_ACTION_ADD);
-   mutation.mutable_object()->CopyFrom(worldObject);
-   std::cout << "time world object creation: " << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew))) << std::endl;
-  
-   // request.mutable_mutation()->mutable_object()->mutable_transforms_snapshot()->CopyFrom(getFrameTreeSnapshot(0,0,0,0,0,0)); // FrameTreeSnapshot
-   mutation.mutable_object()->mutable_image_properties()->set_camera_source("frontright");
-   bosdyn::api::Polygon coordinates;
-   Vec2 tl; //169 204
-   tl.set_x(169);
-   tl.set_y(204);
-   // tl.set_x(77);
-   // tl.set_y(136);
-   Vec2 tr;
-   tr.set_x(267);
-   tr.set_y(136);
-   Vec2 br;
-   br.set_x(267);
-   br.set_y(264);
-   Vec2 bl;
-   bl.set_x(77);
-   bl.set_y(264);
-   coordinates.add_vertexes()->CopyFrom(tl);
-   // coordinates.add_vertexes()->CopyFrom(tr);
-   // coordinates.add_vertexes()->CopyFrom(br);
-   // coordinates.add_vertexes()->CopyFrom(bl);
-   mutation.mutable_object()->mutable_image_properties()->mutable_coordinates()->CopyFrom(coordinates);
-   mutation.mutable_object()->mutable_image_properties()->set_frame_name_image_coordinates("clockwise");
- 
-   MutateWorldObjectResponse response = _worldObjectsClientPtr->mutateWorldObjects(mutation);
- 
-   sleep (10);
- 
-   std::cout << "status: " << response.status() << std::endl;
-   std::cout << "int id of new object:  " << response.mutated_object_id() << std::endl;
- 
-   // ListWorldObjectResponse objects = _worldObjectsClientPtr->listWorldObjects
-   ListWorldObjectResponse objects = _worldObjectsClientPtr->listWorldObjects(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) - 100000000000))); //_clockSkew
-   // std::cout << "time world object read: " << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) - 15 * 1000000000)) << std::endl;
- 
-   std::cout << "number of world objects: " << objects.world_objects().size() << std::endl;
- 
-   std::cout << "\ndelete object" << std:: endl;
- 
-   // MutateWorldObjectRequest_Mutation mutation2;
-   // mutation2.set_action(MutateWorldObjectRequest_Action_ACTION_DELETE);
-   // mutation2.mutable_object()->set_id(169);
-   // mutation2.mutable_object()->mutable_acquisition_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew))));
-   // std::cout << "time world object creation: " << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew))) << std::endl;
-   // // request.mutable_mutation()->mutable_object()->mutable_transforms_snapshot(); // FrameTreeSnapshot
-   // mutation2.mutable_object()->mutable_image_properties()->set_camera_source("frontright");
-   // bosdyn::api::Polygon coordinates;
-   // Vec2 tl; //169 204
-   // tl.set_x(169);
-   // tl.set_y(204);
-   // // tl.set_x(77);
-   // // tl.set_y(136);
-   // Vec2 tr;
-   // tr.set_x(267);
-   // tr.set_y(136);
-   // Vec2 br;
-   // br.set_x(267);
-   // br.set_y(264);
-   // Vec2 bl;
-   // bl.set_x(77);
-   // bl.set_y(264);
-   // coordinates.add_vertexes()->CopyFrom(tl);
-   // // coordinates.add_vertexes()->CopyFrom(tr);
-   // // coordinates.add_vertexes()->CopyFrom(br);
-   // // coordinates.add_vertexes()->CopyFrom(bl);
-   // mutation2.mutable_object()->mutable_image_properties()->mutable_coordinates()->CopyFrom(coordinates);
-   // mutation2.mutable_object()->mutable_image_properties()->set_frame_name_image_coordinates("clockwise");
- 
-   // MutateWorldObjectResponse response2 = _worldObjectsClientPtr->mutateWorldObjects(mutation2);
- 
-   // std::cout << "status: " << response2.status() << std::endl;
- 
-   // list world objects
-   // for (WorldObject object: objects.world_objects()){
-   //     std::cout << "in world object 2" << std::endl;
-   //     std::cout << object.name() << std::endl;
-   // }
+    if (_worldObjectsClientPtr == NULL){
+        std::cout << "Need to setup" << std::endl;
+        throw 1;
+    } // TODO: change later
+    
+    MutateWorldObjectRequest_Mutation mutation;
+    
+    WorldObject worldObject;
+    worldObject.set_name("bottle");
+    worldObject.mutable_acquisition_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew))));
+    
+    mutation.set_action(MutateWorldObjectRequest_Action_ACTION_ADD);
+    mutation.mutable_object()->CopyFrom(worldObject);
+    std::cout << "time world object creation: " << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew))) << std::endl;
+        
+    Frame frame;
+    mutation.mutable_object()->mutable_transforms_snapshot()->CopyFrom(frame.getFrameTreeSnapshot(1,0,0,0,0,0)); // FrameTreeSnapshot
+    mutation.mutable_object()->mutable_image_properties()->set_camera_source("frontright");
+    bosdyn::api::Polygon coordinates;
+    int l_x = 128;
+    int r_x = 252;
+    int t_y = 244;
+    int b_y = 303;
+
+    Vec2 tl; //169 204
+    tl.set_x(l_x);
+    tl.set_y(t_y);
+    // tl.set_x(77);
+    // tl.set_y(136);
+    Vec2 tr;
+    tr.set_x(r_x);
+    tr.set_y(t_y);
+    Vec2 br;
+    br.set_x(r_x);
+    br.set_y(b_y);
+    Vec2 bl;
+    bl.set_x(l_x);
+    bl.set_y(b_y);
+    coordinates.add_vertexes()->CopyFrom(tl);
+    coordinates.add_vertexes()->CopyFrom(tr);
+    coordinates.add_vertexes()->CopyFrom(br);
+    coordinates.add_vertexes()->CopyFrom(bl);
+    mutation.mutable_object()->mutable_image_properties()->mutable_coordinates()->CopyFrom(coordinates);
+    mutation.mutable_object()->mutable_image_properties()->set_frame_name_image_coordinates("clockwise");
+    
+    MutateWorldObjectResponse response = _worldObjectsClientPtr->mutateWorldObjects(mutation);
+    
+    sleep (10);
+    
+    std::cout << "status: " << response.status() << std::endl;
+    std::cout << "int id of new object:  " << response.mutated_object_id() << std::endl;
+    
+    // ListWorldObjectResponse objects = _worldObjectsClientPtr->listWorldObjects
+    ListWorldObjectResponse objects = _worldObjectsClientPtr->listWorldObjects(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) - 100000000000))); //_clockSkew
+    // std::cout << "time world object read: " << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew) - 15 * 1000000000)) << std::endl;
+    
+    std::cout << "number of world objects: " << objects.world_objects().size() << std::endl;
+    
+    std::cout << "\ndelete object" << std:: endl;
+    
+    // MutateWorldObjectRequest_Mutation mutation2;
+    // mutation2.set_action(MutateWorldObjectRequest_Action_ACTION_DELETE);
+    // mutation2.mutable_object()->set_id(169);
+    // mutation2.mutable_object()->mutable_acquisition_time()->CopyFrom(TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew))));
+    // std::cout << "time world object creation: " << TimeUtil::NanosecondsToTimestamp(((TimeUtil::TimestampToNanoseconds(TimeUtil::GetCurrentTime()) + _clockSkew))) << std::endl;
+    // // request.mutable_mutation()->mutable_object()->mutable_transforms_snapshot(); // FrameTreeSnapshot
+    // mutation2.mutable_object()->mutable_image_properties()->set_camera_source("frontright");
+    // bosdyn::api::Polygon coordinates;
+    // Vec2 tl; //169 204
+    // tl.set_x(169);
+    // tl.set_y(204);
+    // // tl.set_x(77);
+    // // tl.set_y(136);
+    // Vec2 tr;
+    // tr.set_x(267);
+    // tr.set_y(136);
+    // Vec2 br;
+    // br.set_x(267);
+    // br.set_y(264);
+    // Vec2 bl;
+    // bl.set_x(77);
+    // bl.set_y(264);
+    // coordinates.add_vertexes()->CopyFrom(tl);
+    // // coordinates.add_vertexes()->CopyFrom(tr);
+    // // coordinates.add_vertexes()->CopyFrom(br);
+    // // coordinates.add_vertexes()->CopyFrom(bl);
+    // mutation2.mutable_object()->mutable_image_properties()->mutable_coordinates()->CopyFrom(coordinates);
+    // mutation2.mutable_object()->mutable_image_properties()->set_frame_name_image_coordinates("clockwise");
+    
+    // MutateWorldObjectResponse response2 = _worldObjectsClientPtr->mutateWorldObjects(mutation2);
+    
+    // std::cout << "status: " << response2.status() << std::endl;
+    
+    // list world objects
+    // for (WorldObject object: objects.world_objects()){
+    //     std::cout << "in world object 2" << std::endl;
+    //     std::cout << object.name() << std::endl;
+    // }
 }

@@ -154,6 +154,7 @@ add_executable(spot
   src/clients/directory_registration.cpp
   src/clients/local_grid.cpp
   src/clients/world_objects.cpp
+  src/frame.cpp
   src/display.cpp
   src/spot.cpp
   src/robot.cpp
@@ -218,6 +219,7 @@ set(LINK_LIBRARIES
   ${OpenCV_LIBRARIES}
   ${GTK3_LIBRARIES}
   ${CAIRO_LIBRARIES}
+  Eigen3::Eigen
 )
 
 target_link_libraries(spot ${LINK_LIBRARIES})
