@@ -2,17 +2,17 @@
 This repository hosts a C++ version of the Boston Dynamics Spot SDK, as well as the software interface that allows ROS integration with Spot via gRPC calls.
 
 # Dependencies
-gRPC C++
-sigc++-3.0
-gtk4
-glibmm-2.68
-cairomm-1.16
-pangomm-2.48
-pkg-config
-glib-2.0
-pango
-cairo
-gdk-pixbuf-2.0
+gRPC C++, 
+sigc++-3.0, 
+gtk4, 
+glibmm-2.68, 
+cairomm-1.16, 
+pangomm-2.48, 
+pkg-config, 
+glib-2.0, 
+pango, 
+cairo, 
+gdk-pixbuf-2.0, 
 graphene-1.0
 
 # Installation
