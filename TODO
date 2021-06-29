@@ -1,16 +1,27 @@
-refactors:
-1. Refactor into library structure according to service structure on Spot
-    - Namespaces
-    - Layers (https://dev.bostondynamics.com/docs/concepts/readme)
-    - Core functions (per link above)
-2. Flesh out methods (optimizations and handling of more cases)
-3. Finish error handling and try to handle all user cases
-4. Rewrite robot class using above
-5. Figure out how to create a shared library with CMake
-6. ???
-7. profit
+TODOs::
+TODO:: Change from using Eigen to using custom Quaternion (trajectroy.cpp)
+TODO:: Change it so that custom Pose3 and Quaternion are used everywhere
 
-merging:
-1. frametree and frame stuff
-2. spotcheckclient
-3. angle calculation stuff
+TODO:: Use WorldObjects to put bounding box on detected object, and this might automatically use depth cameras to compute position data for object
+
+TODO:: Make it so that there is a blocking and non-blocking version of move commands, similar to power
+
+TODO:: Add documentation to Spot.h
+
+TODO:: Fix localgridclient in robotlayer
+
+TODO:: Make it so that the user can input path to robot.pem
+
+TODO:: Rewrite README to make it up to date
+
+TODO:: Test Async rpc calls (??)
+
+
+ISSUES:
+ISSUE: Pitch is inverted with the atan2
+
+ISSUE: In Cmake, make it so that only one directory is created in the "include" directory during install, currently two are made, "spot" and "bosdyn"
+
+ISSUE: Clients are not created at the same time as the layer in the case of timesync and directory in core layer. This may cause problems and should be fixed using some kind of ensure client method.
+
+ISSUE: In trajectory, time is given in seconds, should do milliseconds
