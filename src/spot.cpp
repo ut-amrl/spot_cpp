@@ -13,8 +13,8 @@ void Spot::initClients(){
 }
 
 void Spot::basicInit(const std::string &username, const std::string &password){
-	initClients();
 	authenticate(username, password);
+	initClients();
 	initBasicEstop();
 	initBasicLease();
 	initBasicTimeSync();

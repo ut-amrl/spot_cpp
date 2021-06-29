@@ -14,7 +14,7 @@ SpotState::SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
 
     // initialize clients
     _imageClient = std::shared_ptr<ClientLayer::ImageClient>(new ClientLayer::ImageClient(_services.find(IMAGE_CLIENT_NAME)->second.authority(), authToken));  
-    _localGridClient = std::shared_ptr<ClientLayer::LocalGridClient>(new ClientLayer::LocalGridClient(_services.find(LOCAL_GRID_CLIENT_NAME)->second.authority(), authToken));        
+    //_localGridClient = std::shared_ptr<ClientLayer::LocalGridClient>(new ClientLayer::LocalGridClient(_services.find(LOCAL_GRID_CLIENT_NAME)->second.authority(), authToken));        
     _robotStateClient = std::shared_ptr<ClientLayer::RobotStateClient>(new ClientLayer::RobotStateClient(_services.find(ROBOT_STATE_CLIENT_NAME)->second.authority(), authToken));  
     _worldObjectsClient = std::shared_ptr<ClientLayer::WorldObjectsClient>(new ClientLayer::WorldObjectsClient(_services.find(WORLD_OBJECTS_CLIENT_NAME)->second.authority(), authToken)); 
 }
