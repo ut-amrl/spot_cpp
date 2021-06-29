@@ -114,7 +114,7 @@ namespace RobotLayer {
             Output: -
             Side effects: initializes member variables, deletes all registered endpoints if called again
         */
-        void setEstopConfiguration(const std::set<std::shared_ptr<ClientLayer::EstopEndpoint>> &endpoints, const std::string &targetConfigId);
+        void setEstopConfiguration(const std::set<std::shared_ptr<ClientLayer::EstopEndpoint>> &endpoints);
 
         /*
             registerEstop(): registers in estop in the config with the given parameters
@@ -193,7 +193,7 @@ namespace RobotLayer {
             Output: -
             Side effects: -
         */
-        void powerOnMotors();
+        uint32_t powerOnMotors();
 
         /*
             powerOffMotors(): turns off motor power for robot
@@ -201,7 +201,7 @@ namespace RobotLayer {
             Output: -
             Side effects: -
         */
-       void powerOffMotors();
+       uint32_t powerOffMotors();
 
         /* Commands */
         /*
@@ -239,9 +239,13 @@ namespace RobotLayer {
         
         /* Spot check */
 
+        /* Mutators */
+        void setMobilityParams(MobilityParams mParams);
+
         /* Accessors */
         const std::string getEstopConfigId() const { return _estopConfigId; }
         const std::map<std::string, std::shared_ptr<ClientLayer::EstopEndpoint>> getEndpoints() const { return _endpoints; }
+        const MobilityParams getMobilityParams() const {return _mobilityParams; }
 
         /* Client accessor methods */
         const std::shared_ptr<ClientLayer::EstopClient> getEstopClient() const { return _estopClient; }
@@ -274,6 +278,9 @@ namespace RobotLayer {
 
     /* spotBase: reference to spotBase obj */
     std::shared_ptr<CoreLayer::SpotBase> _spotBase;
+
+    /* mobilityParams: persistent mobility params used in all spot movement commands */
+    MobilityParams _mobilityParams;
     
     private:
         std::shared_ptr<ClientLayer::EstopClient> _estopClient;

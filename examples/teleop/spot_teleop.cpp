@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 	
 	endpoints.insert(endpoint);
 	
-	spotcontrol.setEstopConfiguration(endpoints, "");
+	spotcontrol.setEstopConfiguration(endpoints);
 
 	std::string unique_id = spotcontrol.registerEstopEndpoint("pdb_root", "PDB_rooted", spotcontrol.getEstopConfigId(), 30, 3);
 
