@@ -12,6 +12,15 @@ void Spot::initClients(){
 	_spotstate = std::shared_ptr<RobotLayer::SpotState>(new RobotLayer::SpotState(_spotbase));
 }
 
+void Spot::basicInit(const std::string &username, const std::string &password){
+	initClients();
+	authenticate(username, password);
+	initBasicEstop();
+	initBasicLease();
+	initBasicTimeSync();
+	powerOnBlocking();
+}
+
 void Spot::authenticate(const std::string &username, const std::string &password){
 	_spotbase->authenticate(username, password);
 }

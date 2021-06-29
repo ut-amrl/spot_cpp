@@ -15,8 +15,9 @@ class Spot
 public:
     Spot();
 
-    /* Client Initialization */
+    /* Initialization */
     void initClients();
+    void basicInit(const std::string &username, const std::string &password);
 
     /* Authentication */
     void authenticate(const std::string &username, const std::string &password);
@@ -50,7 +51,7 @@ public:
 
     /* Accessors */
 
-    /* Service Group Accessors */
+    /* Client Group Accessors */
     const std::shared_ptr<CoreLayer::SpotBase> getSpotBase() const { return _spotbase; }
     const std::shared_ptr<CoreLayer::SpotPayloads> getSpotPayloads() const { return _spotpayloads; }
     const std::shared_ptr<RobotLayer::SpotControl> getSpotControl() const { return _spotcontrol; }

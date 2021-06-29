@@ -61,44 +61,15 @@ int main(int argc, char *argv[]) {
 	const std::string password = argv[2];
 
 	// spotbase testing code
-	std::shared_ptr<CoreLayer::SpotBase> spotbase(new CoreLayer::SpotBase());
-	spotbase->authenticate(username, password);
-	std::cout << spotbase->getRobotId() << std::endl;
-	spotbase->beginTimesync();
-
-	// spotcontrol testing code	
-	RobotLayer::SpotControl spotcontrol(spotbase);
-
-	std::shared_ptr<ClientLayer::EstopEndpoint> endpoint = std::shared_ptr<ClientLayer::EstopEndpoint>(new ClientLayer::EstopEndpoint(spotcontrol.getEstopClient(), "pdb_root", "PDB_rooted", "", "", 30, 3));
-	
-	std::set<std::shared_ptr<ClientLayer::EstopEndpoint>> endpoints;
-	
-	endpoints.insert(endpoint);
-	
-	spotcontrol.setEstopConfiguration(endpoints);
-
-	std::string unique_id = spotcontrol.registerEstopEndpoint("pdb_root", "PDB_rooted", spotcontrol.getEstopConfigId(), 30, 3);
-
-	spotcontrol.beginEstopping(unique_id); // needs unique id
-
-	spotcontrol.acquireLease("body");
-
-	spotcontrol.beginLeasing();
-
-	spotcontrol.powerOnMotors();	
-	
-	// spotcontrol.endEstopping(unique_id);
-	
-	// spotcontrol.endLeasing();
-
-	// spotbase->endTimesync();
+	Spot spot;
+	spot.basicInit(username, password);
 
 	// Trajectory2D trajTest;
 	// trajTest.addPoint(0.5, 0, 0, 2);
 	// //trajTest.addPoint(1, 0, 0, 2);
 	// robot.trajectoryMove(trajTest, ODOM, 10);
 	// sleep(10);
-	spotcontrol.stand();
+	spot.stand();
 
 	// move
 	initTerminalInput();
@@ -184,7 +155,7 @@ int main(int argc, char *argv[]) {
 		if (wchar == L'x') {
 			keepRunning = false;
 			// robot.move(sit);
-			spotcontrol.sit();
+			spot.sit();
 			break;
 		}
 
@@ -194,11 +165,11 @@ int main(int argc, char *argv[]) {
 
 		// issue move
 		if (velY == 0 && velX == 0 && rot == 0){
-			spotcontrol.stand();
+			spot.stand();
 		}
 		else {
 			// 500 milliseconds == 0.5 sec
-			spotcontrol.velocityMove(velX, velY, rot, 500, FLAT_BODY);
+			spot.velocityMove(velX, velY, rot, 500, FLAT_BODY);
 		}
 	
 	}
