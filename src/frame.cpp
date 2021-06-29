@@ -29,15 +29,15 @@ SE3Pose Frame::getSE3Pose(double x, double y, double z, double pitch, double yaw
  
 FrameTreeSnapshot Frame::getFrameTreeSnapshot(double xPos, double yPos, double zPos, double pitch, double yaw, double roll){
    FrameTreeSnapshot ftSnapshot;
-   std::map<std::string, FrameTreeSnapshot_ParentEdge> childParentEdges;
+   // std::map<std::string, FrameTreeSnapshot_ParentEdge> childParentEdges;
  
-   FrameTreeSnapshot_ParentEdge parent;
-   parent.set_parent_frame_name("vision");
-   SE3Pose transform = getSE3Pose(xPos, yPos, zPos, pitch, yaw, roll);
-   parent.set_parent_tform_child(transform);
+   // FrameTreeSnapshot_ParentEdge parent;
+   // parent.set_parent_frame_name("vision");
+   // SE3Pose transform = getSE3Pose(xPos, yPos, zPos, pitch, yaw, roll);
+   // parent.mutable_parent_tform_child()->CopyFrom(transform);
  
-   childParentEdges.insert(std::make_pair("object", parent));
+   // childParentEdges.insert(std::make_pair("object", parent));
  
-   ftSnapshot.mutable_child_to_parent_edge_map()->CopyFrom(childParentEdges); //->CopyFrom(childParentEdges);
+   // ftSnapshot.mutable_child_to_parent_edge_map()->CopyFrom(childParentEdges); //->CopyFrom(childParentEdges);
    return ftSnapshot;
 }

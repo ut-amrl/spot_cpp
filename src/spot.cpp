@@ -43,7 +43,11 @@ void Spot::mainThread(int argc, char *argv[]){
  
    // authenticate robot
    robot.authenticate(username, password);
- 
+   
+   // timesync
+   robot.initBasicTimesync();
+   
+   sleep(10);
    // setup robot (initialize clients)
    robot.setup();
  
@@ -58,8 +62,9 @@ void Spot::mainThread(int argc, char *argv[]){
    robot.getImages();
    robot.getWorldObject();
    while (true){
-       robot.getImages();
-       display.refresh();
+      robot.getImages();
+      display.refresh();
+      robot.listWorldObjects();
        // display.runDisplay(argc, argv);
    }
 }

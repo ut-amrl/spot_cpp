@@ -91,6 +91,7 @@ public:
 
     // world object
     void getWorldObject();
+    void listWorldObjects();
 
     std::shared_ptr<AuthClient> getAuthClientPtr() const { return _authClientPtr; }
     std::shared_ptr<DirectoryClient> getDirectoryClientPtr() const { return _directoryClientPtr; }

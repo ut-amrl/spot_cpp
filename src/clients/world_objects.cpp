@@ -7,7 +7,7 @@ WorldObjectsClient::WorldObjectsClient(const std::string &authority, const std::
 ListWorldObjectResponse WorldObjectsClient::listWorldObjects(Timestamp timeStampFilter){
 	ListWorldObjectRequest request;
 	assembleRequestHeader<ListWorldObjectRequest>(&request);
-	std::cout << "time filter in: " << timeStampFilter << std::endl;
+	std::cout << "list time in: " << timeStampFilter << std::endl;
 	request.mutable_timestamp_filter()->CopyFrom(timeStampFilter);
 	return call<ListWorldObjectRequest, ListWorldObjectResponse>(request, &WorldObjectService::Stub::ListWorldObjects);
 }

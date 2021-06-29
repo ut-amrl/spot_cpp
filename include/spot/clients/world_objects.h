@@ -14,6 +14,7 @@ using bosdyn::api::MutateWorldObjectRequest;
 using bosdyn::api::MutateWorldObjectRequest_Mutation;
 using bosdyn::api::MutateWorldObjectRequest_Action_ACTION_ADD;
 using bosdyn::api::MutateWorldObjectRequest_Action_ACTION_DELETE;
+using bosdyn::api::ImageProperties;
 using google::protobuf::Timestamp;
 
 
