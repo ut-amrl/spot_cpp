@@ -6,10 +6,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(Eigen3 REQUIRED)
-find_package(OpenCV REQUIRED)
-find_package(Cairo REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${protobuf_VERSION}")
 
@@ -28,8 +24,6 @@ include_directories(
   include
   ${Eigen_INCLUDE_DIRS}
   ${Protobuf_INCLUDE_DIRS}
-  ${GTK3_INCLUDE_DIRS}
-  ${CAIRO_INCLUDE_DIRS}
 )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -135,7 +129,7 @@ include_files_service(data_buffer)
 # docking
 include_files_docking_service(docking)
 
-add_executable(spot
+add_library(utspot SHARED
   # clients
   src/clients/auth.cpp
   src/clients/image.cpp
@@ -162,9 +156,6 @@ add_executable(spot
   src/frame.cpp
   src/math.cpp
   src/spot.cpp
-
-  # uses other libraries (besides grpc, eigen, protobuf)
-  src/display.cpp
 
   # deps
   ${HEADER}
@@ -223,11 +214,12 @@ set(LINK_LIBRARIES
   ${Protobuf_LIBRARIES}
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}
-  ${OpenCV_LIBRARIES}
-  ${GTK3_LIBRARIES}
-  ${CAIRO_LIBRARIES}
   Eigen3::Eigen
 )
 
 # link libraries to executable
-target_link_libraries(spot ${LINK_LIBRARIES})
+target_link_libraries(utspot ${LINK_LIBRARIES})
+
+install(TARGETS utspot DESTINATION lib)
+install(DIRECTORY include/spot DESTINATION include/)
+install(DIRECTORY include/bosdyn DESTINATION include/)
