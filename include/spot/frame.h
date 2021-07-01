@@ -10,10 +10,13 @@
 #include <sstream>
 #include <string>
 #include <map>
+
 #include "bosdyn/api/robot_command_service.grpc.pb.h"
 #include "bosdyn/api/geometry.grpc.pb.h"
 #include "bosdyn/api/lease_service.grpc.pb.h"
+
 #include <spot/clients/base.h>
+#include <spot/math.h>
 
 enum gravAlignedFrame {
     ODOM,

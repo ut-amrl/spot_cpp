@@ -5,12 +5,9 @@
 #ifndef MATH_H
 #define MATH_H
 
-#include <common.h>
+#include "bosdyn/api/geometry.grpc.pb.h"
 
-using bosdyn::api::Vec2;
-using bosdyn::api::SE2Pose;
-using bosdyn::api::Vec3;
-using bosdyn::api::SE3Pose;
+#include <spot/common.h>
 
 namespace Math {
 
@@ -20,7 +17,6 @@ namespace Math {
     class Vector3{
     public:
         Vector3(double x, double y, double z);
-        Vector3(bosdyn::api::Vec3 vec);
 
         /* Accessors */
         double x() const { return _x; }
@@ -85,7 +81,7 @@ namespace Math {
     public:
         SE3Pose(double x, double y, double z, Quaternion quat);
 
-        SE3Pose operator*(const SE3Pose &other)
+        SE3Pose operator*(const SE3Pose &other);
         SE3Pose inverse();
 
         /* Static methods */

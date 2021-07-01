@@ -6,10 +6,6 @@ namespace Math {
             _y(y),
             _z(z) {}
 
-    Vector3::Vector3(bosdyn::api::Vec3 vec) {
-
-    }
-
     Quaternion::Quaternion(double x, double y, double z, double w) :
         _x(x),
         _y(y),
@@ -31,8 +27,8 @@ namespace Math {
     Vector3 Quaternion::transformPoint(double x, double y, double z) {
         Quaternion inv = this->inverse();
         Quaternion q = Quaternion(x, y, z, 0);
-        q = q.mult(inv);
-        q = this->mult(q);
+        q = q * inv;
+        q = *this * q;
         return Vector3(q._x, q._y, q._z);
     }
 
@@ -44,13 +40,13 @@ namespace Math {
 
     SE3Pose SE3Pose::operator*(const SE3Pose &other) {
         Vector3 vec = _q.transformPoint(other._x, other._y, other._z);
-        return SE3Pose(_x + vec.x, _y + vec.y, _z + vec.z, _q * other._q);
+        return SE3Pose(_x + vec.x(), _y + vec.y(), _z + vec.z(), _q * other._q);
     }
 
     SE3Pose SE3Pose::inverse() {
         Quaternion invQuat = _q.inverse();
 	    Vector3 vec = invQuat.transformPoint(_x, _y, _z);
-	    return SE3Pose(-vec.x, -vec.y, -vec.z, invQuat);
+	    return SE3Pose(-vec.x(), -vec.y(), -vec.z(), invQuat);
     }
 
     SE3Pose SE3Pose::from_identity() {
