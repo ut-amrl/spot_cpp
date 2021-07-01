@@ -6,7 +6,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 find_package(Eigen3 REQUIRED)
-
 find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${protobuf_VERSION}")
 
@@ -25,7 +24,6 @@ include_directories(
   include
   ${Eigen_INCLUDE_DIRS}
   ${Protobuf_INCLUDE_DIRS}
-  
 )
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -131,7 +129,6 @@ include_files_service(data_buffer)
 # docking
 include_files_docking_service(docking)
 
-
 add_library(utspot SHARED
   # clients
   src/clients/auth.cpp
@@ -159,8 +156,6 @@ add_library(utspot SHARED
   src/frame.cpp
   src/math.cpp
   src/spot.cpp
-
-  # uses other libraries (besides grpc, eigen, protobuf)
 
   # deps
   ${HEADER}
@@ -205,8 +200,6 @@ add_library(utspot SHARED
   ${POWER}
   ${ROBOT_COMMAND}
   ${SPOT_CHECK}
-  include/bosdyn/api/spot/robot_command.pb.cc 
-  include/bosdyn/api/spot/robot_command.grpc.pb.cc
 
   # data
   ${DATA}
@@ -226,7 +219,6 @@ set(LINK_LIBRARIES
 
 # link libraries to executable
 target_link_libraries(utspot ${LINK_LIBRARIES})
-
 
 install(TARGETS utspot DESTINATION lib)
 install(DIRECTORY include/spot DESTINATION include/)
