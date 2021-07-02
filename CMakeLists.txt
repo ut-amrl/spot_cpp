@@ -200,6 +200,8 @@ add_library(utspot SHARED
   ${POWER}
   ${ROBOT_COMMAND}
   ${SPOT_CHECK}
+  include/bosdyn/api/spot/robot_command.pb.cc
+  include/bosdyn/api/spot/robot_command.grpc.pb.cc
 
   # data
   ${DATA}
