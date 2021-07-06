@@ -3,25 +3,11 @@
 #include <string>
 
 SpotNode::SpotNode(Spot spot) :
-	_spot(spot) {
+	_spot(spot),
+	_t_last_non_zero_cmd() {
 }
 
-void SpotNode::twistCallback(const geometry_msgs::Twist &msg) {
-	ROS_INFO("\nReceived Twist:");
-	ROS_INFO("Linear:");
-	ROS_INFO("x: %f  y: %f  z: %f", msg.linear.x, msg.linear.y, msg.linear.z);
-	ROS_INFO("Angular:");
-	ROS_INFO("x: %f  y: %f  z: %f", msg.angular.x, msg.angular.y, msg.angular.z);
-
-	if(msg.linear.x != 0 || msg.linear.y != 0 || msg.angular.z != 0){
-		_spot.velocityMove(msg.linear.x, msg.linear.y, msg.angular.z, 5000, FLAT_BODY);
-	}
-	else{
-		_spot.stand();
-	}
-}
-
-bool SpotNode::sitCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &resp){
+bool SpotNode::sit_cmd_srv(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &resp){
 	if (req.data) {
 		// sit
 		_spot.sit();
@@ -35,11 +21,52 @@ bool SpotNode::sitCallback(std_srvs::SetBool::Request &req, std_srvs::SetBool::R
 	}
 }
 
-bool SpotNode::standCallback(spot_ros_srvs::Stand::Request &req, spot_ros_srvs::Stand::Response &resp){
+bool SpotNode::stand_cmd_srv(spot_ros_srvs::Stand::Request &req, spot_ros_srvs::Stand::Response &resp){
 	// TODO: add body height parameter in utspot lib
 	_spot.stand();
 	ROS_INFO("Spot stand request received, Spot should now be standing.");
 	return true;
+}
+
+bool SpotNode::trajectory_cmd_srv(spot_ros_srvs::Trajectory::Request &req, spot_ros_srvs::Trajectory::Response &resp) {
+
+}
+
+bool SpotNode::velocity_cmd_srv(spot_ros_srvs::Velocity::Request &req, spot_ros_srvs::Velocity::Response &resp) {
+
+}
+
+void SpotNode::cmd_vel_listener(const geometry_msgs::Twist &msg) {
+	// 600 ms
+	int vel_cmd_duration = 600;
+	std::chrono::seconds max_marching_time(5);
+
+	ROS_INFO("\nReceived Twist:");
+	ROS_INFO("Linear:");
+	ROS_INFO("x: %f  y: %f  z: %f", msg.linear.x, msg.linear.y, msg.linear.z);
+	ROS_INFO("Angular:");
+	ROS_INFO("x: %f  y: %f  z: %f", msg.angular.x, msg.angular.y, msg.angular.z);
+
+	bool all_zero = (msg.linear.x == 0) && (msg.linear.y == 0) && (msg.linear.z == 0);
+
+	if (all_zero) {
+		// vel command still executing
+		if (_t_last_non_zero_cmd < std::chrono::steady_clock::now() - max_marching_time) {
+			return;
+		}
+	} else {
+		// set time of last nonzero command
+		_t_last_non_zero_cmd = std::chrono::steady_clock::now();
+		_spot.velocityMove(msg.linear.x, msg.linear.y, msg.linear.z, vel_cmd_duration, FLAT_BODY);
+	}
+
+// 	if(msg.linear.x != 0 || msg.linear.y != 0 || msg.angular.z != 0){
+// 		_spot.velocityMove(msg.linear.x, msg.linear.y, msg.angular.z, vel_cmd_duration, FLAT_BODY);
+// 	}
+// 	else{
+// 		_spot.stand();
+// 	}
+// }
 }
 
 void SpotNode::start(int argc, char **argv){
@@ -48,20 +75,17 @@ void SpotNode::start(int argc, char **argv){
 	ros::Rate rate(200);
 
 	// subscribers
-	_sub = node_handle.subscribe("cmd_vel", 1000, &SpotNode::twistCallback, this);
+	_sub = node_handle.subscribe("cmd_vel", 1000, &SpotNode::cmd_vel_listener, this);
 
 	// publishers
 	// TODO: implement other publishers
-        ros::Publisher odom_pub = node_handle.advertise<nav_msgs::Odometry>("odom", 1000, false);
+	ros::Publisher odom_pub = node_handle.advertise<nav_msgs::Odometry>("odom", 1000, false);
 	
 	// services
 	// TODO: implement other services
-	std::string sit = "sit";
-	std::string stand = "stand";
-	ros::ServiceServer sit_service = node_handle.advertiseService(sit, &SpotNode::sitCallback, this);
-	ros::ServiceServer stand_server = node_handle.advertiseService(stand, &SpotNode::standCallback, this);
+	ros::ServiceServer sit_service = node_handle.advertiseService("sit_cmd", &SpotNode::sit_cmd_srv, this);
+	ros::ServiceServer stand_server = node_handle.advertiseService("stand_cmd", &SpotNode::stand_cmd_srv, this);
 
-	ROS_INFO("here!");
 	while (ros::ok()) {
 		// get robot state from spot
 		bosdyn::api::RobotState state = _spot.getSpotState()->robotState();
@@ -73,14 +97,19 @@ void SpotNode::start(int argc, char **argv){
 		// send
 		spot_ros_msgs::KinematicState kin_state_msg = createKinematicMessage(getVisionTFormBody(ft_snapshot), getOdomTFormBody(ft_snapshot), kin_state.velocity_of_body_in_vision(), kin_state.velocity_of_body_in_odom(), kin_state);		
 		nav_msgs::Odometry odom_msg = createOdometryMessage(kin_state_msg);
-		
-		ROS_INFO("publishing");
-		odom_pub.publish(odom_msg);
-		//ros::spinOnce();
-		rate.sleep();
-		ROS_INFO("sleeping");
-	}
 
+		ROS_INFO("odom_out.pose.pose.position.x: %f\n", odom_msg.pose.pose.position.x);
+		ROS_INFO("odom_out.pose.pose.position.y: %f\n", odom_msg.pose.pose.position.y);
+		ROS_INFO("odom_out.pose.pose.position.z: %f\n", odom_msg.pose.pose.position.z);
+		ROS_INFO("odom_out.pose.pose.orientation.x: %f\n", odom_msg.pose.pose.orientation.x);
+		ROS_INFO("odom_out.pose.pose.orientation.y: %f\n", odom_msg.pose.pose.orientation.y);
+		ROS_INFO("odom_out.pose.pose.orientation.z: %f\n", odom_msg.pose.pose.orientation.z);
+		ROS_INFO("odom_out.pose.pose.orientation.w: %f\n", odom_msg.pose.pose.orientation.w);
+
+		odom_pub.publish(odom_msg);
+		ros::spinOnce();
+		rate.sleep();
+	}
 }
 
 Math::SE3Pose SpotNode::getVisionTFormBody(bosdyn::api::FrameTreeSnapshot ftSnapshot){
@@ -152,22 +181,21 @@ nav_msgs::Odometry SpotNode::createOdometryMessage(spot_ros_msgs::KinematicState
 	nav_msgs::Odometry odom_out;
 
 	odom_out.header = kinematic_state.header;
-        odom_out.header.frame_id = "odom";
-        odom_out.child_frame_id = "base_link";
-        odom_out.pose.pose.position.x = kinematic_state.vision_tform_body.translation.x;
-        odom_out.pose.pose.position.y = kinematic_state.vision_tform_body.translation.y;
-        odom_out.pose.pose.position.z = kinematic_state.vision_tform_body.translation.z;
+	odom_out.header.frame_id = "odom";
+	odom_out.child_frame_id = "base_link";
+	odom_out.pose.pose.position.x = kinematic_state.vision_tform_body.translation.x;
+	odom_out.pose.pose.position.y = kinematic_state.vision_tform_body.translation.y;
+	odom_out.pose.pose.position.z = kinematic_state.vision_tform_body.translation.z;
 
-        odom_out.pose.pose.orientation.x = kinematic_state.vision_tform_body.rotation.x;
-        odom_out.pose.pose.orientation.y = kinematic_state.vision_tform_body.rotation.y;
-        odom_out.pose.pose.orientation.z = kinematic_state.vision_tform_body.rotation.z;
-        odom_out.pose.pose.orientation.w = kinematic_state.vision_tform_body.rotation.w;
+	odom_out.pose.pose.orientation.x = kinematic_state.vision_tform_body.rotation.x;
+	odom_out.pose.pose.orientation.y = kinematic_state.vision_tform_body.rotation.y;
+	odom_out.pose.pose.orientation.z = kinematic_state.vision_tform_body.rotation.z;
+	odom_out.pose.pose.orientation.w = kinematic_state.vision_tform_body.rotation.w;
 
 	return odom_out;
 }
 
 int main(int argc, char **argv) {
-	std::cout << "WELRKJASLKDFJSKLAFJD A;LKSDJ FLKSAJ FLKASJ DKLJ" << std::endl;
 	// get username and password
 	const std::string username = argv[1];
 	const std::string password = argv[2];
@@ -179,7 +207,7 @@ int main(int argc, char **argv) {
 	trajPose.addPointRPY(0, 0, 0, 0, 0, 0, 1);
 	spot.setBodyPose(trajPose, true);
 
-	spot.stand();
+	//spot.stand();
 	sleep(1);
 	std::cout << "Entering teleop control" << std::endl;
 
@@ -188,7 +216,7 @@ int main(int argc, char **argv) {
 
 	spotNode.start(argc, argv);
 
-	ros::spin();
+	// ros::spin();
 
 	return 0;
 }
