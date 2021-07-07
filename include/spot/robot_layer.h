@@ -26,6 +26,7 @@ namespace RobotLayer {
         SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase);
         
         /* Common SpotState functionality */
+        
         /* Images  */
         /*
             image(): gets an image
@@ -45,6 +46,21 @@ namespace RobotLayer {
 
         /* Local grid */
 
+        /*
+            localGrid(): gets a local grid
+            Input: grid type
+            Output: bosdyn local grid obj
+            Side effects: - 
+        */
+        bosdyn::api::LocalGrid localGrid(const std::string &typeName);
+
+        /*
+            localGridTypes(): gets all the local grid types for the robot
+            Input: - 
+            OutputL list of bosdyn local grid type objects
+            Side effects: -
+        */
+        std::list<bosdyn::api::LocalGridType> localGridTypes();
 
         /* Robot state */
         bosdyn::api::RobotState robotState();

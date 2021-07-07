@@ -14,7 +14,7 @@ SpotState::SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
 
     // initialize clients
     _imageClient = std::shared_ptr<ClientLayer::ImageClient>(new ClientLayer::ImageClient(_services.find(IMAGE_CLIENT_NAME)->second.authority(), authToken));  
-    //_localGridClient = std::shared_ptr<ClientLayer::LocalGridClient>(new ClientLayer::LocalGridClient(_services.find(LOCAL_GRID_CLIENT_NAME)->second.authority(), authToken));        
+    _localGridClient = std::shared_ptr<ClientLayer::LocalGridClient>(new ClientLayer::LocalGridClient(_services.find(LOCAL_GRID_CLIENT_NAME)->second.authority(), authToken));        
     _robotStateClient = std::shared_ptr<ClientLayer::RobotStateClient>(new ClientLayer::RobotStateClient(_services.find(ROBOT_STATE_CLIENT_NAME)->second.authority(), authToken));  
     _worldObjectsClient = std::shared_ptr<ClientLayer::WorldObjectsClient>(new ClientLayer::WorldObjectsClient(_services.find(WORLD_OBJECTS_CLIENT_NAME)->second.authority(), authToken)); 
 }
@@ -57,6 +57,50 @@ std::list<bosdyn::api::ImageSource> SpotState::imageSources() {
     std::list<bosdyn::api::ImageSource> ret;
     for (int i = 0; i < reply.image_sources_size(); i++) {
         ret.push_back(reply.image_sources(i));
+    }
+
+    // return
+    return ret;
+}
+
+/* Local Grid */
+
+bosdyn::api::LocalGrid SpotState::localGrid(const std::string &typeName){
+    // build request
+    LocalGridRequest request;
+    request.set_local_grid_type_name(typeName);
+
+    // send request
+    GetLocalGridsResponse reply;
+    try {
+        std::vector<LocalGridRequest> oneRequest;
+        oneRequest.push_back(request);
+        reply = _localGridClient->getLocalGrids(oneRequest);
+    } catch (Error &e) {
+        std::cout << e.what() << std::endl;
+        bosdyn::api::LocalGrid empty;
+        return empty;
+    }
+
+    // return
+    return reply.local_grid_responses(0).local_grid();
+}
+
+std::list<bosdyn::api::LocalGridType> SpotState::localGridTypes(){
+    // send req
+    GetLocalGridTypesResponse reply;
+    try {
+        reply = _localGridClient->getLocalGridTypes();
+    } catch (Error &e) {
+        std::cout << e.what() << std::endl;
+        std::list<bosdyn::api::LocalGridType> empty;
+        return empty;
+    }
+
+    // create list
+    std::list<bosdyn::api::LocalGridType> ret;
+    for (int i = 0; i < reply.local_grid_type_size(); i++) {
+        ret.push_back(reply.local_grid_type(i));
     }
 
     // return
