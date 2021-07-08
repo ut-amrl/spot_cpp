@@ -11,6 +11,8 @@ TODO:: Add (lots of) error handling
 
 TODO:: Make a separate estop node or executable that can be shut off to turn off the robot
 
+TODO:: Write method Spot::authenticateWithToken
+
 
 ISSUES:
 ISSUE: Pitch is inverted with the atan2
