@@ -13,6 +13,40 @@
 class Spot
 {
 public:
+    class RobotCmdRespData{
+    public:
+        enum CommandStatus{
+            STATUS_UNKNOWN,         // An unknown / unexpected error occurred.
+            STATUS_OK,              // Request was accepted.
+            STATUS_INVALID_REQUEST, // [Programming Error] Request was invalid / malformed in some way.
+            STATUS_UNSUPPORTED,     // [Programming Error] The robot does not understand this command.
+            STATUS_NO_TIMESYNC,     // [Timesync Error] Client has not done timesync with robot.
+            STATUS_EXPIRED,         // [Timesync Error] The command was received after its end_time had already passed.
+            STATUS_TOO_DISTANT,     // [Timesync Error] The command end time was too far in the future.
+            STATUS_NOT_POWERED_ON,  // [Hardware Error] The robot must be powered on to accept a command.
+            STATUS_BEHAVIOR_FAULT,  // [Robot State Error] The robot must not have behavior faults.
+            STATUS_UNKNOWN_FRAME    // [Frame Error] The frame_name for a command was not a known frame.
+        };
+
+        enum CommandType{
+            SIT,
+            STAND,
+            VELOCITY_MOVE,
+            TRAJECTORY_MOVE
+        };
+
+        RobotCmdRespData(uint32_t id, CommandStatus status, CommandType type);
+
+        uint32_t id() const {return _id;}
+        CommandStatus status() const {return _status;}
+        CommandType type() const {return _type;}
+    
+    private:
+        uint32_t _id;
+        CommandStatus _status;
+        CommandType _type;
+    };
+
     Spot();
 
     /* Initialization */
@@ -40,10 +74,11 @@ public:
     void blockUntilPowerComplete(uint32_t powerCommandID);
 
     /* Movement */
-    void sit();
-    void stand();
-    void velocityMove(double x, double y, double angular, int64_t time, gravAlignedFrame frame);
-    void trajectoryMove(Trajectory2D trajectory, int64_t time, gravAlignedFrame frame);
+    RobotCmdRespData sit();
+    RobotCmdRespData stand();
+    RobotCmdRespData velocityMove(double x, double y, double angular, int64_t time, gravAlignedFrame frame);
+    RobotCmdRespData trajectoryMove(Trajectory2D trajectory, int64_t time, gravAlignedFrame frame);
+    bool checkCommandComplete(RobotCmdRespData respData); // True if command is complete
 
     void setMobilityParams(MobilityParams mParams);
     void setBodyPose(Trajectory3D trajectory, bool gravityAlign);
@@ -75,12 +110,16 @@ public:
     const std::shared_ptr<ClientLayer::RobotCommandClient> getRobotCommandClient() const { return _spotcontrol->getRobotCommandClient(); }
     const std::shared_ptr<ClientLayer::SpotCheckClient> getSpotCheckClient() const { return _spotcontrol->getSpotCheckClient(); }
 
+      
+
 private:
     std::shared_ptr<CoreLayer::SpotBase> _spotbase;
     std::shared_ptr<CoreLayer::SpotPayloads> _spotpayloads;
     std::shared_ptr<RobotLayer::SpotControl> _spotcontrol;
     std::shared_ptr<RobotLayer::SpotData> _spotdata;
     std::shared_ptr<RobotLayer::SpotState> _spotstate;
+
+    RobotCmdRespData::CommandStatus enumConvertRobotCommandStatus(bosdyn::api::RobotCommandResponse_Status status);
 };
 
 #endif

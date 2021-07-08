@@ -35,7 +35,7 @@ Trajectory3D::Trajectory3D(){
 	_trajectory.set_ang_interpolation(bosdyn::api::ANG_INTERP_LINEAR);
 }
 
-void Trajectory3D::addPointRPY(double x, double y, double z, double roll, double pitch, double yaw, double time){
+void Trajectory3D::addPointRPY(double x, double y, double z, double roll, double pitch, double yaw, int64_t time){
 	Eigen::AngleAxisd rotX(roll, Eigen::Vector3d::UnitX());
     Eigen::AngleAxisd rotY(pitch, Eigen::Vector3d::UnitY());
     Eigen::AngleAxisd rotZ(yaw, Eigen::Vector3d::UnitZ());
@@ -45,7 +45,7 @@ void Trajectory3D::addPointRPY(double x, double y, double z, double roll, double
 	addPointQuat(x, y, z, q.x(), q.y(), q.z(), q.w(), time);
 }
 
-void Trajectory3D::addPointRPYVel(double x, double y, double z, double roll, double pitch, double yaw, double time,
+void Trajectory3D::addPointRPYVel(double x, double y, double z, double roll, double pitch, double yaw, int64_t time,
 		double velX, double velY, double velZ, double angVelX, double angVelY, double angVelZ){
 	Eigen::AngleAxisd rotX(roll, Eigen::Vector3d::UnitX());
     Eigen::AngleAxisd rotY(pitch, Eigen::Vector3d::UnitY());
@@ -56,7 +56,7 @@ void Trajectory3D::addPointRPYVel(double x, double y, double z, double roll, dou
 	addPointQuatVel(x, y, z, q.x(), q.y(), q.z(), q.w(), time, velX, velY, velZ, angVelX, angVelY, angVelZ);
 }
 
-void Trajectory3D::addPointQuat(double x, double y, double z, double qx, double qy, double qz, double qw, double time){	
+void Trajectory3D::addPointQuat(double x, double y, double z, double qx, double qy, double qz, double qw, int64_t time){	
 	SE3TrajectoryPoint point;
 	point.mutable_pose()->mutable_position()->set_x(x);
     point.mutable_pose()->mutable_position()->set_y(y);
@@ -65,12 +65,12 @@ void Trajectory3D::addPointQuat(double x, double y, double z, double qx, double 
     point.mutable_pose()->mutable_rotation()->set_y(qy);
     point.mutable_pose()->mutable_rotation()->set_z(qz);
     point.mutable_pose()->mutable_rotation()->set_w(qw);
-	point.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(time));
+	point.mutable_time_since_reference()->CopyFrom(TimeUtil::MillisecondsToDuration(time));
 
 	_trajectory.add_points()->CopyFrom(point);
 }
 
-void Trajectory3D::addPointQuatVel(double x, double y, double z, double qx, double qy, double qz, double qw, double time,
+void Trajectory3D::addPointQuatVel(double x, double y, double z, double qx, double qy, double qz, double qw, int64_t time,
 		double velX, double velY, double velZ, double angVelX, double angVelY, double angVelZ){	
 	SE3TrajectoryPoint point;
 	point.mutable_pose()->mutable_position()->set_x(x);
@@ -86,7 +86,7 @@ void Trajectory3D::addPointQuatVel(double x, double y, double z, double qx, doub
 	point.mutable_velocity()->mutable_angular()->set_x(velX);
 	point.mutable_velocity()->mutable_angular()->set_y(velY);
 	point.mutable_velocity()->mutable_angular()->set_z(velZ);
-	point.mutable_time_since_reference()->CopyFrom(TimeUtil::SecondsToDuration(time));
+	point.mutable_time_since_reference()->CopyFrom(TimeUtil::MillisecondsToDuration(time));
 
 	_trajectory.add_points()->CopyFrom(point);
 }

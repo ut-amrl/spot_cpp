@@ -207,34 +207,34 @@ namespace RobotLayer {
         /*
             sit(): Spot, sit!
             Input: -
-            Output: -
+            Output: - Protobuf message that contains info about the request
             Side effects: -
         */
-        void sit();
+        RobotCommandResponse sit();
 
         /*
             stand(): makes Spot stand
             Input: -
-            Output: -
+            Output: - Protobuf message that contains info about the request
             Side effects: -
         */
-        void stand();
+        RobotCommandResponse stand();
 
         /*
             velocityMove(): Issues a velocitycommand to the robot
             Input: - x, y, rot, duration (in milliseconds), frame
-            Output: -
+            Output: - Protobuf message that contains info about the request
             Side effects: -
         */
-        void velocityMove(double, double, double, int64_t, gravAlignedFrame);
+        RobotCommandResponse velocityMove(double, double, double, int64_t, gravAlignedFrame);
 
         /*
             trajectoryMove(): Issues a trajectorycommand to the robot
             Input: - traj2d, frame, duration (in milliseconds)
-            Output: -
+            Output: - Protobuf message that contains info about the request
             Side effects: -
         */
-        void trajectoryMove(Trajectory2D, gravAlignedFrame, int64_t);
+        RobotCommandResponse trajectoryMove(Trajectory2D, gravAlignedFrame, int64_t);
 
         
         /* Spot check */
