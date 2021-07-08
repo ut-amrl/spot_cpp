@@ -1,8 +1,6 @@
 TODOs::
 TODO:: Use WorldObjects to put bounding box on detected object, and this might automatically use depth cameras to compute position data for object
 
-TODO:: Add documentation to Spot.h
-
 TODO:: Rewrite README to make it up to date
 
 TODO:: Test Async rpc calls (??)
