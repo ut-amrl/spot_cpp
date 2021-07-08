@@ -105,6 +105,33 @@ namespace ClientLayer {
 		// create options
 		grpc::SslCredentialsOptions opts;
 		opts.pem_root_certs = DEFAULT_ROOT_CERT;
+		
+		// untested: read in credentials from file 
+		std::ifstream is (DEFAULT_ROOT_CERT_FILEPATH, std::ifstream::binary);
+		if (is) {
+			// get length of file:
+			is.seekg (0, is.end);
+			int length = is.tellg();
+			is.seekg (0, is.beg);
+
+			char * buffer = new char [length];
+
+			std::cout << "Reading " << length << " characters... ";
+			// read data as a block:
+			is.read (buffer,length);
+
+			if (is)
+				std::cout << "all characters read successfully.";
+			else
+				std::cout << "error: only " << is.gcount() << " could be read";
+			is.close();
+
+			// ...buffer contains the entire file...
+			std::string rootCert(buffer, length);
+			opts.pem_root_certs = rootCert;
+			
+			delete[] buffer;
+		} 
 
 		// create channel arguments
 		grpc::ChannelArguments channelArgs;
