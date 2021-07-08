@@ -71,24 +71,63 @@ void Spot::blockUntilPowerComplete(uint32_t powerCommandID){
     }
 }
 
-void Spot::sit(){
-	_spotcontrol->sit();
+uint32_t Spot::sit(){
+	return _spotcontrol->sit();
 }
 
-void Spot::stand(){
-	_spotcontrol->stand();
+void Spot::sitBlocking(){
+	uint32_t movementCommandID = sit();
+	RobotCommandFeedbackResponse mcfr = getRobotCommandClient()->robotCommandFeedback(movementCommandID);
+
+	while(mcfr.feedback().synchronized_feedback().mobility_command_feedback().sit_feedback().status() != 1){
+		mcfr = getRobotCommandClient()->robotCommandFeedback(movementCommandID);
+		sleep(0.2);
+	}
 }
 
-void Spot::velocityMove(double x, double y, double angular, int64_t time, gravAlignedFrame frame){
-	_spotcontrol->velocityMove(x, y, angular, time, frame);
+uint32_t Spot::stand(){
+	return _spotcontrol->stand();
 }
 
-void Spot::trajectoryMove(Trajectory2D trajectory, int64_t time, gravAlignedFrame frame){
-	_spotcontrol->trajectoryMove(trajectory, frame, time);
+void Spot::standBlocking(){
+	uint32_t movementCommandID = stand();
+	RobotCommandFeedbackResponse mcfr = getRobotCommandClient()->robotCommandFeedback(movementCommandID);
+	while(mcfr.feedback().synchronized_feedback().mobility_command_feedback().stand_feedback().status() != 2){
+		mcfr = getRobotCommandClient()->robotCommandFeedback(movementCommandID);
+		sleep(0.2);
+	}
+}
+
+uint32_t Spot::velocityMove(double x, double y, double angular, int64_t time, gravAlignedFrame frame){
+	return _spotcontrol->velocityMove(x, y, angular, time, frame);
+}
+
+// velocityMoveBlocking is done differently in that it blocks by time instead of from feedback as there is no feedback provided
+// by the command itself
+void Spot::velocityMoveBlocking(double x, double y, double angular, int64_t time, gravAlignedFrame frame) {
+	velocityMove(x, y, angular, time, frame);
+	int64_t startTime = TimeUtil::TimestampToSeconds(TimeUtil::GetCurrentTime());
+	while(TimeUtil::TimestampToSeconds(TimeUtil::GetCurrentTime()) - startTime < time){
+		sleep(0.2);
+	}
+}
+
+uint32_t Spot::trajectoryMove(Trajectory2D trajectory, int64_t time, gravAlignedFrame frame){
+	return _spotcontrol->trajectoryMove(trajectory, frame, time);
+}
+
+void Spot::trajectoryMoveBlocking(Trajectory2D trajectory, int64_t time, gravAlignedFrame frame){
+	uint32_t movementCommandID = trajectoryMove(trajectory, time, frame);
+	RobotCommandFeedbackResponse mcfr = getRobotCommandClient()->robotCommandFeedback(movementCommandID);
+	while(mcfr.feedback().synchronized_feedback().mobility_command_feedback().se2_trajectory_feedback().status() != 1 &&
+			mcfr.feedback().synchronized_feedback().mobility_command_feedback().se2_trajectory_feedback().body_movement_status() != 2){
+		mcfr = getRobotCommandClient()->robotCommandFeedback(movementCommandID);
+		sleep(0.2);
+	}
 }
 
 void Spot::setMobilityParams(MobilityParams mParams){
-	_spotcontrol->setMobilityParams(mParams);
+	return _spotcontrol->setMobilityParams(mParams);
 }
 
 void Spot::setBodyPose(Trajectory3D trajectory, bool gravityAlign){

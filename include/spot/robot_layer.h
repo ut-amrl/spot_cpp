@@ -226,7 +226,7 @@ namespace RobotLayer {
             Output: -
             Side effects: -
         */
-        void sit();
+        uint32_t sit();
 
         /*
             stand(): makes Spot stand
@@ -234,7 +234,7 @@ namespace RobotLayer {
             Output: -
             Side effects: -
         */
-        void stand();
+        uint32_t stand();
 
         /*
             velocityMove(): Issues a velocitycommand to the robot
@@ -242,7 +242,7 @@ namespace RobotLayer {
             Output: -
             Side effects: -
         */
-        void velocityMove(double, double, double, int64_t, gravAlignedFrame);
+        uint32_t velocityMove(double, double, double, int64_t, gravAlignedFrame);
 
         /*
             trajectoryMove(): Issues a trajectorycommand to the robot
@@ -250,7 +250,7 @@ namespace RobotLayer {
             Output: -
             Side effects: -
         */
-        void trajectoryMove(Trajectory2D, gravAlignedFrame, int64_t);
+        uint32_t trajectoryMove(Trajectory2D, gravAlignedFrame, int64_t);
 
         
         /* Spot check */

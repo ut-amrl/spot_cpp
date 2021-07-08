@@ -1,16 +1,7 @@
 TODOs::
-TODO:: Change from using Eigen to using custom Quaternion (trajectroy.cpp)
-TODO:: Change it so that custom Pose3 and Quaternion are used everywhere
-
 TODO:: Use WorldObjects to put bounding box on detected object, and this might automatically use depth cameras to compute position data for object
 
-TODO:: Make it so that there is a blocking and non-blocking version of move commands, similar to power
-
 TODO:: Add documentation to Spot.h
-
-TODO:: Fix localgridclient in robotlayer
-
-TODO:: Make it so that the user can input path to robot.pem
 
 TODO:: Rewrite README to make it up to date
 

@@ -40,10 +40,14 @@ public:
     void blockUntilPowerComplete(uint32_t powerCommandID);
 
     /* Movement */
-    void sit();
-    void stand();
-    void velocityMove(double x, double y, double angular, int64_t time, gravAlignedFrame frame);
-    void trajectoryMove(Trajectory2D trajectory, int64_t time, gravAlignedFrame frame);
+    uint32_t sit();
+    void sitBlocking();
+    uint32_t stand();
+    void standBlocking();
+    uint32_t velocityMove(double x, double y, double angular, int64_t time, gravAlignedFrame frame);
+    void velocityMoveBlocking(double x, double y, double angular, int64_t time, gravAlignedFrame frame);
+    uint32_t trajectoryMove(Trajectory2D trajectory, int64_t time, gravAlignedFrame frame);
+    void trajectoryMoveBlocking(Trajectory2D trajectory, int64_t time, gravAlignedFrame frame);
 
     void setMobilityParams(MobilityParams mParams);
     void setBodyPose(Trajectory3D trajectory, bool gravityAlign);
