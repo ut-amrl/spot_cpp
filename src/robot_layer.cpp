@@ -1,6 +1,9 @@
 #include <spot/robot_layer.h>
 
 namespace RobotLayer {
+
+static const std::string BODY_LEASE = BODY_LEASE;
+
 SpotState::SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
         _spotBase(spotBase) {
     // initialize pointers
@@ -415,7 +418,9 @@ uint32_t SpotControl::powerOnMotors() {
     pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
 
     // get lease
-    bosdyn::api::Lease bodyLease = _leases.find("body")->second;
+    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
+
+    // TODO: exception handling if leases are not found
     PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r); 
     uint32_t pcID = powerCommResp.power_command_id();
 
@@ -429,7 +434,7 @@ uint32_t SpotControl::powerOffMotors() {
     pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_OFF;
 
     // get lease
-    bosdyn::api::Lease bodyLease = _leases.find("body")->second;
+    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
     PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
     uint32_t pcID = powerCommResp.power_command_id();
 
@@ -447,7 +452,7 @@ google::protobuf::Duration SpotControl::getClockSkew(){
 void SpotControl::sit() {
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();  
-    bosdyn::api::Lease bodyLease = _leases.find("body")->second;    
+    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;    
     try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -460,7 +465,7 @@ void SpotControl::sit() {
 void SpotControl::stand() {
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-    bosdyn::api::Lease bodyLease = _leases.find("body")->second;
+    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
     try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -491,7 +496,7 @@ void SpotControl::velocityMove(double x, double y, double rot, int64_t time, gra
     any.PackFrom(_mobilityParams);
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
 
-    bosdyn::api::Lease bodyLease = _leases.find("body")->second;
+    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
     try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -516,19 +521,25 @@ void SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame
     google::protobuf::Timestamp endTime = _spotBase->getTimeSyncThread()->getEndpoint()->robotTimestampFromLocalTimestamp(TimeUtil::GetCurrentTime());
     endTime = endTime += TimeUtil::MillisecondsToDuration(time);
     
+    // create trajectory command request
     bosdyn::api::SE2TrajectoryCommand_Request trajectoryCommandReq;
     trajectoryCommandReq.mutable_end_time()->CopyFrom(endTime);
     trajectoryCommandReq.set_se2_frame_name(frameName);
     trajectoryCommandReq.mutable_trajectory()->CopyFrom(trajectory.getTrajectory());
     
+    // create robot command
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_se2_trajectory_request()->CopyFrom(trajectoryCommandReq);
     
+    // copy in mobility params
     Any any;
     any.PackFrom(_mobilityParams);
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
 
-    bosdyn::api::Lease bodyLease = _leases.find("body")->second;
+    // get lease
+    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
+
+    // TODO: ERROR HANDLING IF LEASE NOT FOUND
     try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -541,5 +552,4 @@ void SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame
 void SpotControl::setMobilityParams(MobilityParams mParams){
     _mobilityParams = mParams;
 }
-
 }

@@ -161,6 +161,21 @@ namespace RobotLayer {
         void acquireLease(const std::string &resource);
 
         /*
+            takeLease(): takes a lease for the given resource if possible
+            Input: resource to take lease for
+            Output: -
+            Side effects: adds to LeaseWallet (once implemented)
+        */
+        void takeLease(const std::string &resource);
+
+        /*
+            returnLease(): returns a lease for the given resource if possible
+            Input: resource to return lease for
+            Output: -
+            Side effects: removes from leaseWallet if removed
+        */
+
+        /*
             beginLeasing(): kicks off lease thread(s)
             Input: resource to kick off (if none, kicks off all threads)
             Output: -

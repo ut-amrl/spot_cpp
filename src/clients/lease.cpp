@@ -2,7 +2,33 @@
 
 namespace ClientLayer {
 
-LeaseClient::LeaseClient(const std::string &authority, const std::string &token) : BaseClient(LEASE_CLIENT_NAME, authority, token) {}
+  void LeaseWallet::add(bosdyn::api::Lease lease) {
+    std::lock_guard<std::mutex> locker(_mu);
+    // insert the lease into the map
+    _storage.insert(std::pair<std::string, bosdyn::api::Lease>(lease.resource(), lease));
+  }
+
+  void LeaseWallet::remove(const std::string &resource) {
+    std::lock_guard<std::mutex> locker(_mu);
+
+    // remove the lease from the map
+    auto it = _storage.find(resource);
+
+    if (it != _storage.end()) _storage.erase(it);
+  }
+
+  bosdyn::api::Lease LeaseWallet::get(const std::string &resource) {
+    std::lock_guard<std::mutex> locker(_mu);
+    auto it = _storage.find(resource);
+    if (it == _storage.end()) {
+      // TODO: ERROR HANDLING
+      std::cout << "the resource does not exist in the lease wallet" << std::endl;
+    } else {
+      return it->second;
+    }
+  }
+
+  LeaseClient::LeaseClient(const std::string &authority, const std::string &token) : BaseClient(LEASE_CLIENT_NAME, authority, token) {}
 
   AcquireLeaseResponse LeaseClient::acquire(const std::string &resource) {
     AcquireLeaseRequest request;

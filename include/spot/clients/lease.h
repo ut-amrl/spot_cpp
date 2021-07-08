@@ -5,6 +5,8 @@
 #ifndef LEASE_H
 #define LEASE_H
 
+#include <map>
+
 #include <spot/clients/base.h>
 #include "bosdyn/api/lease_service.grpc.pb.h"
 
@@ -29,14 +31,46 @@ namespace ClientLayer {
 
 class LeaseClient;
 
-  /* 
-    class SpotLease: wrapper around the protobuf Lease class
+  /*
+    class LeaseWallet: thread-safe storage of leases
   */
-  class Lease {
+  class LeaseWallet {
   public:
-    Lease(bosdyn::api::Lease lease);
+    LeaseWallet();
+
+    /*
+      add(): add a lease to the LeaseWallet
+      Input: lease to add
+      Output: -
+      Side effects: Adds to storage
+    */
+    void add(bosdyn::api::Lease lease);
+
+    /*
+      remove(): removes a lease from the LeaseWallet
+      Input: resource of lease to remove
+      Output: -
+      Side effects: removes from storage
+    */
+    void remove(const std::string &resource);
+
+    /*
+      get(): gets a lease from the LeaseWallet
+      Input: resource of lease to get
+      Output: -
+      Side effects: -
+    */
+    bosdyn::api::Lease get(const std::string &resource);
   private:
-    bosdyn::api::Lease _lease;
+    /*
+      _storage: storage of leases organized as [resource, lease]
+    */
+    std::map<std::string, bosdyn::api::Lease> _storage;
+
+    /*
+      _mu: mutex for thread locking, protects storage map
+    */
+    std::mutex _mu;
   };
 
   class LeaseClient : public BaseClient<LeaseService> {
@@ -56,15 +90,7 @@ class LeaseClient;
   };
 
   /*
-    class LeaseWallet: thread-safe storage of leases, essentially a wrapper around stl map storing [resource, lease]
-  */
-  class LeaseWallet {
-  public:
-  private:
-  };
-
-  /*
-    class LeaseThread: issues lease check-ins on a thread
+    class LeaseThread: issues lease check-ins for a specific lease on a thread
   */
   class LeaseThread {
     
