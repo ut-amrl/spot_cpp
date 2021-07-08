@@ -18,5 +18,3 @@ ISSUE: Pitch is inverted with the atan2
 ISSUE: In Cmake, make it so that only one directory is created in the "include" directory during install, currently two are made, "spot" and "bosdyn"
 
 ISSUE: Clients are not created at the same time as the layer in the case of timesync and directory in core layer. This may cause problems and should be fixed using some kind of ensure client method.
-
-ISSUE: In trajectory, time is given in seconds, should do milliseconds
