@@ -154,6 +154,106 @@ sensor_msgs::JointState get_joint_state_from_robotstate(bosdyn::api::RobotState 
     return joint_state;
 }
 
-sensor_msgs::Image get_image_message(bosdyn::api::GetImageResponse img) {
+sensor_msgs::Image get_image_message(bosdyn::api::ImageResponse data) {
+    sensor_msgs::Image image_msg;
 
+    image_msg.height = data.shot().image().rows();
+    image_msg.width = data.shot().image().cols();
+
+    // jpeg format
+    if (data.shot().image().format() == bosdyn::api::Image_Format_FORMAT_JPEG) {
+        image_msg.encoding = "rgb8";
+        image_msg.is_bigendian = true;
+        image_msg.step = 3 * data.shot().image().cols();
+    }
+
+    // uncompressed format
+    if (data.shot().image().format() == bosdyn::api::Image_Format_FORMAT_RAW) {
+        // one byte per pixel
+        if (data.shot().image().pixel_format() == bosdyn::api::Image_PixelFormat_PIXEL_FORMAT_GREYSCALE_U8) {
+            image_msg.encoding = "mono8";
+            image_msg.is_bigendian = true;
+            image_msg.step = data.shot().image().cols();
+        }
+
+        // three bytes per pixel
+        if (data.shot().image().pixel_format() == bosdyn::api::Image_PixelFormat_PIXEL_FORMAT_RGB_U8) {
+            image_msg.encoding = "rgb8";
+            image_msg.is_bigendian = true;
+            image_msg.step = 3 * data.shot().image().cols();
+
+        }
+
+        // four bytes per pixel
+        if (data.shot().image().pixel_format() == bosdyn::api::Image_PixelFormat_PIXEL_FORMAT_RGBA_U8) {
+            image_msg.encoding = "rgba8";
+            image_msg.is_bigendian = true;
+            image_msg.step = 4 * data.shot().image().cols();
+        }
+
+        // lendian zdistance
+        if (data.shot().image().pixel_format() == bosdyn::api::Image_PixelFormat_PIXEL_FORMAT_DEPTH_U16) {
+            image_msg.encoding = "16UC1";
+            image_msg.is_bigendian = false;
+            image_msg.step = 2 * data.shot().image().cols();
+        }
+    }   
+
+    // image_msg.data.push_back(data.shot().image().data());
+    std::copy(data.shot().image().data().begin(), data.shot().image().data().end(), std::back_inserter(image_msg.data));
+
+    return image_msg;
+}
+
+sensor_msgs::CameraInfo get_camerainfo_message(bosdyn::api::ImageResponse data) {
+    sensor_msgs::CameraInfo camera_info_msg;
+    
+    camera_info_msg.header.frame_id = data.shot().frame_name_image_sensor();
+    camera_info_msg.height = data.shot().image().rows();
+    camera_info_msg.width = data.shot().image().cols();
+    
+    // fill out default camera info
+    camera_info_msg.D.push_back(0);
+    camera_info_msg.D.push_back(0);
+    camera_info_msg.D.push_back(0);
+    camera_info_msg.D.push_back(0);
+    camera_info_msg.D.push_back(0);
+
+    camera_info_msg.K[1] = 0;
+    camera_info_msg.K[3] = 0;
+    camera_info_msg.K[6] = 0;
+    camera_info_msg.K[7] = 0;
+    camera_info_msg.K[8] = 1;
+
+    camera_info_msg.R[0] = 1;
+    camera_info_msg.R[1] = 0;
+    camera_info_msg.R[2] = 0;
+    camera_info_msg.R[3] = 0;
+    camera_info_msg.R[4] = 1;
+    camera_info_msg.R[5] = 0;
+    camera_info_msg.R[6] = 0;
+    camera_info_msg.R[7] = 0;
+    camera_info_msg.R[8] = 1;
+
+    camera_info_msg.P[1] = 0;
+    camera_info_msg.P[3] = 0;
+    camera_info_msg.P[4] = 0;
+    camera_info_msg.P[7] = 0;
+    camera_info_msg.P[8] = 0;
+    camera_info_msg.P[9] = 0;
+    camera_info_msg.P[10] = 1;
+    camera_info_msg.P[11] = 0;
+
+    // fill data-specific info
+    camera_info_msg.K[0] = data.source().pinhole().intrinsics().focal_length().x();
+    camera_info_msg.K[2] = data.source().pinhole().intrinsics().principal_point().x();
+    camera_info_msg.K[4] = data.source().pinhole().intrinsics().focal_length().y();
+    camera_info_msg.K[5] = data.source().pinhole().intrinsics().principal_point().y();
+
+    camera_info_msg.P[0] = data.source().pinhole().intrinsics().focal_length().x();
+    camera_info_msg.P[2] = data.source().pinhole().intrinsics().principal_point().x();
+    camera_info_msg.P[5] = data.source().pinhole().intrinsics().focal_length().y();
+    camera_info_msg.P[6] = data.source().pinhole().intrinsics().principal_point().y();
+    
+    return camera_info_msg;
 }
