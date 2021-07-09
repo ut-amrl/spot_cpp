@@ -147,7 +147,8 @@ SpotControl::SpotControl(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
         _services(),
         _endpoints(),
         _estopThreads(),
-        _leases(),
+        // _leases(),
+        _wallet(),
         _leaseThreads(),
         _spotBase(spotBase) {
     // initialize pointers
@@ -349,39 +350,64 @@ void SpotControl::acquireLease(const std::string &resource) {
         default:
             ;
     }
+    
+    // lease wallet way
+    _wallet.add(acquiredLease);
 
-    // add to lease map
-    _leases.insert(std::pair<std::string, Lease>(resource, acquiredLease));
+    // temp way
+    // // add to lease map
+    // _leases.insert(std::pair<std::string, Lease>(resource, acquiredLease));
 }
 
 void SpotControl::beginLeasing(const std::string &resource) {
-    auto it = _leases.find(resource);
-    if (it == _leases.end()) {
-
-    }
-
-    // create thread
-    std::shared_ptr<ClientLayer::LeaseThread> thread = std::shared_ptr<ClientLayer::LeaseThread>(new ClientLayer::LeaseThread(_leaseClient, it->second));
-
-    // add thread to thread map
+    // lease wallet way
+    bosdyn::api::Lease lease = _wallet.get(resource);
+    
+    std::shared_ptr<ClientLayer::LeaseThread> thread = std::shared_ptr<ClientLayer::LeaseThread>(new ClientLayer::LeaseThread(_leaseClient, lease));
     _leaseThreads.insert(std::pair<std::string, std::shared_ptr<ClientLayer::LeaseThread>>(resource, thread));
-
-    // kick off thread
     thread->beginLease();
+
+    // temp way
+    // auto it = _leases.find(resource);
+    // if (it == _leases.end()) {
+
+    // }
+
+    // // create thread
+    // std::shared_ptr<ClientLayer::LeaseThread> thread = std::shared_ptr<ClientLayer::LeaseThread>(new ClientLayer::LeaseThread(_leaseClient, it->second));
+
+    // // add thread to thread map
+    // _leaseThreads.insert(std::pair<std::string, std::shared_ptr<ClientLayer::LeaseThread>>(resource, thread));
+
+    // // kick off thread
+    // thread->beginLease();
 }
 
 // todo: fix
 void SpotControl::beginLeasing() {
-    for (const auto &lease : _leases) {
-        // create thread
-        std::shared_ptr<ClientLayer::LeaseThread> thread = std::shared_ptr<ClientLayer::LeaseThread>(new ClientLayer::LeaseThread(_leaseClient, lease.second));
+    // lease wallet way
+    for (const auto &lease : _wallet.listLeases()){
+        // create thread 
+        std::shared_ptr<ClientLayer::LeaseThread> thread = std::shared_ptr<ClientLayer::LeaseThread>(new ClientLayer::LeaseThread(_leaseClient, lease));
 
         // add to thread map
-        _leaseThreads.insert(std::pair<std::string, std::shared_ptr<ClientLayer::LeaseThread>>(lease.first, thread));
+        _leaseThreads.insert(std::pair<std::string, std::shared_ptr<ClientLayer::LeaseThread>>(lease.resource(), thread));
 
         // kick off thread
         thread->beginLease();
     }
+    
+    // temp way
+    // for (const auto &lease : _leases) {
+    //     // create thread
+    //     std::shared_ptr<ClientLayer::LeaseThread> thread = std::shared_ptr<ClientLayer::LeaseThread>(new ClientLayer::LeaseThread(_leaseClient, lease.second));
+
+    //     // add to thread map
+    //     _leaseThreads.insert(std::pair<std::string, std::shared_ptr<ClientLayer::LeaseThread>>(lease.first, thread));
+
+    //     // kick off thread
+    //     thread->beginLease();
+    // }
 }
 
 void SpotControl::endLeasing(const std::string &resource) {
@@ -418,7 +444,10 @@ uint32_t SpotControl::powerOnMotors() {
     pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
 
     // get lease
-    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
+    // lease wallet way
+    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    // temp way
+    // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
 
     // TODO: exception handling if leases are not found
     PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r); 
@@ -434,7 +463,10 @@ uint32_t SpotControl::powerOffMotors() {
     pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_OFF;
 
     // get lease
-    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
+    // lease wallet way
+    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    // temp way
+    // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
     PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
     uint32_t pcID = powerCommResp.power_command_id();
 
@@ -452,7 +484,10 @@ google::protobuf::Duration SpotControl::getClockSkew(){
 void SpotControl::sit() {
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();  
-    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;    
+    // lease wallet way
+    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    // temp way
+    // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;    
     try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -465,7 +500,10 @@ void SpotControl::sit() {
 void SpotControl::stand() {
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
-    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
+    // lease wallet way
+    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    // temp way
+    // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
     try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -496,7 +534,10 @@ void SpotControl::velocityMove(double x, double y, double rot, int64_t time, gra
     any.PackFrom(_mobilityParams);
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
 
-    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
+    // lease wallet way
+    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    // temp way
+    // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
     try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
@@ -537,7 +578,10 @@ void SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
 
     // get lease
-    bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
+    // lease wallet way
+    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    // temp way
+    // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
 
     // TODO: ERROR HANDLING IF LEASE NOT FOUND
     try{  

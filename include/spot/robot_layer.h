@@ -285,8 +285,11 @@ namespace RobotLayer {
     /* estopConfigId: current estop config id of which endpoints are registered against */
     std::string _estopConfigId; 
 
-    /* leases: map of [resource, lease obj] (temp for now) */
-    std::map<std::string, Lease> _leases;
+    // /* leases: map of [resource, lease obj] (temp for now) */
+    // std::map<std::string, Lease> _leases;
+
+    /* leaseWallet: map of [resource, lease] */
+    ClientLayer::LeaseWallet _wallet;
 
     /* leaseThreads: map of [resource, lease thread] */
     std::map<std::string, std::shared_ptr<ClientLayer::LeaseThread>> _leaseThreads;

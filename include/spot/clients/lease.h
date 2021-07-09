@@ -6,6 +6,7 @@
 #define LEASE_H
 
 #include <map>
+#include <list>
 
 #include <spot/clients/base.h>
 #include "bosdyn/api/lease_service.grpc.pb.h"
@@ -61,6 +62,8 @@ class LeaseClient;
       Side effects: -
     */
     bosdyn::api::Lease get(const std::string &resource);
+
+    std::list<bosdyn::api::Lease> listLeases();
   private:
     /*
       _storage: storage of leases organized as [resource, lease]
@@ -87,6 +90,8 @@ class LeaseClient;
     RetainLeaseResponse retainLeaseAsync(bosdyn::api::Lease lease); 
     ListLeasesResponse listLeases(bool includeFullLeaseInfo);
     ListLeasesResponse listLeasesAsync(bool includeFullLeasesInfo);
+  private:
+    // LeaseWallet _wallet;
   };
 
   /*

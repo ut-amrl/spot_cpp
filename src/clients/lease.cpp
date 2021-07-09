@@ -28,8 +28,16 @@ namespace ClientLayer {
     }
   }
 
-  LeaseClient::LeaseClient(const std::string &authority, const std::string &token) : BaseClient(LEASE_CLIENT_NAME, authority, token) {}
+  std::list<bosdyn::api::Lease> LeaseWallet::listLeases(){
+    std::list <bosdyn::api::Lease> ret; 
+    for (const auto &lease : _storage){
+      ret.push_back(lease.second);
+    }
+    return ret;
+  }
 
+  LeaseClient::LeaseClient(const std::string &authority, const std::string &token) : BaseClient(LEASE_CLIENT_NAME, authority, token) { }
+  
   AcquireLeaseResponse LeaseClient::acquire(const std::string &resource) {
     AcquireLeaseRequest request;
     assembleRequestHeader<AcquireLeaseRequest>(&request);
