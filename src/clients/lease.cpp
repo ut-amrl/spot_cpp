@@ -2,14 +2,16 @@
 
 namespace ClientLayer {
 
+  LeaseWallet::LeaseWallet(){}
+
   void LeaseWallet::add(bosdyn::api::Lease lease) {
-    std::lock_guard<std::mutex> locker(_mu);
+    // std::lock_guard<std::mutex> locker(_mu);
     // insert the lease into the map
     _storage.insert(std::pair<std::string, bosdyn::api::Lease>(lease.resource(), lease));
   }
 
   void LeaseWallet::remove(const std::string &resource) {
-    std::lock_guard<std::mutex> locker(_mu);
+    // std::lock_guard<std::mutex> locker(_mu);
 
     // remove the lease from the map
     auto it = _storage.find(resource);
@@ -18,11 +20,11 @@ namespace ClientLayer {
   }
 
   bosdyn::api::Lease LeaseWallet::get(const std::string &resource) {
-    std::lock_guard<std::mutex> locker(_mu);
+    // std::lock_guard<std::mutex> locker(_mu);
     auto it = _storage.find(resource);
     if (it == _storage.end()) {
       // TODO: ERROR HANDLING
-      std::cout << "the resource does not exist in the lease wallet" << std::endl;
+      std::cout << "the resource does not exist in the LEASE wallet" << std::endl;
     } else {
       return it->second;
     }
@@ -42,7 +44,9 @@ namespace ClientLayer {
     AcquireLeaseRequest request;
     assembleRequestHeader<AcquireLeaseRequest>(&request);
     request.set_resource(resource);
-    return call<AcquireLeaseRequest, AcquireLeaseResponse>(request, &LeaseService::Stub::AcquireLease); 
+    AcquireLeaseResponse response = call<AcquireLeaseRequest, AcquireLeaseResponse>(request, &LeaseService::Stub::AcquireLease); 
+    std::cout << response.status() << std::endl;
+    return response;
   }
 
   AcquireLeaseResponse LeaseClient::acquireAsync(const std::string &resource){

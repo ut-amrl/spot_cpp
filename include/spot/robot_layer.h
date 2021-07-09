@@ -288,7 +288,7 @@ namespace RobotLayer {
     // /* leases: map of [resource, lease obj] (temp for now) */
     // std::map<std::string, Lease> _leases;
 
-    /* leaseWallet: map of [resource, lease] */
+    /* leaseWallet: map of [resource, lease] */ // using the leaseWallet form instead of the old map _leases
     ClientLayer::LeaseWallet _wallet;
 
     /* leaseThreads: map of [resource, lease thread] */

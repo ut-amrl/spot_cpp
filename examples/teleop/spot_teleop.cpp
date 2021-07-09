@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
 	// //trajTest.addPoint(1, 0, 0, 2);
 	// robot.trajectoryMove(trajTest, ODOM, 10);
 	// sleep(10);
+	// std::cout << "Reached here !! :)" << std::endl;
 	spot.stand();
 
 	// move

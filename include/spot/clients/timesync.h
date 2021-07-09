@@ -87,6 +87,8 @@ namespace ClientLayer {
       Side effects: sets member variables
     */
     bool getNewEstimate();
+
+    
     
     /*
       robotTimestampFromLocalTimestamp(): convert a local timestamp (e.g. from GetCurrentTime()) and converts into robot time
@@ -96,6 +98,14 @@ namespace ClientLayer {
     */
     google::protobuf::Timestamp robotTimestampFromLocalTimestamp(google::protobuf::Timestamp localTimestamp);
     
+    /*
+      robotTime(): return the robot's current internal time 
+      Input: -
+      Output: the robot's current time 
+      Side effects: -
+    */
+    google::protobuf::Timestamp robotTime();
+
     /* Accessors using lock */
     const TimeSyncRoundTrip getPreviousRoundTrip();
     const TimeSyncUpdateResponse getPreviousResponse();

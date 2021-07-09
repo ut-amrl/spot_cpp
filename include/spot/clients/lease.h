@@ -90,8 +90,6 @@ class LeaseClient;
     RetainLeaseResponse retainLeaseAsync(bosdyn::api::Lease lease); 
     ListLeasesResponse listLeases(bool includeFullLeaseInfo);
     ListLeasesResponse listLeasesAsync(bool includeFullLeasesInfo);
-  private:
-    // LeaseWallet _wallet;
   };
 
   /*

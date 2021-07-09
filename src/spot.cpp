@@ -14,11 +14,17 @@ void Spot::initClients(){
 
 void Spot::basicInit(const std::string &username, const std::string &password){
 	authenticate(username, password);
+	std::cout<< "reach 1" << std::endl;
 	initClients();
+	std::cout<< "reach 2" << std::endl;
 	initBasicEstop();
+	std::cout<< "reach 3" << std::endl;
 	initBasicLease();
+	std::cout<< "reach 4" << std::endl;
 	initBasicTimeSync();
+	std::cout<< "reach 5" << std::endl;
 	powerOnBlocking();
+	std::cout<< "reach 6" << std::endl;
 }
 
 void Spot::authenticate(const std::string &username, const std::string &password){
@@ -48,11 +54,15 @@ void Spot::initBasicTimeSync(){
 }
 
 uint32_t Spot::powerOn(){
+	std::cout<< "reach 5.11" << std::endl;
 	return _spotcontrol->powerOnMotors();
+	std::cout<< "reach 5.13" << std::endl;
 }
 
 void Spot::powerOnBlocking(){
+	std::cout<< "reach 5.1" << std::endl;
 	blockUntilPowerComplete(powerOn());
+	std::cout<< "reach 5.7" << std::endl;
 }
 
 uint32_t Spot::powerOff(){
@@ -64,11 +74,15 @@ void Spot::powerOffBlocking(){
 }
 
 void Spot::blockUntilPowerComplete(uint32_t powerCommandID){
+	std::cout<< "reach 5.2" << std::endl;
 	PowerCommandFeedbackResponse pcfr = getPowerClient()->PowerCommandFeedback(powerCommandID);
-    while(pcfr.status() != 2){
+    std::cout<< "reach 5.3" << std::endl;
+	while(pcfr.status() != 2){
+		std::cout<< "reach 5.4" << std::endl;
         pcfr = getPowerClient()->PowerCommandFeedback(powerCommandID);
         sleep(1);
     }
+	std::cout<< "reach 5.5" << std::endl;
 }
 
 void Spot::sit(){

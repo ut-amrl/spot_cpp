@@ -102,6 +102,10 @@ namespace ClientLayer {
 		return clockSkew() + localTimestamp;
 	}
 
+	google::protobuf::Timestamp TimeSyncEndpoint::robotTime() {
+		return clockSkew() + TimeUtil::GetCurrentTime();
+	}
+
 	const TimeSyncRoundTrip TimeSyncEndpoint::getPreviousRoundTrip() {
 		std::lock_guard<std::mutex> locker(_mu);
 		TimeSyncRoundTrip ret = *_lockedPreviousRoundTrip;
