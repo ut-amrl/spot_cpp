@@ -461,6 +461,9 @@ RobotCommandResponse SpotControl::sit() {
 RobotCommandResponse SpotControl::stand() {
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+    Any any;
+    any.PackFrom(_mobilityParams);
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;
     //try{  
         std::string clockIdentifier = getClockIdentifier();
