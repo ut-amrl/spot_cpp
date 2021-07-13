@@ -19,7 +19,7 @@ SpotState::SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
     _worldObjectsClient = std::shared_ptr<ClientLayer::WorldObjectsClient>(new ClientLayer::WorldObjectsClient(_services.find(WORLD_OBJECTS_CLIENT_NAME)->second.authority(), authToken)); 
 }
 
-bosdyn::api::Image SpotState::image(const std::string &sourceName, double qualityPercent, bosdyn::api::Image_Format format) {
+bosdyn::api::ImageResponse SpotState::image(const std::string &sourceName, double qualityPercent, bosdyn::api::Image_Format format) {
     // build image request
     ImageRequest request;
     request.set_image_source_name(sourceName);
@@ -34,12 +34,12 @@ bosdyn::api::Image SpotState::image(const std::string &sourceName, double qualit
         reply = _imageClient->getImage(oneRequest);
     } catch (Error &e) {
         std::cout << e.what() << std::endl;
-        bosdyn::api::Image empty;
+        bosdyn::api::ImageResponse empty;
         return empty;
     }
 
     // return
-    return reply.image_responses(0).shot().image();
+    return reply.image_responses(0);
 }
 
 std::list<bosdyn::api::ImageSource> SpotState::imageSources() {
@@ -146,7 +146,9 @@ SpotControl::SpotControl(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
         _estopThreads(),
         _leases(),
         _leaseThreads(),
-        _spotBase(spotBase) {
+        _spotBase(spotBase),
+        _standing(false),
+        _moving(false) {
     // initialize pointers
     std::string authToken = spotBase->getAuthToken();
     if (authToken.empty()) {
@@ -445,6 +447,7 @@ google::protobuf::Duration SpotControl::getClockSkew(){
 } 
 
 RobotCommandResponse SpotControl::sit() {
+    _standing = false;
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();  
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;    
@@ -459,6 +462,7 @@ RobotCommandResponse SpotControl::sit() {
 }
 
 RobotCommandResponse SpotControl::stand() {
+    _standing = true;
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
     Any any;
@@ -547,5 +551,4 @@ RobotCommandResponse SpotControl::trajectoryMove(Trajectory2D trajectory, gravAl
 void SpotControl::setMobilityParams(MobilityParams mParams){
     _mobilityParams = mParams;
 }
-
 }
