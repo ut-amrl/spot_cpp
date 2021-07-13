@@ -326,6 +326,7 @@ void SpotControl::endEstopping() {
 void SpotControl::acquireLease(const std::string &resource) {
     AcquireLeaseResponse reply;
 
+    std::cout << "resource name in acquireLease: " << resource << std::endl;
     // acquire lease for given resource
     try {
         reply = _leaseClient->acquire(resource);
@@ -337,21 +338,29 @@ void SpotControl::acquireLease(const std::string &resource) {
     // check if already claimed
     Lease acquiredLease;
     switch (reply.status()) {
-        case 0: 
+        case 0:
+            std::cout << "didn't get the lease" << std::endl; 
             break;
         case 1:
+            std::cout << "got the lease" << std::endl;
             acquiredLease = reply.lease();
+            break;
         case 2:
+            std::cout << "didn't get the lease" << std::endl; 
             break;
         case 3:
+            std::cout << "didn't get the lease" << std::endl; 
             break;
         case 4:
+            std::cout << "didn't get the lease" << std::endl; 
             break;
         default:
+            std::cout << "didn't get the lease" << std::endl; 
             ;
     }
     
     // // lease wallet way
+    std::cout << "adding lease" << std::endl;
     _wallet.add(acquiredLease);
 
     // old way
@@ -440,22 +449,17 @@ bool SpotControl::poweredOn() {
 uint32_t SpotControl::powerOnMotors() {
     // todo: exception handling
     // power
-    std::cout<< "reach 5.111" << std::endl;
     PowerCommandRequest_Request pcr_r;
-    std::cout<< "reach 5.112" << std::endl;
     pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
-    std::cout<< "reach 5.113" << std::endl;
     // get lease
     // lease wallet way
-    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    const std::string &resource = "body";
+    bosdyn::api::Lease bodyLease = _wallet.get(resource);
     // old way
     // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
-    std::cout<< "reach 5.114" << std::endl;
     // TODO: exception handling if leases are not found
     PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
-    std::cout<< "reach 5.115" << std::endl; 
     uint32_t pcID = powerCommResp.power_command_id();
-    std::cout<< "reach 5.116" << std::endl;
     return pcID;
 }
 
@@ -467,7 +471,8 @@ uint32_t SpotControl::powerOffMotors() {
 
     // get lease
     // lease wallet way
-    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    const std::string &resource = "body";
+    bosdyn::api::Lease bodyLease = _wallet.get(resource);
     // old way
     // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
     PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
@@ -488,7 +493,8 @@ void SpotControl::sit() {
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();  
     // lease wallet way
-    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    const std::string &resource = "body";
+    bosdyn::api::Lease bodyLease = _wallet.get(resource);
     // old way
     // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;    
     try{  
@@ -504,7 +510,8 @@ void SpotControl::stand() {
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
     // lease wallet way
-    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    const std::string &resource = "body";
+    bosdyn::api::Lease bodyLease = _wallet.get(resource);
     // old way
     // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
     try{  
@@ -538,7 +545,8 @@ void SpotControl::velocityMove(double x, double y, double rot, int64_t time, gra
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
 
     // lease wallet way
-    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    const std::string &resource = "body";
+    bosdyn::api::Lease bodyLease = _wallet.get(resource);
     // old way
     // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
     try{  
@@ -582,7 +590,8 @@ void SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame
 
     // get lease
     // lease wallet way
-    bosdyn::api::Lease bodyLease = _wallet.get(BODY_LEASE);
+    const std::string &resource = "body";
+    bosdyn::api::Lease bodyLease = _wallet.get(resource);
     // old way
     // bosdyn::api::Lease bodyLease = _leases.find(BODY_LEASE)->second;
 
