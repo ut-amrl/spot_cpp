@@ -131,8 +131,8 @@ spot_msgs::BatteryStateArray get_battery_states_from_state(bosdyn::api::RobotSta
         battery_msg.charge_percentage = state.battery_states(i).charge_percentage().value();
         battery_msg.current = state.battery_states(i).current().value();
         battery_msg.voltage = state.battery_states(i).voltage().value();
-        for (int i = 0; i < state.battery_states(i).temperatures().size(); i++) {
-            battery_msg.temperatures.push_back(state.battery_states(i).temperatures(i));
+        for (int j = 0; j < state.battery_states(i).temperatures().size(); j++) {
+            battery_msg.temperatures.push_back(state.battery_states(i).temperatures(j));
         }
         battery_msg.status = state.battery_states(i).status();
         ret.battery_states.push_back(battery_msg);
