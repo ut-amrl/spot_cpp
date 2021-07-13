@@ -326,7 +326,6 @@ void SpotControl::endEstopping() {
 void SpotControl::acquireLease(const std::string &resource) {
     AcquireLeaseResponse reply;
 
-    std::cout << "resource name in acquireLease: " << resource << std::endl;
     // acquire lease for given resource
     try {
         reply = _leaseClient->acquire(resource);
@@ -339,28 +338,21 @@ void SpotControl::acquireLease(const std::string &resource) {
     Lease acquiredLease;
     switch (reply.status()) {
         case 0:
-            std::cout << "didn't get the lease" << std::endl; 
             break;
         case 1:
-            std::cout << "got the lease" << std::endl;
             acquiredLease = reply.lease();
             break;
         case 2:
-            std::cout << "didn't get the lease" << std::endl; 
             break;
         case 3:
-            std::cout << "didn't get the lease" << std::endl; 
             break;
         case 4:
-            std::cout << "didn't get the lease" << std::endl; 
             break;
         default:
-            std::cout << "didn't get the lease" << std::endl; 
             ;
     }
     
     // // lease wallet way
-    std::cout << "adding lease" << std::endl;
     _wallet.add(acquiredLease);
 
     // old way

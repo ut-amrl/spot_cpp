@@ -19,7 +19,6 @@ void Spot::basicInit(const std::string &username, const std::string &password){
 	initBasicLease();
 	initBasicTimeSync();
 	powerOnBlocking();
-	std::cout<< "reach end of basicInit" << std::endl;
 }
 
 void Spot::authenticate(const std::string &username, const std::string &password){

@@ -7,13 +7,7 @@ namespace ClientLayer {
   void LeaseWallet::add(bosdyn::api::Lease lease) {
     // std::lock_guard<std::mutex> locker(_mu);
     // insert the lease into the map
-    std::cout << "adding lease name: " << lease.resource() << std::endl;
-    // _storage.insert(std::pair<std::string, bosdyn::api::Lease>(lease.resource(), lease));
-    std::cout << "storage is empty: " << _storage.empty() << std::endl;
-    std::cout << "storage size 1: " << _storage.size() << std::endl;
-    _storage.insert({lease.resource(), lease});
-    std::cout << "storage size 2: " << _storage.size() << std::endl;
-
+    _storage.insert(std::pair<std::string, bosdyn::api::Lease>(lease.resource(), lease));
   }
 
   void LeaseWallet::remove(const std::string &resource) {
@@ -27,10 +21,7 @@ namespace ClientLayer {
 
   bosdyn::api::Lease LeaseWallet::get(const std::string &resource) {
     // std::lock_guard<std::mutex> locker(_mu);
-    std::cout << "storage size 3: " << _storage.size() << std::endl;
     auto it = _storage.find(resource);
-    std::cout << "storage size 4: " << _storage.size() << std::endl;
-    std::cout << "resource to find: " << resource << std::endl;
     if (it == _storage.end()) {
       // TODO: ERROR HANDLING
       std::cout << "the resource does not exist in the LEASE wallet" << std::endl;
@@ -50,12 +41,10 @@ namespace ClientLayer {
   LeaseClient::LeaseClient(const std::string &authority, const std::string &token) : BaseClient(LEASE_CLIENT_NAME, authority, token) { }
   
   AcquireLeaseResponse LeaseClient::acquire(const std::string &resource) {
-    std::cout << "resource name in acquire: " << resource << std::endl;
     AcquireLeaseRequest request;
     assembleRequestHeader<AcquireLeaseRequest>(&request);
     request.set_resource(resource);
     AcquireLeaseResponse response = call<AcquireLeaseRequest, AcquireLeaseResponse>(request, &LeaseService::Stub::AcquireLease); 
-    std::cout << response.status() << std::endl;
     return response;
   }
 
