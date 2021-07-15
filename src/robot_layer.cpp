@@ -5,8 +5,13 @@ SpotState::SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
         _spotBase(spotBase) {
     // initialize pointers
     std::string authToken = spotBase->getAuthToken();
-    if (authToken.empty()) {
-        // todo: exception handling
+
+    try {
+        spotBase->notAuthenticated();
+    } catch (const char* msg) {
+        std::cerr << msg << std::endl;
+        // probably need to do something here?
+        return;
     }
 
     // initalize services map
@@ -198,7 +203,7 @@ void SpotControl::setEstopConfiguration(const std::set<std::shared_ptr<ClientLay
     }
 
     // set config
-    SetEstopConfigResponse reply;
+    SetEstopConfigResponse reply;spotBase->notAuthenticated();
     try {
         reply = _estopClient->setConfig(config); 
 
