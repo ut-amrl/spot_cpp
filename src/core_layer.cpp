@@ -91,4 +91,19 @@ namespace CoreLayer {
         // todo: other stuff, for now just kill thread
         _timeSyncThread->stop();
     }
+
+    SpotFeedback SpotBase::getFeedback() {
+        bosdyn::api::RobotIdResponse reply;
+        try {
+            reply = _robotIdClient->getId();
+        } catch (Error &e) {
+            std::cout << e.what() << std::endl;
+        }
+        SpotFeedback ret = { reply.robot_id().serial_number(),
+                             reply.robot_id().species(),
+                             reply.robot_id().version(),
+                             reply.robot_id().nickname(),
+                             reply.robot_id().computer_serial_number() };
+        return ret;
+    }
 };

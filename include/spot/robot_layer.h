@@ -33,7 +33,7 @@ namespace RobotLayer {
             Output: bosdyn image obj
             Side effects: -
         */
-        bosdyn::api::Image image(const std::string &sourceName, double qualityPercent, bosdyn::api::Image_Format format);
+        bosdyn::api::ImageResponse image(const std::string &sourceName, double qualityPercent, bosdyn::api::Image_Format format);
 
         /*
             imageSources(): gets all available image sources on robot
@@ -67,7 +67,6 @@ namespace RobotLayer {
             Side effects: -
         */
        bool mutateWorldObject(bosdyn::api::WorldObject object, bosdyn::api::MutateWorldObjectRequest_Action action);
-
 
         /* Client accessors */
         const std::shared_ptr<ClientLayer::ImageClient> getImageClient() const { return _imageClient; }
@@ -246,6 +245,10 @@ namespace RobotLayer {
         const std::string getEstopConfigId() const { return _estopConfigId; }
         const std::map<std::string, std::shared_ptr<ClientLayer::EstopEndpoint>> getEndpoints() const { return _endpoints; }
         const MobilityParams getMobilityParams() const {return _mobilityParams; }
+        bool isStanding() const { return _standing; }
+
+        // todo: find way to use isMoving
+        bool isMoving() const { return _moving; }
 
         /* Client accessor methods */
         const std::shared_ptr<ClientLayer::EstopClient> getEstopClient() const { return _estopClient; }
@@ -281,6 +284,9 @@ namespace RobotLayer {
 
     /* mobilityParams: persistent mobility params used in all spot movement commands */
     MobilityParams _mobilityParams;
+
+    bool _standing;
+    bool _moving;
     
     private:
         std::shared_ptr<ClientLayer::EstopClient> _estopClient;
