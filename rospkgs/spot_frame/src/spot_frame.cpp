@@ -28,19 +28,22 @@ int main(int argc, char **argv) {
 	std::vector<geometry_msgs::Pose> tfbrList;
 	
 
-	Robot spot("spot");
+	Spot spot;
 
-	std::cout << spot.getId() << std::endl;
+	//std::cout << spot.getId() << std::endl;
 
 	// authenticate robot
 	spot.authenticate(username, password);
 
 	// setup robot (initialize clients)
-	spot.setup();
+	spot.initClients();
+	spot.initBasicEstop();
+	spot.initBasicLease();
+	spot.initBasicTimeSync();
 
 	std::vector<ImageRequest> imgReqs;
 	ImageRequest imgReq1;
-	imgReq1.set_image_source_name("frontleft_fisheye_image");
+	imgReq1.set_image_source_name("frontright_depth_in_visual_frame");
 	imgReq1.set_quality_percent(100);
 	imgReq1.set_image_format(bosdyn::api::Image_Format_FORMAT_RAW);
 	ImageRequest imgReq2;
@@ -65,20 +68,20 @@ int main(int argc, char **argv) {
 	//imgReqs.push_back(imgReq4);
 	//imgReqs.push_back(imgReq5);
 	while(true){
-		GetImageResponse getImgResp = spot.getImageClientPtr()->getImage(imgReqs);
+		GetImageResponse getImgResp = spot.getImageClient()->getImage(imgReqs);
 		for(int imgNum = 0; imgNum < getImgResp.image_responses_size(); imgNum++){
-			ImageResponse imgResp = spot.getImageClientPtr()->getImage(imgReqs).image_responses(imgNum);
+			ImageResponse imgResp = spot.getImageClient()->getImage(imgReqs).image_responses(imgNum);
 			google::protobuf::Map<std::string, bosdyn::api::FrameTreeSnapshot::ParentEdge> frameMap = imgResp.shot().transforms_snapshot().child_to_parent_edge_map();
 
-			if(imgResp.source().name().compare("frontleft_fisheye_image") == 0){
+			if(imgResp.source().name().compare("frontright_depth_in_visual_frame") == 0){
 				FrameTree ft(imgResp.shot().transforms_snapshot());
 				
-				Pose3 frontleft_fisheye_tform_vision_obj(0, 0, 0.3, Quaternion(0, 0, 0, 1));
-				ft.addEdge(frontleft_fisheye_tform_vision_obj, "frontleft_fisheye", "vision_obj");
-				Pose3 body_tf_vision_obj = ft.a_tf_b("body", "vision_obj");
+				Math::SE3Pose frontleft_fisheye_tform_vision_obj(-1.14565, -0.504815, 1.582, Math::Quaternion(0, 0, 0, 1));
+				ft.addEdge(frontleft_fisheye_tform_vision_obj, "frontright", "vision_obj");
+				Math::SE3Pose body_tf_vision_obj = ft.a_tf_b("body", "vision_obj");
 
 				TFBroadcastPR tfbr;
-				tfbr.setFrames("frontleft_fisheye", "vision_obj");
+				tfbr.setFrames("frontright", "vision_obj");
 				geometry_msgs::Pose pose;
 				pose.position.x = frontleft_fisheye_tform_vision_obj.x();
 				pose.position.y = frontleft_fisheye_tform_vision_obj.y();
@@ -102,8 +105,8 @@ int main(int argc, char **argv) {
 
 				double pitch = atan2(body_tf_vision_obj.z(), body_tf_vision_obj.x()); // (x,y) is (tform.x, tform.z)
 				double yaw = atan2(body_tf_vision_obj.y(), body_tf_vision_obj.x()); // (x,y) is (tform.x, tform.y)
-				std::cout << "Pitch: " << pitch << " rad, " << (pitch * 57.2958) << " deg" << std::endl;
-				std::cout << "Yaw: " << yaw << " rad, " << (yaw * 57.2958) << " deg" << std::endl << std::endl;
+				//std::cout << "Pitch: " << pitch << " rad, " << (pitch * 57.2958) << " deg" << std::endl;
+				//std::cout << "Yaw: " << yaw << " rad, " << (yaw * 57.2958) << " deg" << std::endl << std::endl;
 			}
 			
 			for (google::protobuf::Map<std::string, bosdyn::api::FrameTreeSnapshot::ParentEdge>::const_iterator it=frameMap.begin(); it!=frameMap.end(); ++it){
