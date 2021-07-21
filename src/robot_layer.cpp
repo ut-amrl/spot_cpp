@@ -203,7 +203,7 @@ void SpotControl::setEstopConfiguration(const std::set<std::shared_ptr<ClientLay
     }
 
     // set config
-    SetEstopConfigResponse reply;spotBase->notAuthenticated();
+    SetEstopConfigResponse reply;
     try {
         reply = _estopClient->setConfig(config); 
 
@@ -256,10 +256,18 @@ void SpotControl::deregisterEstopEndpoint(const std::string &uniqueId, const std
 
     // find in map
     auto it = _endpoints.find(uniqueId);
-    if (it == _endpoints.end()) {
-        // todo: change to exception
-        std::cout << "Endpoint has not been registered or has failed to register. " << std::endl;
+    try {
+        if(it == _endpoints.end()) {
+            throw "Endpoint has not been registered or has failed to register.";
+        }
+    } catch(Error e) {
+        std::cout << e.what() << std::endl;
+        return;
     }
+    // if (it == _endpoints.end()) {
+    //     // todo: change to exception
+    //     std::cout << "Endpoint has not been registered or has failed to register. " << std::endl;
+    // }
 
     // deregister from spot
     EstopEndpoint endpointToDeregister = it->second->toProto();
@@ -277,9 +285,17 @@ void SpotControl::deregisterEstopEndpoint(const std::string &uniqueId, const std
 
 void SpotControl::beginEstopping(const std::string &uniqueId) {
     auto it = _endpoints.find(uniqueId);
-    if (it == _endpoints.end()) {
-        // todo: exception classes 
-        std::cout << "it.end()" << std::endl;
+    // if (it == _endpoints.end()) {
+    //     // todo: exception classes 
+    //     std::cout << "it.end()" << std::endl;
+    // }
+    try {
+        if(it == _endpoints.end()) {
+            throw "Endpoint has not been registered or has failed to register.";
+        }
+    } catch(Error e) {
+        std::cout << e.what() << std::endl;
+        return;
     }
 
     // create estop thread
@@ -308,8 +324,16 @@ void SpotControl::beginEstopping() {
 
 void SpotControl::endEstopping(const std::string &uniqueId) {
     auto it = _estopThreads.find(uniqueId);
-    if (it == _estopThreads.end()) {
-        // todo: exception hanoding
+    // if (it == _estopThreads.end()) {
+    //     // todo: exception hanoding
+    // }
+    try {
+        if(it == _estopThreads.end()) {
+            throw "Endpoint has not been registered or has failed to register.";
+        }
+    } catch(Error e) {
+        std::cout << e.what() << std::endl;
+        return;
     }
 
     // end estop
@@ -393,8 +417,16 @@ void SpotControl::beginLeasing() {
 
 void SpotControl::endLeasing(const std::string &resource) {
     auto it = _leaseThreads.find(resource);
-    if (it == _leaseThreads.end()) {
-        // todo: exception hanoding
+    // if (it == _leaseThreads.end()) {
+    //     // todo: exception hanoding
+    // }
+    try {
+        if(it == _leaseThreads.end()) {
+            throw "Endpoint has not been registered or has failed to register.";
+        }
+    } catch(Error e) {
+        std::cout << e.what() << std::endl;
+        return;
     }
 
     // end lease
@@ -425,11 +457,15 @@ uint32_t SpotControl::powerOnMotors() {
     pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
 
     // get lease
-    bosdyn::api::Lease bodyLease = _leases.find("body")->second;
-    PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r); 
-    uint32_t pcID = powerCommResp.power_command_id();
-
-    return pcID;
+    try {
+        bosdyn::api::Lease bodyLease = _leases.find("body")->second;
+        PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
+        uint32_t pcID = powerCommResp.power_command_id();
+        return pcID;
+    } catch(Error e) {
+        std::cout << e.what() << std::endl;
+        return;
+    }
 }
 
 uint32_t SpotControl::powerOffMotors() {
