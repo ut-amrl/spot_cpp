@@ -12,6 +12,14 @@
 
 namespace CoreLayer {
 
+    struct SpotFeedback {
+        std::string serial_number;
+        std::string species;
+        std::string version;
+        std::string nickname;
+        std::string computer_serial_number;
+    };
+
     /*
         class SpotBase: Holds auth, directory, robot-id, timesync client functionality
     */
@@ -79,6 +87,8 @@ namespace CoreLayer {
            Side effects: Destroys timesync thread through the TimesyncKeepAlive class
         */
         void endTimesync();
+
+        SpotFeedback getFeedback();
 
         /* Client accessor methods (if user needs direct access to client) */
         const std::shared_ptr<ClientLayer::AuthClient> getAuthClient() const { return _authClient; }

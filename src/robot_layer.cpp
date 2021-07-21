@@ -24,7 +24,7 @@ SpotState::SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
     _worldObjectsClient = std::shared_ptr<ClientLayer::WorldObjectsClient>(new ClientLayer::WorldObjectsClient(_services.find(WORLD_OBJECTS_CLIENT_NAME)->second.authority(), authToken)); 
 }
 
-bosdyn::api::Image SpotState::image(const std::string &sourceName, double qualityPercent, bosdyn::api::Image_Format format) {
+bosdyn::api::ImageResponse SpotState::image(const std::string &sourceName, double qualityPercent, bosdyn::api::Image_Format format) {
     // build image request
     ImageRequest request;
     request.set_image_source_name(sourceName);
@@ -39,12 +39,12 @@ bosdyn::api::Image SpotState::image(const std::string &sourceName, double qualit
         reply = _imageClient->getImage(oneRequest);
     } catch (Error &e) {
         std::cout << e.what() << std::endl;
-        bosdyn::api::Image empty;
+        bosdyn::api::ImageResponse empty;
         return empty;
     }
 
     // return
-    return reply.image_responses(0).shot().image();
+    return reply.image_responses(0);
 }
 
 std::list<bosdyn::api::ImageSource> SpotState::imageSources() {
@@ -151,7 +151,9 @@ SpotControl::SpotControl(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
         _estopThreads(),
         _leases(),
         _leaseThreads(),
-        _spotBase(spotBase) {
+        _spotBase(spotBase),
+        _standing(false),
+        _moving(false) {
     // initialize pointers
     std::string authToken = spotBase->getAuthToken();
     
@@ -490,7 +492,8 @@ google::protobuf::Duration SpotControl::getClockSkew(){
     return _spotBase->getTimeSyncThread()->getEndpoint()->clockSkew();
 } 
 
-void SpotControl::sit() {
+RobotCommandResponse SpotControl::stand() {
+    _standing = false;
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();  
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;    
@@ -503,9 +506,13 @@ void SpotControl::sit() {
     }
 }
 
-void SpotControl::stand() {
+RobotCommandResponse SpotControl::stand() {
+    _standing = true;
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_stand_request();
+    Any any;
+    any.PackFrom(_mobilityParams);
+    command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;
     try{  
         std::string clockIdentifier = getClockIdentifier();
@@ -516,7 +523,7 @@ void SpotControl::stand() {
     }
 }
 
-void SpotControl::velocityMove(double x, double y, double rot, int64_t time, gravAlignedFrame frame){
+RobotCommandResponse SpotControl::velocityMove(double x, double y, double rot, int64_t time, gravAlignedFrame frame){
     RobotCommand command;
     SE2VelocityCommand_Request se2VelocityCommand_Request;
 
@@ -548,7 +555,7 @@ void SpotControl::velocityMove(double x, double y, double rot, int64_t time, gra
     }        
 }
 
-void SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, int64_t time){
+RobotCommandResponse SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, int64_t time){
     std::string frameName;
     // TODO: Make it so that flat body works as a frame 
     if (frame == FLAT_BODY) {
@@ -587,5 +594,4 @@ void SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame
 void SpotControl::setMobilityParams(MobilityParams mParams){
     _mobilityParams = mParams;
 }
-
 }

@@ -146,6 +146,10 @@ void Spot::resetBodyPose(double time){
     setBodyPose(traj, false);
 }
 
+Spot::RobotCmdRespData::RobotCmdRespData(uint32_t id, CommandStatus status, CommandType type) :
+	_id(id), _status(status), _type(type){
+}
+
 Spot::RobotCmdRespData::CommandStatus Spot::enumConvertRobotCommandStatus(bosdyn::api::RobotCommandResponse_Status status){
 	switch(status){
 		case bosdyn::api::RobotCommandResponse_Status_STATUS_UNKNOWN:
