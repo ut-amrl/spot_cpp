@@ -463,7 +463,9 @@ uint32_t SpotControl::powerOnMotors() {
         uint32_t pcID = powerCommResp.power_command_id();
         return pcID;
     } catch(const char* msg) {
-        std::cerr << msg << endl;
+        std::cerr << msg << std::endl;
+    } catch(Error &e) {
+        std::cerr << e.what() << std::endl;
     }
 }
 
@@ -481,8 +483,8 @@ uint32_t SpotControl::powerOffMotors() {
         PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
         uint32_t pcID = powerCommResp.power_command_id();
         return pcID;
-    } catch(const char* msg) {
-        std::cerr << msg << std::endl;
+    } catch(Error &e) {
+        std::cerr << e.what() << std::endl;
     }
 }
 
