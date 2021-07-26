@@ -24,6 +24,15 @@ namespace CoreLayer {
         _directoryClient = std::shared_ptr<ClientLayer::DirectoryClient>(new ClientLayer::DirectoryClient(_authToken));
     }
 
+    /* SpotBase Auth Exception Handling */
+    void SpotBase::notAuthenticated() {
+        if(_authToken.empty()) {
+            throw "empty auth token?";
+        } else {
+            std::cout << "generated authToken successfully" << std::endl;
+        }
+    }
+
     /* Robot Id */
     const std::string SpotBase::getRobotId() const {
         RobotIdResponse reply;

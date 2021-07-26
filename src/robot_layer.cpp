@@ -5,12 +5,13 @@ SpotState::SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
         _spotBase(spotBase) {
     // initialize pointers
     std::string authToken = spotBase->getAuthToken();
+
     try {
-        if (authToken.empty()) {
-            throw "auth token is empty :/";
-        }
-    } catch(Error &e) {
-        std::cout << e.what() << std::endl;
+        spotBase->notAuthenticated();
+    } catch (const char* msg) {
+        std::cerr << msg << std::endl;
+        // probably need to do something here?
+        return;
     }
 
     // initalize services map
@@ -155,8 +156,13 @@ SpotControl::SpotControl(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
         _moving(false) {
     // initialize pointers
     std::string authToken = spotBase->getAuthToken();
-    if (authToken.empty()) {
-        // todo: exception handling
+    
+    try {
+        spotBase->notAuthenticated();
+    } catch (const char* msg) {
+        std::cerr << msg << std::endl;
+        // probably need to do something here?
+        return;
     }
 
     // initalize services map
@@ -261,6 +267,10 @@ void SpotControl::deregisterEstopEndpoint(const std::string &uniqueId, const std
         std::cout << e.what() << std::endl;
         return;
     }
+    // if (it == _endpoints.end()) {
+    //     // todo: change to exception
+    //     std::cout << "Endpoint has not been registered or has failed to register. " << std::endl;
+    // }
 
     // deregister from spot
     EstopEndpoint endpointToDeregister = it->second->toProto();
@@ -278,9 +288,17 @@ void SpotControl::deregisterEstopEndpoint(const std::string &uniqueId, const std
 
 void SpotControl::beginEstopping(const std::string &uniqueId) {
     auto it = _endpoints.find(uniqueId);
-    if (it == _endpoints.end()) {
-        // todo: exception classes 
-        std::cout << "it.end()" << std::endl;
+    // if (it == _endpoints.end()) {
+    //     // todo: exception classes 
+    //     std::cout << "it.end()" << std::endl;
+    // }
+    try {
+        if(it == _endpoints.end()) {
+            throw "Endpoint has not been registered or has failed to register.";
+        }
+    } catch(Error e) {
+        std::cout << e.what() << std::endl;
+        return;
     }
 
     // create estop thread
@@ -309,8 +327,16 @@ void SpotControl::beginEstopping() {
 
 void SpotControl::endEstopping(const std::string &uniqueId) {
     auto it = _estopThreads.find(uniqueId);
-    if (it == _estopThreads.end()) {
-        // todo: exception hanoding
+    // if (it == _estopThreads.end()) {
+    //     // todo: exception hanoding
+    // }
+    try {
+        if(it == _estopThreads.end()) {
+            throw "Endpoint has not been registered or has failed to register.";
+        }
+    } catch(Error e) {
+        std::cout << e.what() << std::endl;
+        return;
     }
 
     // end estop
@@ -394,8 +420,16 @@ void SpotControl::beginLeasing() {
 
 void SpotControl::endLeasing(const std::string &resource) {
     auto it = _leaseThreads.find(resource);
-    if (it == _leaseThreads.end()) {
-        // todo: exception hanoding
+    // if (it == _leaseThreads.end()) {
+    //     // todo: exception hanoding
+    // }
+    try {
+        if(it == _leaseThreads.end()) {
+            throw "Endpoint has not been registered or has failed to register.";
+        }
+    } catch(Error e) {
+        std::cout << e.what() << std::endl;
+        return;
     }
 
     // end lease
@@ -466,19 +500,18 @@ google::protobuf::Duration SpotControl::getClockSkew(){
     return _spotBase->getTimeSyncThread()->getEndpoint()->clockSkew();
 } 
 
-RobotCommandResponse SpotControl::sit() {
+RobotCommandResponse SpotControl::stand() {
     _standing = false;
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();  
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;    
-    //try{  
+    try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
-        return robCommResp;
-    //} catch (Error &e){
-        //std::cout << e.what() << std::endl;
-        //return;
-    //}
+    } catch (Error &e){
+        std::cout << e.what() << std::endl;
+        return;
+    }
 }
 
 RobotCommandResponse SpotControl::stand() {
@@ -489,14 +522,13 @@ RobotCommandResponse SpotControl::stand() {
     any.PackFrom(_mobilityParams);
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;
-    //try{  
+    try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
-        return robCommResp;
-    //} catch (Error &e){
-        //std::cout << e.what() << std::endl;
-        //return;
-    //}
+    } catch (Error &e){
+        std::cout << e.what() << std::endl;
+        return;
+    }
 }
 
 RobotCommandResponse SpotControl::velocityMove(double x, double y, double rot, int64_t time, gravAlignedFrame frame){
@@ -521,14 +553,14 @@ RobotCommandResponse SpotControl::velocityMove(double x, double y, double rot, i
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
 
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;
-    //try{  
+    try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
-        return robCommResp;
-    //} catch (Error &e){
-        //std::cout << e.what() << std::endl;
-        //return;
-    //}        
+        std::cout << "robot command status: " << robCommResp.status() << std::endl;
+    } catch (Error &e){
+        std::cout << e.what() << std::endl;
+        return;
+    }        
 }
 
 RobotCommandResponse SpotControl::trajectoryMove(Trajectory2D trajectory, gravAlignedFrame frame, int64_t time){
@@ -558,14 +590,13 @@ RobotCommandResponse SpotControl::trajectoryMove(Trajectory2D trajectory, gravAl
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_params()->CopyFrom(any);
 
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;
-    //try{  
+    try{  
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
-        return robCommResp;
-    //} catch (Error &e){
-        //std::cout << e.what() << std::endl;
-        //return;
-    //}  
+    } catch (Error &e){
+        std::cout << e.what() << std::endl;
+        return;
+    }  
 }
 
 void SpotControl::setMobilityParams(MobilityParams mParams){

@@ -39,6 +39,17 @@ namespace CoreLayer {
         */
         void authenticate(const std::string &username, const std::string &password);
 
+        /* Authentication check */
+        /* finish me
+           notAuthenticated(): checks if the _authToken() private member in this instance 
+           has been authenticated or not.
+           Input: -
+           Output: -
+           Side effects: -
+        */
+        void notAuthenticated();
+
+
         /* Robot Id */
         /* getRobotId(): Gets the robot id information from Spot
            Input: -
