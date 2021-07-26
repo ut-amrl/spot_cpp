@@ -453,9 +453,9 @@ uint32_t SpotControl::powerOnMotors() {
     try {
         // get lease
         bosdyn::api::Lease bodyLease = _leases.find("body")->second;
-        if (bodyLease.resource().find("motor") == std::string::npos) {
-            throw "not leasing to motors?";
-        }
+        // if (bodyLease.resource().find("motor") == std::string::npos) {
+        //     throw "not leasing to motors?";
+        // }
         PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
         if(powerCommResp >= 3 && powerCommResp <= 9) {
             throw "Error" + powerCommResp;
@@ -475,10 +475,9 @@ uint32_t SpotControl::powerOffMotors() {
 
     try {
         bosdyn::api::Lease bodyLease = _leases.find("body")->second;
-        // look at protos, check to see lease is present
-        if (bodyLease.resource().find("motor") == std::string::npos) {
-            throw "not leasing to motors?";
-        }
+        // if (bodyLease.resource().find("motor") == std::string::npos) {
+        //     throw "not leasing to motors?";
+        // }
         PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
         uint32_t pcID = powerCommResp.power_command_id();
         return pcID;
