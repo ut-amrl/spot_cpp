@@ -38,13 +38,21 @@ void SpotROSNode::cmd_vel_callback(const geometry_msgs::Twist &msg) {
 	std::chrono::seconds max_marching_time(5);
 	bool all_zero = (msg.linear.x == 0) && (msg.linear.y == 0) && (msg.linear.z == 0);
 	if (all_zero) {
-		// vel command still executing
+		// must check if we have angular
+        if (msg.angular.z != 0) {
+            _t_last_non_zero_vel_cmd = std::chrono::steady_clock::now();
+            _spot.velocityMove(0, 0, msg.angular.z, vel_cmd_duration, FLAT_BODY);
+            return;
+        }
+
+        // vel command still executing
 		if (_t_last_non_zero_vel_cmd < std::chrono::steady_clock::now() - max_marching_time) {
 			return;
 		}
 	} else {
 		// set time of last nonzero command
 		_t_last_non_zero_vel_cmd = std::chrono::steady_clock::now();
+        ROS_INFO_STREAM(msg);
 		_spot.velocityMove(msg.linear.x, msg.linear.y, msg.angular.z, vel_cmd_duration, FLAT_BODY);
 	}
 }
