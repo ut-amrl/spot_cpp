@@ -38,7 +38,7 @@ bosdyn::api::ImageResponse SpotState::image(const std::string &sourceName, doubl
         oneRequest.push_back(request);
         reply = _imageClient->getImage(oneRequest);
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         bosdyn::api::ImageResponse empty;
         return empty;
     }
@@ -53,7 +53,7 @@ std::list<bosdyn::api::ImageSource> SpotState::imageSources() {
     try {
         reply = _imageClient->listImageSources();
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         std::list<bosdyn::api::ImageSource> empty;
         return empty;
     }
@@ -74,7 +74,7 @@ bosdyn::api::RobotState SpotState::robotState() {
     try {
         reply = _robotStateClient->getRobotState();
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         bosdyn::api::RobotState empty;
         return empty;
     }
@@ -87,7 +87,7 @@ bosdyn::api::RobotMetrics SpotState::robotMetrics() {
     try {
         reply = _robotStateClient->getRobotMetrics();
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         bosdyn::api::RobotMetrics empty;
         return empty;
     }
@@ -100,7 +100,7 @@ bosdyn::api::HardwareConfiguration SpotState::robotHardwareConfiguration() {
     try {
 
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         bosdyn::api::HardwareConfiguration empty;
         return empty;
     }
@@ -113,7 +113,7 @@ std::list<bosdyn::api::WorldObject> SpotState::worldObjects() {
     try {
         reply = _worldObjectsClient->listWorldObjects();
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         std::list<bosdyn::api::WorldObject> empty;
         return empty;
     }
@@ -138,7 +138,7 @@ bool SpotState::mutateWorldObject(bosdyn::api::WorldObject object, bosdyn::api::
     try {   
         reply = _worldObjectsClient->mutateWorldObjects(mutation);
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return false;
     }
 
@@ -181,7 +181,7 @@ bool SpotControl::estopped() {
     try {
         reply = _estopClient->getStatus();
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         throw; // may change later depending on if this is the last stop for errors
     }
 
@@ -213,7 +213,7 @@ void SpotControl::setEstopConfiguration(const std::set<std::shared_ptr<ClientLay
             reply = _estopClient->setConfig(config, reply.active_config().unique_id());
         }
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return;
     }
 
@@ -247,7 +247,7 @@ std::string SpotControl::registerEstopEndpoint(const std::string &name, const st
         _endpoints.insert(std::pair<std::string, std::shared_ptr<ClientLayer::EstopEndpoint>>(ptr->getUniqueId(), ptr));
         return ptr->getUniqueId();
     } catch (Error &e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return "";
     }
 }
@@ -263,14 +263,10 @@ void SpotControl::deregisterEstopEndpoint(const std::string &uniqueId, const std
             // todo: change to exception
             throw "Endpoint has not been registered or has failed to register. ";
         }
-    } catch(Error &e) {
-        std::cout << e.what() << std::endl;
+    } catch(const char* msg) {
+        std::cerr << msg << std::endl;
         return;
     }
-    // if (it == _endpoints.end()) {
-    //     // todo: change to exception
-    //     std::cout << "Endpoint has not been registered or has failed to register. " << std::endl;
-    // }
 
     // deregister from spot
     EstopEndpoint endpointToDeregister = it->second->toProto();
@@ -278,7 +274,7 @@ void SpotControl::deregisterEstopEndpoint(const std::string &uniqueId, const std
     try {
         reply = _estopClient->deregister(temp, endpointToDeregister);
     } catch (Error &error) {
-        std::cout << error.what() << std::endl;
+        std::cerr << error.what() << std::endl;
         return;
     }
 
@@ -288,16 +284,13 @@ void SpotControl::deregisterEstopEndpoint(const std::string &uniqueId, const std
 
 void SpotControl::beginEstopping(const std::string &uniqueId) {
     auto it = _endpoints.find(uniqueId);
-    // if (it == _endpoints.end()) {
-    //     // todo: exception classes 
-    //     std::cout << "it.end()" << std::endl;
-    // }
+
     try {
         if(it == _endpoints.end()) {
             throw "Endpoint has not been registered or has failed to register.";
         }
-    } catch(Error e) {
-        std::cout << e.what() << std::endl;
+    } catch(const char* msg) {
+        std::cerr << msg << std::endl;
         return;
     }
 
@@ -334,8 +327,8 @@ void SpotControl::endEstopping(const std::string &uniqueId) {
         if(it == _estopThreads.end()) {
             throw "Endpoint has not been registered or has failed to register.";
         }
-    } catch(Error e) {
-        std::cout << e.what() << std::endl;
+    } catch(const char* msg) {
+        std::cerr << msg << std::endl;
         return;
     }
 
@@ -363,7 +356,7 @@ void SpotControl::acquireLease(const std::string &resource) {
     try {
         reply = _leaseClient->acquire(resource);
     } catch (Error &error) {
-        std::cout << error.what() << std::endl;
+        std::cerr << error.what() << std::endl;
         return;
     }
 
@@ -420,15 +413,13 @@ void SpotControl::beginLeasing() {
 
 void SpotControl::endLeasing(const std::string &resource) {
     auto it = _leaseThreads.find(resource);
-    // if (it == _leaseThreads.end()) {
-    //     // todo: exception hanoding
-    // }
+    
     try {
         if(it == _leaseThreads.end()) {
             throw "Endpoint has not been registered or has failed to register.";
         }
-    } catch(Error e) {
-        std::cout << e.what() << std::endl;
+    } catch(const char* msg) {
+        std::cerr << msg << std::endl;
         return;
     }
 
@@ -459,18 +450,21 @@ uint32_t SpotControl::powerOnMotors() {
     PowerCommandRequest_Request pcr_r;
     pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
 
-    // get lease
-    bosdyn::api::Lease bodyLease = _leases.find("body")->second;
-    if (bodyLease.resource().find("motor") == std::string::npos) {
-        throw "not leasing to motors?";
+    try {
+        // get lease
+        bosdyn::api::Lease bodyLease = _leases.find("body")->second;
+        if (bodyLease.resource().find("motor") == std::string::npos) {
+            throw "not leasing to motors?";
+        }
+        PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
+        if(powerCommResp >= 3 && powerCommResp <= 9) {
+            throw "Error" + powerCommResp;
+        }
+        uint32_t pcID = powerCommResp.power_command_id();
+        return pcID;
+    } catch(const char* msg) {
+        std::cerr << msg << endl;
     }
-    PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
-    if(powerCommResp >= 3 && powerCommResp <= 9) {
-        throw "Error" + powerCommResp;
-    }
-    uint32_t pcID = powerCommResp.power_command_id();
-
-    return pcID;
 }
 
 uint32_t SpotControl::powerOffMotors() {
@@ -479,17 +473,18 @@ uint32_t SpotControl::powerOffMotors() {
     PowerCommandRequest_Request pcr_r;
     pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_OFF;
 
-    // get lease
-    bosdyn::api::Lease bodyLease = _leases.find("body")->second;
-    // look at protos, check to see lease is present
-    if (bodyLease.resource().find("motor") == std::string::npos) {
-        throw "not leasing to motors?";
+    try {
+        bosdyn::api::Lease bodyLease = _leases.find("body")->second;
+        // look at protos, check to see lease is present
+        if (bodyLease.resource().find("motor") == std::string::npos) {
+            throw "not leasing to motors?";
+        }
+        PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
+        uint32_t pcID = powerCommResp.power_command_id();
+        return pcID;
+    } catch(const char* msg) {
+        std::cerr << msg << std::endl;
     }
-    PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
-    // no need to err here
-    uint32_t pcID = powerCommResp.power_command_id();
-
-    return pcID;
 }
 
 std::string SpotControl::getClockIdentifier(){
@@ -509,7 +504,7 @@ RobotCommandResponse SpotControl::stand() {
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
     } catch (Error &e){
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return;
     }
 }
@@ -526,7 +521,7 @@ RobotCommandResponse SpotControl::stand() {
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
     } catch (Error &e){
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return;
     }
 }
@@ -558,7 +553,7 @@ RobotCommandResponse SpotControl::velocityMove(double x, double y, double rot, i
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
         std::cout << "robot command status: " << robCommResp.status() << std::endl;
     } catch (Error &e){
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return;
     }        
 }
@@ -594,7 +589,7 @@ RobotCommandResponse SpotControl::trajectoryMove(Trajectory2D trajectory, gravAl
         std::string clockIdentifier = getClockIdentifier();
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
     } catch (Error &e){
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         return;
     }  
 }
