@@ -5,8 +5,12 @@ SpotState::SpotState(std::shared_ptr<CoreLayer::SpotBase> spotBase) :
         _spotBase(spotBase) {
     // initialize pointers
     std::string authToken = spotBase->getAuthToken();
-    if (authToken.empty()) {
-        // todo: exception handling
+    try {
+        if (authToken.empty()) {
+            throw "auth token is empty :/";
+        }
+    } catch(Error &e) {
+        std::cout << e.what() << std::endl;
     }
 
     // initalize services map
@@ -248,9 +252,14 @@ void SpotControl::deregisterEstopEndpoint(const std::string &uniqueId, const std
 
     // find in map
     auto it = _endpoints.find(uniqueId);
-    if (it == _endpoints.end()) {
-        // todo: change to exception
-        std::cout << "Endpoint has not been registered or has failed to register. " << std::endl;
+    try {
+        if (it == _endpoints.end()) {
+            // todo: change to exception
+            throw "Endpoint has not been registered or has failed to register. ";
+        }
+    } catch(Error &e) {
+        std::cout << e.what() << std::endl;
+        return;
     }
 
     // deregister from spot
@@ -411,14 +420,20 @@ bool SpotControl::poweredOn() {
 }
 
 uint32_t SpotControl::powerOnMotors() {
-    // todo: exception handling
+    // todo: exception handling 
     // power
     PowerCommandRequest_Request pcr_r;
     pcr_r = bosdyn::api::PowerCommandRequest_Request_REQUEST_ON; // PowerCommandRequest_Request_REQUEST_OFF to turn off, change to _ON to turn on
 
     // get lease
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;
-    PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r); 
+    if (bodyLease.resource().find("motor") == std::string::npos) {
+        throw "not leasing to motors?";
+    }
+    PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
+    if(powerCommResp >= 3 && powerCommResp <= 9) {
+        throw "Error" + powerCommResp;
+    }
     uint32_t pcID = powerCommResp.power_command_id();
 
     return pcID;
@@ -432,7 +447,12 @@ uint32_t SpotControl::powerOffMotors() {
 
     // get lease
     bosdyn::api::Lease bodyLease = _leases.find("body")->second;
+    // look at protos, check to see lease is present
+    if (bodyLease.resource().find("motor") == std::string::npos) {
+        throw "not leasing to motors?";
+    }
     PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
+    // no need to err here
     uint32_t pcID = powerCommResp.power_command_id();
 
     return pcID;
