@@ -182,6 +182,7 @@ bool SpotControl::estopped() {
         reply = _estopClient->getStatus();
     } catch (Error &e) {
         std::cerr << e.what() << std::endl;
+        log::logError(e.what());
         throw; // may change later depending on if this is the last stop for errors
     }
 
@@ -457,10 +458,10 @@ uint32_t SpotControl::powerOnMotors() {
         //     throw "not leasing to motors?";
         // }
         PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
-        if(powerCommResp >= 3 && powerCommResp <= 9) {
-            throw "Error" + powerCommResp;
-        }
         uint32_t pcID = powerCommResp.power_command_id();
+        if(pcID == 0) {
+            throw "cannot power on, PCR error";
+        }
         return pcID;
     } catch(const char* msg) {
         std::cerr << msg << std::endl;
@@ -481,7 +482,11 @@ uint32_t SpotControl::powerOffMotors() {
         //     throw "not leasing to motors?";
         // }
         PowerCommandResponse powerCommResp = _powerClient->PowerCommand(bodyLease, pcr_r);
+        
         uint32_t pcID = powerCommResp.power_command_id();
+        if(pcID == 0) {
+            throw "cannot power on, PCR error";
+        }
         return pcID;
     } catch(Error &e) {
         std::cerr << e.what() << std::endl;
@@ -496,7 +501,7 @@ google::protobuf::Duration SpotControl::getClockSkew(){
     return _spotBase->getTimeSyncThread()->getEndpoint()->clockSkew();
 } 
 
-RobotCommandResponse SpotControl::stand() {
+RobotCommandResponse SpotControl::sit() {
     _standing = false;
     RobotCommand command;
     command.mutable_synchronized_command()->mutable_mobility_command()->mutable_sit_request();  
@@ -506,7 +511,6 @@ RobotCommandResponse SpotControl::stand() {
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
     } catch (Error &e){
         std::cerr << e.what() << std::endl;
-        return;
     }
 }
 
@@ -523,7 +527,6 @@ RobotCommandResponse SpotControl::stand() {
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
     } catch (Error &e){
         std::cerr << e.what() << std::endl;
-        return;
     }
 }
 
@@ -555,7 +558,6 @@ RobotCommandResponse SpotControl::velocityMove(double x, double y, double rot, i
         std::cout << "robot command status: " << robCommResp.status() << std::endl;
     } catch (Error &e){
         std::cerr << e.what() << std::endl;
-        return;
     }        
 }
 
@@ -591,7 +593,6 @@ RobotCommandResponse SpotControl::trajectoryMove(Trajectory2D trajectory, gravAl
         RobotCommandResponse robCommResp = _robotCommandClient->robotCommand(bodyLease, command, clockIdentifier);
     } catch (Error &e){
         std::cerr << e.what() << std::endl;
-        return;
     }  
 }
 

@@ -60,4 +60,9 @@ private:
     const request_T &_request;
 };
 
+class log {
+public:
+    static void logError(const char *s);
+};
+
 #endif

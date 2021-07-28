@@ -2,6 +2,7 @@
 #define ROBOT_LAYER_H
 
 #include <spot/core_layer.h>
+#include <spot/exception.h>
 
 #include <spot/clients/image.h>
 #include <spot/clients/local_grid.h>
